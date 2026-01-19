@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
@@ -37,11 +38,15 @@ export function ExpeditionDetails({ expedition }: { expedition: Expedition }) {
               {expedition.guides.map((guide) => (
                 <div key={guide.id} className="flex items-center space-x-2">
                   {guide.image && (
-                    <img
-                      src={guide.image}
-                      alt={guide.name || "Guide"}
-                      className="h-10 w-10 rounded-full"
-                    />
+                    <div className="relative h-10 w-10 rounded-full overflow-hidden">
+                      <Image
+                        src={guide.image}
+                        alt={guide.name || "Guide"}
+                        fill
+                        className="object-cover"
+                        sizes="40px"
+                      />
+                    </div>
                   )}
                   <span>{guide.name}</span>
                 </div>

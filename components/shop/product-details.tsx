@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -34,21 +35,26 @@ export function ProductDetails({ product }: { product: Product }) {
       <div className="space-y-4">
         {product.images && product.images.length > 0 ? (
           <>
-            <div className="aspect-square rounded-lg overflow-hidden bg-card">
-              <img
+            <div className="aspect-square rounded-lg overflow-hidden bg-card relative">
+              <Image
                 src={product.images[0]}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                priority
               />
             </div>
             {product.images.length > 1 && (
               <div className="grid grid-cols-4 gap-2">
                 {product.images.slice(1).map((image, idx) => (
-                  <div key={idx} className="aspect-square rounded-lg overflow-hidden bg-card">
-                    <img
+                  <div key={idx} className="aspect-square rounded-lg overflow-hidden bg-card relative">
+                    <Image
                       src={image}
                       alt={`${product.name} ${idx + 2}`}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 25vw, 12.5vw"
                     />
                   </div>
                 ))}

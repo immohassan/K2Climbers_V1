@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Mountain, Calendar, CheckCircle, Download, Share2 } from "lucide-react"
@@ -73,11 +74,15 @@ export function CertificateView({ certificate }: { certificate: Certificate }) {
 
           {certificate.qrCodeUrl && (
             <div className="text-center mb-8">
-              <img
-                src={certificate.qrCodeUrl}
-                alt="QR Code"
-                className="w-32 h-32 mx-auto bg-white p-2 rounded-lg"
-              />
+              <div className="relative w-32 h-32 mx-auto bg-white p-2 rounded-lg">
+                <Image
+                  src={certificate.qrCodeUrl}
+                  alt="QR Code"
+                  fill
+                  className="object-contain"
+                  sizes="128px"
+                />
+              </div>
               <p className="text-xs text-muted-foreground mt-2">
                 Scan to verify this certificate
               </p>

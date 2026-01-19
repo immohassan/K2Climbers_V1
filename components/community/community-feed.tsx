@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -74,12 +75,14 @@ export function CommunityFeed({ posts }: { posts: Post[] }) {
                 {post.images.slice(0, 3).map((image, idx) => (
                   <div
                     key={idx}
-                    className="aspect-square rounded-lg overflow-hidden bg-card"
+                    className="aspect-square rounded-lg overflow-hidden bg-card relative"
                   >
-                    <img
+                    <Image
                       src={image}
                       alt={`${post.title} ${idx + 1}`}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 33vw, 200px"
                     />
                   </div>
                 ))}

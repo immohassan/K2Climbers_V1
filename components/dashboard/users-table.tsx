@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -88,11 +89,15 @@ export function UsersTable() {
                     <td className="p-4">
                       <div className="flex items-center space-x-3">
                         {user.image ? (
-                          <img
-                            src={user.image}
-                            alt={user.name || "User"}
-                            className="h-10 w-10 rounded-full"
-                          />
+                          <div className="relative h-10 w-10 rounded-full overflow-hidden">
+                            <Image
+                              src={user.image}
+                              alt={user.name || "User"}
+                              fill
+                              className="object-cover"
+                              sizes="40px"
+                            />
+                          </div>
                         ) : (
                           <div className="h-10 w-10 rounded-full bg-card border border-border flex items-center justify-center">
                             <User className="h-5 w-5 text-muted-foreground" />
