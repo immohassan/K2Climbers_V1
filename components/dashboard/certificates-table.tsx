@@ -16,6 +16,8 @@ interface Certificate {
   altitude: number
   summitDate: Date
   verificationCode: string
+  qrCodeUrl: string | null
+  pdfUrl: string | null
   user: {
     name: string | null
     email: string
