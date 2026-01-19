@@ -43,7 +43,7 @@ export function CertificatesGrid() {
     return (
       <div className="text-center py-20">
         <p className="text-muted-foreground text-lg mb-4">
-          You don't have any certificates yet.
+          You don&apos;t have any certificates yet.
         </p>
         <p className="text-muted-foreground">
           Complete an expedition and summit successfully to earn your first certificate!

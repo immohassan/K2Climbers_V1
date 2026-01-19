@@ -38,7 +38,7 @@ export default function CustomExpeditionPage() {
     setLoading(true)
     // In a real app, this would send to an API endpoint
     setTimeout(() => {
-      toast.success("Custom expedition request submitted! We'll contact you soon.")
+      toast.success("Custom expedition request submitted! We will contact you soon.")
       setLoading(false)
       setFormData({
         peakName: "",
@@ -196,9 +196,9 @@ export default function CustomExpeditionPage() {
               <h3 className="font-semibold mb-2">What happens next?</h3>
               <ul className="space-y-2 text-sm text-muted-foreground list-disc list-inside">
                 <li>Our expedition planning team will review your request</li>
-                <li>We'll contact you within 48 hours to discuss details</li>
-                <li>We'll create a customized itinerary and quote</li>
-                <li>Once approved, we'll handle all logistics and planning</li>
+                <li>We will contact you within 48 hours to discuss details</li>
+                <li>We will create a customized itinerary and quote</li>
+                <li>Once approved, we will handle all logistics and planning</li>
               </ul>
             </div>
           </div>
