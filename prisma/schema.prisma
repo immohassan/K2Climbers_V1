@@ -1,0 +1,293 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  GUIDE
+  CLIMBER
+}
+
+enum ExpeditionCategory {
+  SMALL_PEAKS
+  TREKKING_PEAKS
+  MOUNTAINEERING
+  ROAD_TRIPS
+  CUSTOM
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+  EXTREME
+}
+
+enum SummitStatus {
+  SUCCESSFUL
+  FAILED
+  IN_PROGRESS
+}
+
+enum ProductCategory {
+  BOOTS
+  TENTS
+  ROPES
+  ICE_AXES
+  CLOTHING
+  BACKPACKS
+  SAFETY_EQUIPMENT
+  OTHER
+}
+
+enum RentalStatus {
+  AVAILABLE
+  RENTED
+  MAINTENANCE
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String
+  role          Role      @default(CLIMBER)
+  image         String?
+  bio           String?
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  summitRecords SummitRecord[]
+  certificates  Certificate[]
+  communityPosts CommunityPost[]
+  bookings      Booking[]
+  rentals       Rental[]
+  expeditions   Expedition[] @relation("ExpeditionGuides")
+  
+  @@map("users")
+}
+
+model Expedition {
+  id              String            @id @default(cuid())
+  title           String
+  slug            String            @unique
+  description     String            @db.Text
+  shortDescription String?
+  category        ExpeditionCategory
+  difficulty      Difficulty
+  altitude        Int               // in meters
+  duration        Int               // in days
+  basePrice       Float
+  seasonalPrice   Float?
+  discountPercent Float?            @default(0)
+  successRate     Float?            @default(0)
+  maxGroupSize    Int
+  minGroupSize    Int               @default(1)
+  isActive        Boolean           @default(true)
+  featured        Boolean           @default(false)
+  startDate       DateTime?
+  endDate         DateTime?
+  location        String
+  heroImage       String?
+  gallery         String[]          // Array of image URLs
+  
+  // SEO & Content
+  metaTitle       String?
+  metaDescription String?
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relations
+  itineraries     Itinerary[]
+  summitRecords   SummitRecord[]
+  bookings        Booking[]
+  requiredGear   ExpeditionGear[]
+  guides          User[]            @relation("ExpeditionGuides")
+  
+  @@map("expeditions")
+}
+
+model Itinerary {
+  id            String      @id @default(cuid())
+  expeditionId  String
+  dayNumber     Int
+  title         String
+  description   String      @db.Text
+  altitude      Int?        // Camp altitude
+  activities    String[]    // Array of activities
+  order         Int         @default(0)
+  
+  expedition    Expedition  @relation(fields: [expeditionId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@unique([expeditionId, dayNumber])
+  @@map("itineraries")
+}
+
+model SummitRecord {
+  id            String        @id @default(cuid())
+  userId        String
+  expeditionId  String
+  status        SummitStatus
+  summitDate    DateTime?
+  altitude      Int           // Highest altitude reached
+  notes         String?       @db.Text
+  photos        String[]      // Array of photo URLs
+  
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expedition    Expedition    @relation(fields: [expeditionId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  @@map("summit_records")
+}
+
+model Certificate {
+  id            String        @id @default(cuid())
+  userId        String
+  expeditionId  String
+  summitRecordId String?
+  expeditionTitle String
+  peakName      String
+  altitude      Int
+  summitDate    DateTime
+  verificationCode String     @unique
+  qrCodeUrl     String?
+  pdfUrl        String?
+  
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  @@map("certificates")
+}
+
+model Product {
+  id              String          @id @default(cuid())
+  name            String
+  slug            String          @unique
+  description     String          @db.Text
+  category        ProductCategory
+  price           Float
+  rentalPrice     Float?          // Per day
+  securityDeposit Float?
+  images          String[]        // Array of image URLs
+  specifications  Json?           // Flexible JSON for specs
+  inStock         Boolean         @default(true)
+  stockQuantity   Int?            @default(0)
+  isRentable      Boolean         @default(false)
+  featured        Boolean         @default(false)
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  expeditionGear  ExpeditionGear[]
+  rentals         Rental[]
+  
+  @@map("products")
+}
+
+model ExpeditionGear {
+  id            String      @id @default(cuid())
+  expeditionId  String
+  productId     String
+  required      Boolean     @default(true)
+  quantity      Int         @default(1)
+  
+  expedition    Expedition  @relation(fields: [expeditionId], references: [id], onDelete: Cascade)
+  product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@unique([expeditionId, productId])
+  @@map("expedition_gear")
+}
+
+model Rental {
+  id              String        @id @default(cuid())
+  userId          String
+  productId       String
+  startDate       DateTime
+  endDate         DateTime
+  totalDays       Int
+  dailyRate       Float
+  totalAmount     Float
+  securityDeposit Float?
+  status          RentalStatus  @default(AVAILABLE)
+  notes           String?       @db.Text
+  
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product         Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@map("rentals")
+}
+
+model Booking {
+  id              String        @id @default(cuid())
+  userId          String
+  expeditionId    String
+  numberOfPeople  Int           @default(1)
+  totalAmount     Float
+  status          String        @default("PENDING") // PENDING, CONFIRMED, CANCELLED
+  paymentStatus   String        @default("PENDING") // PENDING, PAID, REFUNDED
+  specialRequests String?       @db.Text
+  
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expedition      Expedition    @relation(fields: [expeditionId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@map("bookings")
+}
+
+model CommunityPost {
+  id            String        @id @default(cuid())
+  userId        String
+  title         String
+  content       String        @db.Text
+  images        String[]      // Array of image URLs
+  tags          String[]      // Array of tags
+  isPublished   Boolean       @default(false)
+  isFeatured    Boolean       @default(false)
+  views         Int           @default(0)
+  likes         Int           @default(0)
+  
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  @@map("community_posts")
+}
+
+model SiteSettings {
+  id                String    @id @default(cuid())
+  key               String    @unique
+  value             String    @db.Text
+  description       String?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@map("site_settings")
+}
