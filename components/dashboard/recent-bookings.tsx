@@ -53,19 +53,19 @@ export function RecentBookings() {
             bookings.map((booking) => (
               <div
                 key={booking.id}
-                className="flex items-center justify-between border-b border-border pb-4 last:border-0 last:pb-0"
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border pb-4 last:border-0 last:pb-0"
               >
-                <div>
-                  <p className="font-medium">{booking.expedition.title}</p>
-                  <p className="text-sm text-muted-foreground">
+                <div className="flex-1">
+                  <p className="font-medium text-sm sm:text-base">{booking.expedition.title}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     {booking.user.name} • {booking.numberOfPeople} people
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {formatDate(booking.createdAt)}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold">{formatCurrency(booking.totalAmount)}</p>
+                <div className="flex items-center justify-between sm:flex-col sm:items-end sm:text-right gap-2">
+                  <p className="font-semibold text-sm sm:text-base">{formatCurrency(booking.totalAmount)}</p>
                   <span className={`text-xs px-2 py-1 rounded ${
                     booking.status === "CONFIRMED" 
                       ? "bg-green-500/20 text-green-400"

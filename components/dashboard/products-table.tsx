@@ -74,12 +74,12 @@ export function ProductsTable() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left p-4 font-semibold">Name</th>
-                <th className="text-left p-4 font-semibold">Category</th>
-                <th className="text-left p-4 font-semibold">Price</th>
-                <th className="text-left p-4 font-semibold">Rental</th>
-                <th className="text-left p-4 font-semibold">Stock</th>
-                <th className="text-right p-4 font-semibold">Actions</th>
+                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Name</th>
+                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Category</th>
+                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Price</th>
+                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Rental</th>
+                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Stock</th>
+                <th className="text-right p-3 md:p-4 font-semibold text-xs md:text-sm">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -92,20 +92,20 @@ export function ProductsTable() {
               ) : (
                 products.map((product) => (
                   <tr key={product.id} className="border-b border-border hover:bg-card">
-                    <td className="p-4">
-                      <div className="font-medium">{product.name}</div>
-                      <div className="text-sm text-muted-foreground">{product.slug}</div>
+                    <td className="p-3 md:p-4">
+                      <div className="font-medium text-xs md:text-sm">{product.name}</div>
+                      <div className="text-xs text-muted-foreground truncate max-w-[150px] md:max-w-none">{product.slug}</div>
                     </td>
-                    <td className="p-4">{product.category}</td>
-                    <td className="p-4">{formatCurrency(product.price)}</td>
-                    <td className="p-4">
+                    <td className="p-3 md:p-4 text-xs md:text-sm">{product.category}</td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm">{formatCurrency(product.price)}</td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm">
                       {product.isRentable && product.rentalPrice ? (
                         <span className="text-glacier-400">{formatCurrency(product.rentalPrice)}/day</span>
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
                     </td>
-                    <td className="p-4">
+                    <td className="p-3 md:p-4 text-xs md:text-sm">
                       {product.inStock ? (
                         <span className="text-green-400">
                           {product.stockQuantity !== null ? `${product.stockQuantity} units` : "In Stock"}
@@ -114,24 +114,25 @@ export function ProductsTable() {
                         <span className="text-red-400">Out of Stock</span>
                       )}
                     </td>
-                    <td className="p-4">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="p-3 md:p-4">
+                      <div className="flex items-center justify-end gap-1 md:gap-2">
                         <Link href={`/shop/${product.slug}`}>
-                          <Button variant="ghost" size="icon">
-                            <Eye className="h-4 w-4" />
+                          <Button variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10">
+                            <Eye className="h-3 w-3 md:h-4 md:w-4" />
                           </Button>
                         </Link>
                         <Link href={`/dashboard/products/${product.id}`}>
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
+                          <Button variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10">
+                            <Edit className="h-3 w-3 md:h-4 md:w-4" />
                           </Button>
                         </Link>
                         <Button
                           variant="ghost"
                           size="icon"
+                          className="h-8 w-8 md:h-10 md:w-10"
                           onClick={() => handleDelete(product.id)}
                         >
-                          <Trash2 className="h-4 w-4 text-destructive" />
+                          <Trash2 className="h-3 w-3 md:h-4 md:w-4 text-destructive" />
                         </Button>
                       </div>
                     </td>

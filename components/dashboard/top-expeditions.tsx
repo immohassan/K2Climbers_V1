@@ -55,16 +55,16 @@ export function TopExpeditions() {
               <Link
                 key={expedition.id}
                 href={`/dashboard/expeditions/${expedition.id}`}
-                className="flex items-center justify-between border-b border-border pb-4 last:border-0 last:pb-0 hover:text-summit transition"
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border pb-4 last:border-0 last:pb-0 hover:text-summit transition"
               >
-                <div>
-                  <p className="font-medium">{expedition.title}</p>
-                  <p className="text-sm text-muted-foreground">
+                <div className="flex-1">
+                  <p className="font-medium text-sm sm:text-base">{expedition.title}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     {expedition._count.summitRecords} summit attempts
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold">{expedition._count.bookings}</p>
+                <div className="flex items-center justify-between sm:flex-col sm:items-end sm:text-right gap-2">
+                  <p className="font-semibold text-sm sm:text-base">{expedition._count.bookings}</p>
                   <p className="text-xs text-muted-foreground">bookings</p>
                 </div>
               </Link>

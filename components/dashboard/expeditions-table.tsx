@@ -74,13 +74,13 @@ export function ExpeditionsTable() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left p-4 font-semibold">Title</th>
-                <th className="text-left p-4 font-semibold">Category</th>
-                <th className="text-left p-4 font-semibold">Difficulty</th>
-                <th className="text-left p-4 font-semibold">Altitude</th>
-                <th className="text-left p-4 font-semibold">Price</th>
-                <th className="text-left p-4 font-semibold">Status</th>
-                <th className="text-right p-4 font-semibold">Actions</th>
+                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Title</th>
+                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Category</th>
+                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Difficulty</th>
+                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Altitude</th>
+                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Price</th>
+                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Status</th>
+                <th className="text-right p-3 md:p-4 font-semibold text-xs md:text-sm">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -93,16 +93,16 @@ export function ExpeditionsTable() {
               ) : (
                 expeditions.map((expedition) => (
                   <tr key={expedition.id} className="border-b border-border hover:bg-card">
-                    <td className="p-4">
-                      <div className="font-medium">{expedition.title}</div>
-                      <div className="text-sm text-muted-foreground">{expedition.slug}</div>
+                    <td className="p-3 md:p-4">
+                      <div className="font-medium text-xs md:text-sm">{expedition.title}</div>
+                      <div className="text-xs text-muted-foreground truncate max-w-[150px] md:max-w-none">{expedition.slug}</div>
                     </td>
-                    <td className="p-4">{expedition.category}</td>
-                    <td className="p-4">{expedition.difficulty}</td>
-                    <td className="p-4">{expedition.altitude}m</td>
-                    <td className="p-4">{formatCurrency(expedition.basePrice)}</td>
-                    <td className="p-4">
-                      <div className="flex gap-2">
+                    <td className="p-3 md:p-4 text-xs md:text-sm">{expedition.category}</td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm">{expedition.difficulty}</td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm">{expedition.altitude}m</td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm">{formatCurrency(expedition.basePrice)}</td>
+                    <td className="p-3 md:p-4">
+                      <div className="flex flex-wrap gap-1 md:gap-2">
                         {expedition.isActive && (
                           <span className="text-xs px-2 py-1 rounded bg-green-500/20 text-green-400">
                             Active
@@ -115,24 +115,25 @@ export function ExpeditionsTable() {
                         )}
                       </div>
                     </td>
-                    <td className="p-4">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="p-3 md:p-4">
+                      <div className="flex items-center justify-end gap-1 md:gap-2">
                         <Link href={`/expeditions/${expedition.slug}`}>
-                          <Button variant="ghost" size="icon">
-                            <Eye className="h-4 w-4" />
+                          <Button variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10">
+                            <Eye className="h-3 w-3 md:h-4 md:w-4" />
                           </Button>
                         </Link>
                         <Link href={`/dashboard/expeditions/${expedition.id}`}>
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
+                          <Button variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10">
+                            <Edit className="h-3 w-3 md:h-4 md:w-4" />
                           </Button>
                         </Link>
                         <Button
                           variant="ghost"
                           size="icon"
+                          className="h-8 w-8 md:h-10 md:w-10"
                           onClick={() => handleDelete(expedition.id)}
                         >
-                          <Trash2 className="h-4 w-4 text-destructive" />
+                          <Trash2 className="h-3 w-3 md:h-4 md:w-4 text-destructive" />
                         </Button>
                       </div>
                     </td>
