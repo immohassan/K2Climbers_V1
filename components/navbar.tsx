@@ -59,9 +59,14 @@ export function Navbar() {
                 </Button>
               </div>
             ) : (
-              <Link href="/auth/signin">
-                <Button variant="summit" size="sm">Sign In</Button>
-              </Link>
+              <div className="flex items-center space-x-2">
+                <Link href="/auth/signup">
+                  <Button variant="outline" size="sm">Sign Up</Button>
+                </Link>
+                <Link href="/auth/signin">
+                  <Button variant="summit" size="sm">Sign In</Button>
+                </Link>
+              </div>
             )}
           </div>
 
@@ -90,9 +95,14 @@ export function Navbar() {
                 </Button>
               </>
             ) : (
-              <Link href="/auth/signin">
-                <Button variant="summit" size="sm" className="w-full">Sign In</Button>
-              </Link>
+              <div className="space-y-2">
+                <Link href="/auth/signup">
+                  <Button variant="outline" size="sm" className="w-full">Sign Up</Button>
+                </Link>
+                <Link href="/auth/signin">
+                  <Button variant="summit" size="sm" className="w-full">Sign In</Button>
+                </Link>
+              </div>
             )}
           </div>
         )}
