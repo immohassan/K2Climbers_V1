@@ -373,7 +373,7 @@ export default function NewExpeditionPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {itineraries.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No itinerary items. Click "Add Day" to add one.</p>
+              <p className="text-sm text-muted-foreground">No itinerary items. Click &quot;Add Day&quot; to add one.</p>
             ) : (
               itineraries.map((itinerary, index) => (
                 <div key={index} className="border rounded-lg p-4 space-y-4">
@@ -441,7 +441,7 @@ export default function NewExpeditionPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {requiredGear.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No required gear. Click "Add Gear" to add items.</p>
+              <p className="text-sm text-muted-foreground">No required gear. Click &quot;Add Gear&quot; to add items.</p>
             ) : (
               requiredGear.map((gear, index) => (
                 <div key={index} className="border rounded-lg p-4">
