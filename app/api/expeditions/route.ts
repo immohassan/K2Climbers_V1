@@ -86,8 +86,11 @@ export async function POST(request: NextRequest) {
       gallery,
       maxGroupSize,
       minGroupSize,
+      successRate,
       metaTitle,
       metaDescription,
+      itineraries,
+      requiredGear,
     } = body
 
     const expedition = await prisma.expedition.create({
@@ -106,8 +109,34 @@ export async function POST(request: NextRequest) {
         gallery: gallery || [],
         maxGroupSize,
         minGroupSize: minGroupSize || 1,
+        successRate: successRate ? parseFloat(successRate) : null,
         metaTitle,
         metaDescription,
+        itineraries: itineraries
+          ? {
+              create: itineraries.map((it: any) => ({
+                dayNumber: it.dayNumber,
+                title: it.title,
+                description: it.description,
+                altitude: it.altitude,
+                activities: it.activities || [],
+                order: it.dayNumber,
+              })),
+            }
+          : undefined,
+        requiredGear: requiredGear
+          ? {
+              create: requiredGear.map((rg: any) => ({
+                productId: rg.productId,
+                quantity: rg.quantity,
+                required: rg.required !== false,
+              })),
+            }
+          : undefined,
+      },
+      include: {
+        itineraries: true,
+        requiredGear: true,
       },
     })
 

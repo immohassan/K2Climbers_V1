@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -26,9 +26,12 @@ interface RequiredGear {
   required: boolean
 }
 
-export default function NewExpeditionPage() {
+export default function EditExpeditionPage() {
   const router = useRouter()
-  const [loading, setLoading] = useState(false)
+  const params = useParams()
+  const id = Array.isArray(params.id) ? params.id[0] : params.id
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
@@ -46,14 +49,72 @@ export default function NewExpeditionPage() {
     successRate: "",
     metaTitle: "",
     metaDescription: "",
+    isActive: true,
+    featured: false,
   })
   const [itineraries, setItineraries] = useState<ItineraryItem[]>([])
   const [requiredGear, setRequiredGear] = useState<RequiredGear[]>([])
   const [products, setProducts] = useState<any[]>([])
 
   useEffect(() => {
-    fetchProducts()
-  }, [])
+    if (id) {
+      fetchExpedition()
+      fetchProducts()
+    }
+  }, [id])
+
+  const fetchExpedition = async () => {
+    try {
+      const res = await fetch(`/api/expeditions/${id}`)
+      if (res.ok) {
+        const data = await res.json()
+        setFormData({
+          title: data.title || "",
+          slug: data.slug || "",
+          description: data.description || "",
+          shortDescription: data.shortDescription || "",
+          category: data.category || "",
+          difficulty: data.difficulty || "",
+          altitude: data.altitude?.toString() || "",
+          duration: data.duration?.toString() || "",
+          basePrice: data.basePrice?.toString() || "",
+          location: data.location || "",
+          heroImage: data.heroImage || "",
+          maxGroupSize: data.maxGroupSize?.toString() || "",
+          minGroupSize: data.minGroupSize?.toString() || "1",
+          successRate: data.successRate?.toString() || "",
+          metaTitle: data.metaTitle || "",
+          metaDescription: data.metaDescription || "",
+          isActive: data.isActive ?? true,
+          featured: data.featured ?? false,
+        })
+        setItineraries(
+          data.itineraries?.map((it: any) => ({
+            dayNumber: it.dayNumber,
+            title: it.title,
+            description: it.description,
+            altitude: it.altitude,
+            activities: it.activities || [],
+          })) || []
+        )
+        setRequiredGear(
+          data.requiredGear?.map((rg: any) => ({
+            productId: rg.productId,
+            quantity: rg.quantity,
+            required: rg.required,
+          })) || []
+        )
+      } else {
+        toast.error("Failed to load expedition")
+        router.push("/dashboard/expeditions")
+      }
+    } catch (error) {
+      console.error("Error fetching expedition:", error)
+      toast.error("Failed to load expedition")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const fetchProducts = async () => {
     try {
@@ -115,11 +176,11 @@ export default function NewExpeditionPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
+    setSaving(true)
 
     try {
-      const res = await fetch("/api/expeditions", {
-        method: "POST",
+      const res = await fetch(`/api/expeditions/${id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
@@ -135,27 +196,34 @@ export default function NewExpeditionPage() {
       })
 
       if (res.ok) {
-        const expedition = await res.json()
-        toast.success("Expedition created successfully")
-        router.push(`/dashboard/expeditions/${expedition.id}`)
+        toast.success("Expedition updated successfully")
+        router.push("/dashboard/expeditions")
       } else {
         const error = await res.json()
-        toast.error(error.error || "Failed to create expedition")
+        toast.error(error.error || "Failed to update expedition")
       }
     } catch (error) {
-      console.error("Error creating expedition:", error)
-      toast.error("Failed to create expedition")
+      console.error("Error updating expedition:", error)
+      toast.error("Failed to update expedition")
     } finally {
-      setLoading(false)
+      setSaving(false)
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div>Loading...</div>
+      </div>
+    )
   }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">New Expedition</h1>
-        <p className="text-muted-foreground">
-          Create a new mountaineering expedition
+        <h1 className="text-2xl md:text-3xl font-bold">Edit Expedition</h1>
+        <p className="text-sm md:text-base text-muted-foreground">
+          Update expedition details
         </p>
       </div>
 
@@ -302,16 +370,16 @@ export default function NewExpeditionPage() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-2">
+              <div className="space-y-2">
                 <Label htmlFor="basePrice">Base Price (PKR) *</Label>
-              <Input
-                id="basePrice"
-                type="number"
-                step="0.01"
-                value={formData.basePrice}
-                onChange={(e) => setFormData({ ...formData, basePrice: e.target.value })}
-                required
-              />
+                <Input
+                  id="basePrice"
+                  type="number"
+                  step="0.01"
+                  value={formData.basePrice}
+                  onChange={(e) => setFormData({ ...formData, basePrice: e.target.value })}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="successRate">Success Rate (%)</Label>
@@ -337,6 +405,29 @@ export default function NewExpeditionPage() {
                 onChange={(e) => setFormData({ ...formData, heroImage: e.target.value })}
                 placeholder="https://..."
               />
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  className="rounded"
+                />
+                <Label htmlFor="isActive">Active</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="featured"
+                  checked={formData.featured}
+                  onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                  className="rounded"
+                />
+                <Label htmlFor="featured">Featured</Label>
+              </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
@@ -510,8 +601,8 @@ export default function NewExpeditionPage() {
           >
             Cancel
           </Button>
-          <Button type="submit" variant="summit" disabled={loading}>
-            {loading ? "Creating..." : "Create Expedition"}
+          <Button type="submit" variant="summit" disabled={saving}>
+            {saving ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </form>

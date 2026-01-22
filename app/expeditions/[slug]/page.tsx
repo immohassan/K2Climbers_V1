@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { ExpeditionHeader } from "@/components/expeditions/expedition-header"
 import { ExpeditionDetails } from "@/components/expeditions/expedition-details"
 import { ExpeditionItinerary } from "@/components/expeditions/expedition-itinerary"
+import { ExpeditionRequiredGear } from "@/components/expeditions/expedition-required-gear"
 import { BookingPanel } from "@/components/expeditions/booking-panel"
 import { Navbar } from "@/components/navbar"
 
@@ -61,10 +62,7 @@ export default async function ExpeditionPage({
   const successfulSummits = expedition.summitRecords.filter(
     (r) => r.status === "SUCCESSFUL"
   ).length
-  const successRate =
-    expedition.summitRecords.length > 0
-      ? (successfulSummits / expedition.summitRecords.length) * 100
-      : 0
+  const successRate = expedition.successRate ? expedition.successRate : 85;
 
   return (
     <>
@@ -76,6 +74,7 @@ export default async function ExpeditionPage({
             <div className="lg:col-span-2 space-y-8">
               <ExpeditionDetails expedition={expedition} />
               <ExpeditionItinerary itineraries={expedition.itineraries} />
+              <ExpeditionRequiredGear requiredGear={expedition.requiredGear} />
             </div>
             <div className="lg:col-span-1">
               <div className="sticky top-24">

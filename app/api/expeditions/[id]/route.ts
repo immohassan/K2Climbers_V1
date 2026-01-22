@@ -5,11 +5,12 @@ import { authOptions } from "@/lib/auth"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const expedition = await prisma.expedition.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         guides: {
           select: {
@@ -66,7 +67,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -78,13 +79,74 @@ export async function PUT(
       )
     }
 
+    const { id } = await params
     const body = await request.json()
+    const {
+      itineraries,
+      requiredGear,
+      ...expeditionData
+    } = body
+
+    // Update expedition basic data
     const expedition = await prisma.expedition.update({
-      where: { id: params.id },
-      data: body,
+      where: { id },
+      data: {
+        ...expeditionData,
+        successRate: expeditionData.successRate ? parseFloat(expeditionData.successRate) : null,
+      },
     })
 
-    return NextResponse.json(expedition)
+    // Update itineraries if provided
+    if (itineraries !== undefined) {
+      // Delete existing itineraries
+      await prisma.itinerary.deleteMany({
+        where: { expeditionId: id },
+      })
+      // Create new itineraries
+      if (itineraries.length > 0) {
+        await prisma.itinerary.createMany({
+          data: itineraries.map((it: any) => ({
+            expeditionId: id,
+            dayNumber: it.dayNumber,
+            title: it.title,
+            description: it.description,
+            altitude: it.altitude,
+            activities: it.activities || [],
+            order: it.dayNumber,
+          })),
+        })
+      }
+    }
+
+    // Update required gear if provided
+    if (requiredGear !== undefined) {
+      // Delete existing required gear
+      await prisma.expeditionGear.deleteMany({
+        where: { expeditionId: id },
+      })
+      // Create new required gear
+      if (requiredGear.length > 0) {
+        await prisma.expeditionGear.createMany({
+          data: requiredGear.map((rg: any) => ({
+            expeditionId: id,
+            productId: rg.productId,
+            quantity: rg.quantity,
+            required: rg.required !== false,
+          })),
+        })
+      }
+    }
+
+    // Fetch updated expedition with relations
+    const updatedExpedition = await prisma.expedition.findUnique({
+      where: { id },
+      include: {
+        itineraries: true,
+        requiredGear: true,
+      },
+    })
+
+    return NextResponse.json(updatedExpedition)
   } catch (error) {
     console.error("Error updating expedition:", error)
     return NextResponse.json(
@@ -96,7 +158,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -108,8 +170,9 @@ export async function DELETE(
       )
     }
 
+    const { id } = await params
     await prisma.expedition.delete({
-      where: { id: params.id },
+      where: { id },
     })
 
     return NextResponse.json({ success: true })

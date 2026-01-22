@@ -80,7 +80,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="currency">Default Currency</Label>
-              <Input id="currency" defaultValue="USD" />
+              <Input id="currency" defaultValue="PKR" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="paymentGateway">Payment Gateway</Label>
