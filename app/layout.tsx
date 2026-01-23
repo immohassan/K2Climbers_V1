@@ -4,6 +4,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Providers } from "@/components/providers/session-provider"
 import { Toaster } from "react-hot-toast"
+import { ProgressBar } from "@/components/progress-bar"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -27,6 +28,7 @@ export default function RootLayout({
             enableSystem={false}
             disableTransitionOnChange
           >
+            <ProgressBar />
             {children}
             <Toaster position="top-right" />
           </ThemeProvider>
