@@ -39,7 +39,7 @@ export function HeroSection() {
           </p>
 
           {/* Global Search */}
-          <div className="bg-background/95 backdrop-blur-sm rounded-lg p-4 shadow-2xl">
+          {/* <div className="bg-background/95 backdrop-blur-sm rounded-lg p-4 shadow-2xl">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <Input
@@ -77,7 +77,7 @@ export function HeroSection() {
                 Search
               </Button>
             </div>
-          </div>
+          </div> */}
 
           <div className="mt-12 flex flex-wrap justify-center gap-6">
             <Link href="/expeditions">

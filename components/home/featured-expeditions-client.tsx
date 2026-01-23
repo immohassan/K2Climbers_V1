@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Mountain, MapPin, Calendar, Users, ArrowRight } from "lucide-react"
+import { formatCurrency } from "@/lib/utils"
 
 interface Expedition {
   id: string
@@ -98,7 +99,7 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
                 </CardContent>
                 <CardFooter className="flex justify-between">
                   <div className="text-2xl font-bold">
-                    ${expedition.basePrice.toLocaleString()}
+                  {formatCurrency(expedition.basePrice)}
                   </div>
                   <Link href={`/expeditions/${expedition.slug}`}>
                     <Button variant="summit">
