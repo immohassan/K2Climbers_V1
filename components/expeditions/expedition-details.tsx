@@ -19,26 +19,26 @@ export function ExpeditionDetails({ expedition }: { expedition: Expedition }) {
       <CardHeader>
         <CardTitle>About This Expedition</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 sm:space-y-6">
         <div>
-          <p className="text-muted-foreground whitespace-pre-line">
+          <p className="text-sm sm:text-base text-muted-foreground whitespace-pre-line leading-relaxed">
             {expedition.description}
           </p>
         </div>
 
-        <div className="flex gap-2">
-          <Badge variant="outline">{expedition.category}</Badge>
-          <Badge variant="outline">{expedition.difficulty}</Badge>
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="outline" className="text-xs sm:text-sm">{expedition.category}</Badge>
+          <Badge variant="outline" className="text-xs sm:text-sm">{expedition.difficulty}</Badge>
         </div>
 
         {expedition.guides.length > 0 && (
           <div>
-            <h3 className="font-semibold mb-3">Lead Guides</h3>
-            <div className="flex flex-wrap gap-4">
+            <h3 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base">Lead Guides</h3>
+            <div className="flex flex-wrap gap-3 sm:gap-4">
               {expedition.guides.map((guide) => (
                 <div key={guide.id} className="flex items-center space-x-2">
                   {guide.image && (
-                    <div className="relative h-10 w-10 rounded-full overflow-hidden">
+                    <div className="relative h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden flex-shrink-0">
                       <Image
                         src={guide.image}
                         alt={guide.name || "Guide"}
@@ -48,7 +48,7 @@ export function ExpeditionDetails({ expedition }: { expedition: Expedition }) {
                       />
                     </div>
                   )}
-                  <span>{guide.name}</span>
+                  <span className="text-sm sm:text-base">{guide.name}</span>
                 </div>
               ))}
             </div>

@@ -39,24 +39,26 @@ export function ExpeditionRequiredGear({ requiredGear }: { requiredGear: Require
           {requiredGear.map((gear) => (
             <div
               key={gear.id}
-              className="border rounded-lg p-4 hover:bg-card transition-colors"
+              className="border rounded-lg p-3 sm:p-4 hover:bg-card transition-colors"
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-semibold">{gear.product.name}</h3>
-                    {gear.required && (
-                      <Badge variant="destructive" className="text-xs">
-                        Required
-                      </Badge>
-                    )}
-                    {gear.quantity > 1 && (
-                      <Badge variant="outline" className="text-xs">
-                        Qty: {gear.quantity}
-                      </Badge>
-                    )}
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <h3 className="font-semibold text-sm sm:text-base break-words">{gear.product.name}</h3>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      {gear.required && (
+                        <Badge variant="destructive" className="text-xs">
+                          Required
+                        </Badge>
+                      )}
+                      {gear.quantity > 1 && (
+                        <Badge variant="outline" className="text-xs">
+                          Qty: {gear.quantity}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                     <span className="capitalize">{gear.product.category.toLowerCase().replace("_", " ")}</span>
                     {gear.product.price > 0 && (
                       <span className="font-medium text-foreground">
@@ -64,15 +66,16 @@ export function ExpeditionRequiredGear({ requiredGear }: { requiredGear: Require
                       </span>
                     )}
                     {gear.product.rentalPrice && (
-                      <span className="text-glacier-400">
+                      <span className="text-glacier-400 whitespace-nowrap">
                         Rent: {formatCurrency(gear.product.rentalPrice)}/day
                       </span>
                     )}
                   </div>
                 </div>
-                <Link href={`/shop/${gear.product.slug}`}>
-                  <Button variant="outline" size="sm">
-                    View Product
+                <Link href={`/shop/${gear.product.slug}`} className="flex-shrink-0">
+                  <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                    <span className="hidden sm:inline">View Product</span>
+                    <span className="sm:hidden">View</span>
                     <ExternalLink className="h-3 w-3 ml-2" />
                   </Button>
                 </Link>

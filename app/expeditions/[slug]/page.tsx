@@ -69,15 +69,15 @@ export default async function ExpeditionPage({
       <Navbar />
       <main className="min-h-screen pt-16">
         <ExpeditionHeader expedition={expedition} successRate={successRate} />
-        <div className="container mx-auto px-4 py-12">
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
+        <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
+          <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
+            <div className="lg:col-span-2 space-y-6 sm:space-y-8">
               <ExpeditionDetails expedition={expedition} />
               <ExpeditionItinerary itineraries={expedition.itineraries} />
               <ExpeditionRequiredGear requiredGear={expedition.requiredGear} />
             </div>
             <div className="lg:col-span-1">
-              <div className="sticky top-24">
+              <div className="lg:sticky lg:top-24">
                 <BookingPanel expedition={expedition} />
               </div>
             </div>

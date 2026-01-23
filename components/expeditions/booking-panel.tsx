@@ -60,9 +60,9 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
   }
 
   return (
-    <Card className="sticky top-24">
+    <Card>
       <CardHeader>
-        <CardTitle>Book This Expedition</CardTitle>
+        <CardTitle className="text-lg sm:text-xl">Book This Expedition</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
