@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter, useParams } from "next/navigation"
 import { Navbar } from "@/components/navbar"
@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { X, Plus, ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import toast from "react-hot-toast"
 
 interface Post {
@@ -44,15 +45,9 @@ export default function EditPostPage() {
   const [tagInput, setTagInput] = useState("")
   const [uploading, setUploading] = useState(false)
 
-  useEffect(() => {
-    if (session && id) {
-      fetchPost()
-    } else if (!session) {
-      router.push("/auth/signin")
-    }
-  }, [session, id, router])
-
-  const fetchPost = async () => {
+  const fetchPost = useCallback(async () => {
+    if (!id) return
+    
     try {
       const res = await fetch(`/api/community/${id}`)
       if (res.ok) {
@@ -76,7 +71,15 @@ export default function EditPostPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [id, router])
+
+  useEffect(() => {
+    if (session && id) {
+      fetchPost()
+    } else if (!session) {
+      router.push("/auth/signin")
+    }
+  }, [session, id, router, fetchPost])
 
   const isAdmin = session?.user.role === "ADMIN" || session?.user.role === "SUPER_ADMIN"
   const isOwner = post?.userId === session?.user.id
@@ -316,13 +319,12 @@ export default function EditPostPage() {
                         {formData.images.map((image, idx) => (
                           <div key={idx} className="relative group">
                             <div className="aspect-square rounded-lg overflow-hidden bg-card border border-border">
-                              <img
+                              <Image
                                 src={image}
                                 alt={`Image ${idx + 1}`}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23ddd' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3EInvalid%3C/text%3E%3C/svg%3E"
-                                }}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 640px) 50vw, 33vw"
                               />
                             </div>
                             <button
