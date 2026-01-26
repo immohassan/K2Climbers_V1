@@ -3,13 +3,11 @@ import { FeaturedExpeditions } from "@/components/home/featured-expeditions"
 import { StatsSection } from "@/components/home/stats-section"
 import { FeaturedClimbers } from "@/components/home/featured-climbers"
 import { CommunityStories } from "@/components/home/community-stories"
-import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 
 export default function HomePage() {
   return (
     <>
-      <Navbar />
       <main className="min-h-screen">
         <HeroSection />
         <StatsSection />

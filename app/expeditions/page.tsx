@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/navbar"
 import { ExpeditionsList } from "@/components/expeditions/expeditions-list"
 import { prisma } from "@/lib/prisma"
 
@@ -33,20 +32,17 @@ export default async function ExpeditionsPage() {
   const expeditions = await getExpeditions()
 
   return (
-    <>
-      <Navbar />
-      <main className="min-h-screen pt-16">
-        <div className="container mx-auto px-4 py-12">
-          <div className="mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Expeditions & Tours</h1>
-            <p className="text-xl text-muted-foreground">
-              Discover your next mountaineering adventure
-            </p>
-          </div>
-
-          <ExpeditionsList expeditions={expeditions} />
+    <main className="min-h-screen pt-16">
+      <div className="container mx-auto px-4 py-12">
+        <div className="mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Expeditions & Tours</h1>
+          <p className="text-xl text-muted-foreground">
+            Discover your next mountaineering adventure
+          </p>
         </div>
-      </main>
-    </>
+
+        <ExpeditionsList expeditions={expeditions} />
+      </div>
+    </main>
   )
 }

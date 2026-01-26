@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { Navbar } from "@/components/navbar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -53,9 +52,7 @@ export default function CustomExpeditionPage() {
   }
 
   return (
-    <>
-      <Navbar />
-      <main className="min-h-screen pt-16">
+    <main className="min-h-screen pt-16">
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-3xl mx-auto">
             <div className="mb-12 text-center">
@@ -204,6 +201,5 @@ export default function CustomExpeditionPage() {
           </div>
         </div>
       </main>
-    </>
   )
 }

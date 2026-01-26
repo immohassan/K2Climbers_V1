@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { Navbar } from "@/components/navbar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -233,27 +232,21 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <>
-        <Navbar />
-        <main className="min-h-screen pt-16">
-          <div className="container mx-auto px-4 py-12">
-            <div className="text-center">Loading...</div>
-          </div>
-        </main>
-      </>
+      <main className="min-h-screen pt-16">
+        <div className="container mx-auto px-4 py-12">
+          <div className="text-center">Loading...</div>
+        </div>
+      </main>
     )
   }
 
   if (!profile) {
     return (
-      <>
-        <Navbar />
-        <main className="min-h-screen pt-16">
-          <div className="container mx-auto px-4 py-12">
-            <div className="text-center">Profile not found</div>
-          </div>
-        </main>
-      </>
+      <main className="min-h-screen pt-16">
+        <div className="container mx-auto px-4 py-12">
+          <div className="text-center">Profile not found</div>
+        </div>
+      </main>
     )
   }
 
@@ -263,9 +256,7 @@ export default function ProfilePage() {
     : 0
 
   return (
-    <>
-      <Navbar />
-      <main className="min-h-screen pt-16 bg-background">
+    <main className="min-h-screen pt-16 bg-background">
         <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
           <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
             {/* Header */}
@@ -614,6 +605,5 @@ export default function ProfilePage() {
           </div>
         </div>
       </main>
-    </>
   )
 }
