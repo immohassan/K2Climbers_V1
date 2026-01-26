@@ -196,7 +196,7 @@ export default function EditPostPage() {
         <Navbar />
         <main className="min-h-screen pt-16 bg-background">
           <div className="container mx-auto px-4 py-12">
-            <div className="text-center">Post not found or you don't have permission to edit it.</div>
+            <div className="text-center">Post not found or you don&apos;t have permission to edit it.</div>
           </div>
         </main>
       </>
