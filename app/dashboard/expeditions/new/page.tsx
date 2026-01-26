@@ -50,6 +50,7 @@ export default function NewExpeditionPage() {
   const [itineraries, setItineraries] = useState<ItineraryItem[]>([])
   const [requiredGear, setRequiredGear] = useState<RequiredGear[]>([])
   const [products, setProducts] = useState<any[]>([])
+  const [uploadingHero, setUploadingHero] = useState(false)
 
   useEffect(() => {
     fetchProducts()
@@ -111,6 +112,47 @@ export default function NewExpeditionPage() {
     const updated = [...requiredGear]
     updated[index] = { ...updated[index], [field]: value }
     setRequiredGear(updated)
+  }
+
+  const handleHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file")
+      return
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image size must be less than 10MB")
+      return
+    }
+
+    setUploadingHero(true)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setFormData(prev => ({ ...prev, heroImage: data.url }))
+        toast.success("Hero image uploaded successfully")
+      } else {
+        const error = await res.json()
+        toast.error(error.error || "Failed to upload image")
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error)
+      toast.error("Failed to upload image")
+    } finally {
+      setUploadingHero(false)
+      e.target.value = ""
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -329,14 +371,26 @@ export default function NewExpeditionPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="heroImage">Hero Image URL</Label>
+              <Label htmlFor="heroImage">Hero Image</Label>
               <Input
                 id="heroImage"
-                type="url"
-                value={formData.heroImage}
-                onChange={(e) => setFormData({ ...formData, heroImage: e.target.value })}
-                placeholder="https://..."
+                type="file"
+                accept="image/*"
+                onChange={handleHeroImageUpload}
+                disabled={uploadingHero}
+                className="cursor-pointer"
               />
+              {formData.heroImage && (
+                <div className="mt-2">
+                  <img src={formData.heroImage} alt="Hero preview" className="max-w-xs rounded-lg border border-border" />
+                </div>
+              )}
+              {uploadingHero && (
+                <p className="text-sm text-muted-foreground">Uploading...</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Upload hero image from your device (max 10MB)
+              </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">

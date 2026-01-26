@@ -90,6 +90,7 @@ export default function ProfilePage() {
     password: "",
     confirmPassword: "",
   })
+  const [uploadingImage, setUploadingImage] = useState(false)
 
   useEffect(() => {
     if (session) {
@@ -121,6 +122,47 @@ export default function ProfilePage() {
       toast.error("Failed to load profile")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file")
+      return
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image size must be less than 10MB")
+      return
+    }
+
+    setUploadingImage(true)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setFormData(prev => ({ ...prev, image: data.url }))
+        toast.success("Profile image uploaded successfully")
+      } else {
+        const error = await res.json()
+        toast.error(error.error || "Failed to upload image")
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error)
+      toast.error("Failed to upload image")
+    } finally {
+      setUploadingImage(false)
+      e.target.value = ""
     }
   }
 
@@ -302,14 +344,26 @@ export default function ProfilePage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="image">Profile Image URL</Label>
+                          <Label htmlFor="image">Profile Image</Label>
                           <Input
                             id="image"
-                            type="url"
-                            value={formData.image}
-                            onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                            placeholder="https://..."
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            disabled={uploadingImage}
+                            className="cursor-pointer"
                           />
+                          {formData.image && (
+                            <div className="mt-2">
+                              <img src={formData.image} alt="Profile preview" className="w-24 h-24 rounded-full object-cover border border-border" />
+                            </div>
+                          )}
+                          {uploadingImage && (
+                            <p className="text-sm text-muted-foreground">Uploading...</p>
+                          )}
+                          <p className="text-xs text-muted-foreground">
+                            Upload profile image from your device (max 10MB)
+                          </p>
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="password">New Password (optional)</Label>

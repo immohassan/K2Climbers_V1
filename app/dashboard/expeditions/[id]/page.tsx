@@ -55,6 +55,7 @@ export default function EditExpeditionPage() {
   const [itineraries, setItineraries] = useState<ItineraryItem[]>([])
   const [requiredGear, setRequiredGear] = useState<RequiredGear[]>([])
   const [products, setProducts] = useState<any[]>([])
+  const [uploadingHero, setUploadingHero] = useState(false)
 
   useEffect(() => {
     if (id) {
@@ -397,14 +398,26 @@ export default function EditExpeditionPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="heroImage">Hero Image URL</Label>
+              <Label htmlFor="heroImage">Hero Image</Label>
               <Input
                 id="heroImage"
-                type="url"
-                value={formData.heroImage}
-                onChange={(e) => setFormData({ ...formData, heroImage: e.target.value })}
-                placeholder="https://..."
+                type="file"
+                accept="image/*"
+                onChange={handleHeroImageUpload}
+                disabled={uploadingHero}
+                className="cursor-pointer"
               />
+              {formData.heroImage && (
+                <div className="mt-2">
+                  <img src={formData.heroImage} alt="Hero preview" className="max-w-xs rounded-lg border border-border" />
+                </div>
+              )}
+              {uploadingHero && (
+                <p className="text-sm text-muted-foreground">Uploading...</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Upload hero image from your device (max 10MB)
+              </p>
             </div>
 
             <div className="flex gap-4">

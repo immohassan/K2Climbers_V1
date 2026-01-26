@@ -20,24 +20,27 @@ export function Navbar() {
           </Link>
 
           <div className="hidden md:flex items-center space-x-6">
+          <Link href="/" className="text-sm hover:text-glacier-400 transition">
+              Home
+            </Link>
             <Link href="/expeditions" className="text-sm hover:text-glacier-400 transition">
               Expeditions
             </Link>
-            <Link href="/shop" className="text-sm hover:text-glacier-400 transition">
+            {/* <Link href="/shop" className="text-sm hover:text-glacier-400 transition">
               Shop & Rent
             </Link>
             <Link href="/community" className="text-sm hover:text-glacier-400 transition">
               Community
-            </Link>
-            <Link href="/certificates" className="text-sm hover:text-glacier-400 transition">
+            </Link> */}
+            {/* <Link href="/certificates" className="text-sm hover:text-glacier-400 transition">
               Certificates
-            </Link>
+            </Link> */}
             <Link href="/expeditions/custom" className="text-sm hover:text-glacier-400 transition">
               Custom Expedition
             </Link>
-            {session?.user && (
+            {session?.user.role == "SUPER_ADMIN" && (
               <Link href="/dashboard" className="text-sm hover:text-glacier-400 transition">
-                Dashboard
+               Admin Dashboard
               </Link>
             )}
           </div>

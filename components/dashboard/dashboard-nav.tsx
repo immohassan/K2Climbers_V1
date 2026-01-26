@@ -10,6 +10,7 @@ import {
   ShoppingBag, 
   Users, 
   FileText,
+  MessageSquare,
   Settings,
   LogOut,
   Menu,
@@ -23,6 +24,7 @@ const navItems = [
   { href: "/dashboard/expeditions", label: "Expeditions", icon: Mountain },
   { href: "/dashboard/products", label: "Products", icon: ShoppingBag },
   { href: "/dashboard/users", label: "Users", icon: Users },
+  { href: "/dashboard/community", label: "Community", icon: MessageSquare },
   { href: "/dashboard/certificates", label: "Certificates", icon: FileText },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ]
