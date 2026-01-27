@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import toast from "react-hot-toast"
 import { slugify } from "@/lib/utils"
@@ -21,7 +20,7 @@ interface ItineraryItem {
 }
 
 interface RequiredGear {
-  productId: string
+  name: string
   quantity: number
   required: boolean
 }
@@ -49,24 +48,7 @@ export default function NewExpeditionPage() {
   })
   const [itineraries, setItineraries] = useState<ItineraryItem[]>([])
   const [requiredGear, setRequiredGear] = useState<RequiredGear[]>([])
-  const [products, setProducts] = useState<any[]>([])
   const [uploadingHero, setUploadingHero] = useState(false)
-
-  useEffect(() => {
-    fetchProducts()
-  }, [])
-
-  const fetchProducts = async () => {
-    try {
-      const res = await fetch("/api/products")
-      if (res.ok) {
-        const data = await res.json()
-        setProducts(data)
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error)
-    }
-  }
 
   const handleTitleChange = (value: string) => {
     setFormData({
@@ -101,7 +83,7 @@ export default function NewExpeditionPage() {
   }
 
   const addRequiredGear = () => {
-    setRequiredGear([...requiredGear, { productId: "", quantity: 1, required: true }])
+    setRequiredGear([...requiredGear, { name: "", quantity: 1, required: true }])
   }
 
   const removeRequiredGear = (index: number) => {
@@ -116,15 +98,22 @@ export default function NewExpeditionPage() {
 
   const handleHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file) return
+    if (!file) {
+      console.log("No file selected")
+      return
+    }
+
+    console.log("File selected:", file.name, file.type, file.size)
 
     if (!file.type.startsWith("image/")) {
       toast.error("Please select an image file")
+      e.target.value = ""
       return
     }
 
     if (file.size > 10 * 1024 * 1024) {
       toast.error("Image size must be less than 10MB")
+      e.target.value = ""
       return
     }
 
@@ -133,24 +122,31 @@ export default function NewExpeditionPage() {
       const formData = new FormData()
       formData.append("file", file)
 
+      console.log("Uploading file to /api/upload...")
+
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       })
 
+      console.log("Upload response status:", res.status)
+
       if (res.ok) {
         const data = await res.json()
+        console.log("Upload successful, URL:", data.url)
         setFormData(prev => ({ ...prev, heroImage: data.url }))
         toast.success("Hero image uploaded successfully")
       } else {
-        const error = await res.json()
+        const error = await res.json().catch(() => ({ error: "Unknown error" }))
+        console.error("Upload error:", error)
         toast.error(error.error || "Failed to upload image")
       }
     } catch (error) {
       console.error("Error uploading image:", error)
-      toast.error("Failed to upload image")
+      toast.error(error instanceof Error ? error.message : "Failed to upload image")
     } finally {
       setUploadingHero(false)
+      // Reset input to allow selecting the same file again
       e.target.value = ""
     }
   }
@@ -372,24 +368,45 @@ export default function NewExpeditionPage() {
 
             <div className="space-y-2">
               <Label htmlFor="heroImage">Hero Image</Label>
-              <Input
-                id="heroImage"
-                type="file"
-                accept="image/*"
-                onChange={handleHeroImageUpload}
-                disabled={uploadingHero}
-                className="cursor-pointer"
-              />
-              {formData.heroImage && (
-                <div className="mt-2">
-                  <img src={formData.heroImage} alt="Hero preview" className="max-w-xs rounded-lg border border-border" />
+              <div className="flex flex-col gap-2">
+                <div className="relative">
+                  <Input
+                    id="heroImage"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleHeroImageUpload}
+                    disabled={uploadingHero}
+                    className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-summit file:text-white hover:file:bg-summit/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
                 </div>
-              )}
-              {uploadingHero && (
-                <p className="text-sm text-muted-foreground">Uploading...</p>
-              )}
+                {uploadingHero && (
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    <span className="animate-spin">⏳</span>
+                    Uploading image...
+                  </p>
+                )}
+                {formData.heroImage && !uploadingHero && (
+                  <div className="mt-2 space-y-2">
+                    <div className="relative inline-block">
+                      <img 
+                        src={formData.heroImage} 
+                        alt="Hero preview" 
+                        className="max-w-xs rounded-lg border border-border" 
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setFormData(prev => ({ ...prev, heroImage: "" }))}
+                    >
+                      Remove Image
+                    </Button>
+                  </div>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground">
-                Upload hero image from your device (max 10MB)
+                Upload hero image from your device (max 10MB). Supported formats: JPEG, PNG, WebP, GIF
               </p>
             </div>
 
@@ -510,25 +527,15 @@ export default function NewExpeditionPage() {
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
-                  <div className="grid md:grid-cols-3 gap-4">
+                  <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Product *</Label>
-                      <Select
-                        value={gear.productId}
-                        onValueChange={(value) => updateRequiredGear(index, "productId", value)}
+                      <Label>Gear Name *</Label>
+                      <Input
+                        value={gear.name}
+                        onChange={(e) => updateRequiredGear(index, "name", e.target.value)}
+                        placeholder="e.g., Climbing Rope, Helmet, Crampons"
                         required
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select product" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {products.map((product) => (
-                            <SelectItem key={product.id} value={product.id}>
-                              {product.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>Quantity *</Label>
@@ -536,19 +543,19 @@ export default function NewExpeditionPage() {
                         type="number"
                         min="1"
                         value={gear.quantity}
-                        onChange={(e) => updateRequiredGear(index, "quantity", parseInt(e.target.value))}
+                        onChange={(e) => updateRequiredGear(index, "quantity", parseInt(e.target.value) || 1)}
                         required
                       />
                     </div>
-                    <div className="flex items-center space-x-2 pt-8">
-                      <input
-                        type="checkbox"
-                        checked={gear.required}
-                        onChange={(e) => updateRequiredGear(index, "required", e.target.checked)}
-                        className="rounded"
-                      />
-                      <Label>Required</Label>
-                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={gear.required}
+                      onChange={(e) => updateRequiredGear(index, "required", e.target.checked)}
+                      className="rounded"
+                    />
+                    <Label>Required</Label>
                   </div>
                 </div>
               ))

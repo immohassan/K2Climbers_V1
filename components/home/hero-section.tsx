@@ -86,11 +86,11 @@ export function HeroSection() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link href="/community">
+            {/* <Link href="/community">
               <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20">
                 Join Community
               </Button>
-            </Link>
+            </Link> */}
           </div>
         </motion.div>
       </div>

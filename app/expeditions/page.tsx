@@ -6,12 +6,12 @@ async function getExpeditions() {
     const expeditions = await prisma.expedition.findMany({
       where: { isActive: true },
       include: {
-        guides: {
-          select: {
-            name: true,
-          },
-          take: 2,
-        },
+        // guides: {
+        //   select: {
+        //     name: true,
+        //   },
+        //   take: 2,
+        // },
         _count: {
           select: {
             bookings: true,

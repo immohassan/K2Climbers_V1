@@ -126,13 +126,41 @@ export async function PUT(
       })
       // Create new required gear
       if (requiredGear.length > 0) {
+        const gearData = await Promise.all(
+          requiredGear.map(async (rg: any) => {
+            // If gear has a name instead of productId, create or find the product
+            let productId = rg.productId
+            if (rg.name && !productId) {
+              const slug = rg.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+              // Check if product exists
+              let product = await prisma.product.findUnique({
+                where: { slug },
+              })
+              // Create product if it doesn't exist
+              if (!product) {
+                product = await prisma.product.create({
+                  data: {
+                    name: rg.name,
+                    slug,
+                    description: `Required gear for expedition`,
+                    category: "OTHER",
+                    price: 0,
+                    inStock: true,
+                  },
+                })
+              }
+              productId = product.id
+            }
+            return {
+              expeditionId: id,
+              productId,
+              quantity: rg.quantity || 1,
+              required: rg.required !== false,
+            }
+          })
+        )
         await prisma.expeditionGear.createMany({
-          data: requiredGear.map((rg: any) => ({
-            expeditionId: id,
-            productId: rg.productId,
-            quantity: rg.quantity,
-            required: rg.required !== false,
-          })),
+          data: gearData,
         })
       }
     }

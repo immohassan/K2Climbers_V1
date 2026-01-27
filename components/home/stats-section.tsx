@@ -7,7 +7,7 @@ const stats = [
   { icon: Mountain, value: "150+", label: "Peaks Conquered", color: "text-glacier-400" },
   { icon: Users, value: "2,500+", label: "Active Climbers", color: "text-summit" },
   { icon: Award, value: "85%", label: "Success Rate", color: "text-glacier-300" },
-  { icon: TrendingUp, value: "50+", label: "Expeditions", color: "text-summit-600" },
+  { icon: TrendingUp, value: "100+", label: "Expeditions", color: "text-summit-600" },
 ]
 
 export function StatsSection() {

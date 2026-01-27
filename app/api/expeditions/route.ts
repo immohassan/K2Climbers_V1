@@ -93,6 +93,48 @@ export async function POST(request: NextRequest) {
       requiredGear,
     } = body
 
+    // Process required gear first to get productIds
+    let gearData: any[] = []
+    if (requiredGear && requiredGear.length > 0) {
+      gearData = await Promise.all(
+        requiredGear.map(async (rg: any) => {
+          // If gear has a name instead of productId, create or find the product
+          let productId = rg.productId
+          if (rg.name && !productId) {
+            const gearSlug = rg.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+            // Check if product exists
+            let product = await prisma.product.findFirst({
+              where: { 
+                OR: [
+                  { slug: gearSlug },
+                  { name: { equals: rg.name, mode: "insensitive" } }
+                ]
+              },
+            })
+            // Create product if it doesn't exist
+            if (!product) {
+              product = await prisma.product.create({
+                data: {
+                  name: rg.name,
+                  slug: gearSlug || `gear-${Date.now()}`,
+                  description: `Required gear for expedition`,
+                  category: "OTHER",
+                  price: 0,
+                  inStock: true,
+                },
+              })
+            }
+            productId = product.id
+          }
+          return {
+            productId,
+            quantity: rg.quantity || 1,
+            required: rg.required !== false,
+          }
+        })
+      )
+    }
+
     const expedition = await prisma.expedition.create({
       data: {
         title,
@@ -124,13 +166,9 @@ export async function POST(request: NextRequest) {
               })),
             }
           : undefined,
-        requiredGear: requiredGear
+        requiredGear: gearData.length > 0
           ? {
-              create: requiredGear.map((rg: any) => ({
-                productId: rg.productId,
-                quantity: rg.quantity,
-                required: rg.required !== false,
-              })),
+              create: gearData,
             }
           : undefined,
       },

@@ -21,7 +21,7 @@ interface ItineraryItem {
 }
 
 interface RequiredGear {
-  productId: string
+  name: string
   quantity: number
   required: boolean
 }
@@ -54,13 +54,11 @@ export default function EditExpeditionPage() {
   })
   const [itineraries, setItineraries] = useState<ItineraryItem[]>([])
   const [requiredGear, setRequiredGear] = useState<RequiredGear[]>([])
-  const [products, setProducts] = useState<any[]>([])
   const [uploadingHero, setUploadingHero] = useState(false)
 
   useEffect(() => {
     if (id) {
       fetchExpedition()
-      fetchProducts()
     }
   }, [id])
 
@@ -100,7 +98,7 @@ export default function EditExpeditionPage() {
         )
         setRequiredGear(
           data.requiredGear?.map((rg: any) => ({
-            productId: rg.productId,
+            name: rg.product?.name || "",
             quantity: rg.quantity,
             required: rg.required,
           })) || []
@@ -117,17 +115,6 @@ export default function EditExpeditionPage() {
     }
   }
 
-  const fetchProducts = async () => {
-    try {
-      const res = await fetch("/api/products")
-      if (res.ok) {
-        const data = await res.json()
-        setProducts(data)
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error)
-    }
-  }
 
   const handleTitleChange = (value: string) => {
     setFormData({
@@ -162,7 +149,7 @@ export default function EditExpeditionPage() {
   }
 
   const addRequiredGear = () => {
-    setRequiredGear([...requiredGear, { productId: "", quantity: 1, required: true }])
+    setRequiredGear([...requiredGear, { name: "", quantity: 1, required: true }])
   }
 
   const removeRequiredGear = (index: number) => {
@@ -601,25 +588,15 @@ export default function EditExpeditionPage() {
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
-                  <div className="grid md:grid-cols-3 gap-4">
+                  <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Product *</Label>
-                      <Select
-                        value={gear.productId}
-                        onValueChange={(value) => updateRequiredGear(index, "productId", value)}
+                      <Label>Gear Name *</Label>
+                      <Input
+                        value={gear.name}
+                        onChange={(e) => updateRequiredGear(index, "name", e.target.value)}
+                        placeholder="e.g., Climbing Rope, Helmet, Crampons"
                         required
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select product" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {products.map((product) => (
-                            <SelectItem key={product.id} value={product.id}>
-                              {product.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>Quantity *</Label>
@@ -627,19 +604,19 @@ export default function EditExpeditionPage() {
                         type="number"
                         min="1"
                         value={gear.quantity}
-                        onChange={(e) => updateRequiredGear(index, "quantity", parseInt(e.target.value))}
+                        onChange={(e) => updateRequiredGear(index, "quantity", parseInt(e.target.value) || 1)}
                         required
                       />
                     </div>
-                    <div className="flex items-center space-x-2 pt-8">
-                      <input
-                        type="checkbox"
-                        checked={gear.required}
-                        onChange={(e) => updateRequiredGear(index, "required", e.target.checked)}
-                        className="rounded"
-                      />
-                      <Label>Required</Label>
-                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={gear.required}
+                      onChange={(e) => updateRequiredGear(index, "required", e.target.checked)}
+                      className="rounded"
+                    />
+                    <Label>Required</Label>
                   </div>
                 </div>
               ))
