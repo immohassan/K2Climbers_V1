@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { 
   LayoutDashboard, 
@@ -10,7 +10,6 @@ import {
   ShoppingBag, 
   Users, 
   FileText,
-  MessageSquare,
   Settings,
   LogOut,
   Menu,
@@ -24,7 +23,6 @@ const navItems = [
   { href: "/dashboard/expeditions", label: "Expeditions", icon: Mountain },
   { href: "/dashboard/products", label: "Products", icon: ShoppingBag },
   { href: "/dashboard/users", label: "Users", icon: Users },
-  { href: "/dashboard/community", label: "Community", icon: MessageSquare },
   { href: "/dashboard/certificates", label: "Certificates", icon: FileText },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ]
@@ -33,8 +31,13 @@ export function DashboardNav() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
+  // Close mobile menu when pathname changes
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [pathname])
+
   return (
-    <nav className="border-b border-border bg-card">
+    <nav className="sticky top-0 z-40 border-b border-border bg-card">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="hidden lg:flex items-center space-x-6">

@@ -91,8 +91,8 @@ export function Navbar() {
             {/* <Link href="/certificates" className="block text-sm">Certificates</Link> */}
             {session && session.user.role == "SUPER_ADMIN" ? (
               <>
-                <Link href="/dashboard" className="block text-sm">Dashboard</Link>
                 <Link href="/profile" className="block text-sm">Profile</Link>
+                <Link href="/dashboard" className="block text-sm">Admin Dashboard</Link>
                 <Button variant="outline" size="sm" onClick={() => signOut()}>
                   Sign Out
                 </Button>
