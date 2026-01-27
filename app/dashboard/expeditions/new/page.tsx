@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import Image from "next/image"
 import toast from "react-hot-toast"
 import { slugify } from "@/lib/utils"
 import { Plus, Trash2 } from "lucide-react"
@@ -387,11 +389,13 @@ export default function NewExpeditionPage() {
                 )}
                 {formData.heroImage && !uploadingHero && (
                   <div className="mt-2 space-y-2">
-                    <div className="relative inline-block">
-                      <img 
+                    <div className="relative w-full max-w-xs aspect-video rounded-lg border border-border overflow-hidden">
+                      <Image 
                         src={formData.heroImage} 
                         alt="Hero preview" 
-                        className="max-w-xs rounded-lg border border-border" 
+                        fill
+                        className="object-cover" 
+                        sizes="(max-width: 768px) 100vw, 384px"
                       />
                     </div>
                     <Button

@@ -342,8 +342,14 @@ export default function ProfilePage() {
                             className="cursor-pointer"
                           />
                           {formData.image && (
-                            <div className="mt-2">
-                              <img src={formData.image} alt="Profile preview" className="w-24 h-24 rounded-full object-cover border border-border" />
+                            <div className="mt-2 relative w-24 h-24">
+                              <Image 
+                                src={formData.image} 
+                                alt="Profile preview" 
+                                fill
+                                className="rounded-full object-cover border border-border" 
+                                sizes="96px"
+                              />
                             </div>
                           )}
                           {uploadingImage && (
