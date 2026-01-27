@@ -86,10 +86,10 @@ export function Navbar() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 space-y-4 border-t border-border">
             <Link href="/expeditions" className="block text-sm">Expeditions</Link>
-            <Link href="/shop" className="block text-sm">Shop & Rent</Link>
-            <Link href="/community" className="block text-sm">Community</Link>
-            <Link href="/certificates" className="block text-sm">Certificates</Link>
-            {session ? (
+            {/* <Link href="/shop" className="block text-sm">Shop & Rent</Link> */}
+            {/* <Link href="/community" className="block text-sm">Community</Link> */}
+            {/* <Link href="/certificates" className="block text-sm">Certificates</Link> */}
+            {session && session.user.role == "SUPER_ADMIN" ? (
               <>
                 <Link href="/dashboard" className="block text-sm">Dashboard</Link>
                 <Link href="/profile" className="block text-sm">Profile</Link>
