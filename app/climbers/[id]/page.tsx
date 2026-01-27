@@ -25,11 +25,6 @@ async function getClimber(id: string) {
         certificates: {
           orderBy: { createdAt: "desc" },
         },
-        communityPosts: {
-          where: { isPublished: true },
-          orderBy: { createdAt: "desc" },
-          take: 5,
-        },
       },
     })
     return climber

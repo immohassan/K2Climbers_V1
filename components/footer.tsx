@@ -32,7 +32,7 @@ export function Footer() {
             </ul>
           </div>
 
-          <div>
+          {/* <div>
             <h3 className="font-semibold mb-4">Community</h3>
             <ul className="space-y-2 text-sm">
               <li>
@@ -51,7 +51,7 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </div> */}
 
           <div>
             <h3 className="font-semibold mb-4">Support</h3>

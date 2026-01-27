@@ -30,11 +30,6 @@ interface Climber {
     summitDate: Date
     verificationCode: string
   }>
-  communityPosts: Array<{
-    id: string
-    title: string
-    createdAt: Date
-  }>
 }
 
 export function ClimberProfile({
@@ -150,29 +145,6 @@ export function ClimberProfile({
                         {formatDate(cert.summitDate)}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Recent Posts */}
-      {climber.communityPosts.length > 0 && (
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Recent Posts</h2>
-          <div className="space-y-2">
-            {climber.communityPosts.map((post) => (
-              <Link key={post.id} href={`/community/${post.id}`}>
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold hover:text-glacier-400 transition">
-                      {post.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {formatDate(post.createdAt)}
-                    </p>
                   </CardContent>
                 </Card>
               </Link>

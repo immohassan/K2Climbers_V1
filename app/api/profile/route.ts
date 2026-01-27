@@ -32,7 +32,6 @@ export async function GET(request: NextRequest) {
             bookings: true,
             certificates: true,
             rentals: true,
-            communityPosts: true,
           },
         },
         summitRecords: {

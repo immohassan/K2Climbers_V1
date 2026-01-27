@@ -20,8 +20,6 @@ import {
   Mountain, 
   Calendar, 
   Award, 
-  ShoppingBag,
-  FileText,
   TrendingUp
 } from "lucide-react"
 import Image from "next/image"
@@ -43,7 +41,6 @@ interface ProfileData {
     bookings: number
     certificates: number
     rentals: number
-    communityPosts: number
   }
   summitRecords: Array<{
     id: string
@@ -576,18 +573,6 @@ export default function ProfilePage() {
                       <Button variant="outline" className="w-full justify-start">
                         <Mountain className="h-4 w-4 mr-2" />
                         Browse Expeditions
-                      </Button>
-                    </Link>
-                    <Link href="/shop" className="block">
-                      <Button variant="outline" className="w-full justify-start">
-                        <ShoppingBag className="h-4 w-4 mr-2" />
-                        Shop & Rent
-                      </Button>
-                    </Link>
-                    <Link href="/community" className="block">
-                      <Button variant="outline" className="w-full justify-start">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Community
                       </Button>
                     </Link>
                     {profile.role === "ADMIN" || profile.role === "SUPER_ADMIN" ? (
