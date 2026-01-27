@@ -86,9 +86,17 @@ export function Navbar() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 space-y-4 border-t border-border">
             <Link href="/expeditions" className="block text-sm">Expeditions</Link>
-            {/* <Link href="/shop" className="block text-sm">Shop & Rent</Link> */}
+            <Link href="/expeditions/custom" className="block text-sm">Custom Expedition</Link>
             {/* <Link href="/community" className="block text-sm">Community</Link> */}
             {/* <Link href="/certificates" className="block text-sm">Certificates</Link> */}
+            {session && session.user.role != "SUPER_ADMIN" ? (
+              <>
+                <Link href="/profile" className="block text-sm">Profile</Link>
+                <Button variant="outline" size="sm" onClick={() => signOut()}>
+                  Sign Out
+                </Button>
+              </>
+            ) : null}
             {session && session.user.role == "SUPER_ADMIN" ? (
               <>
                 <Link href="/profile" className="block text-sm">Profile</Link>
@@ -100,10 +108,10 @@ export function Navbar() {
             ) : (
               <div className="space-y-2">
                 <Link href="/auth/signup">
-                  <Button variant="outline" size="sm" className="w-full">Sign Up</Button>
+                  <Button variant="outline" size="sm" className="w-full mb-2">Sign Up</Button>
                 </Link>
                 <Link href="/auth/signin">
-                  <Button variant="summit" size="sm" className="w-full">Sign In</Button>
+                  <Button variant="summit" size="sm" className="w-full mb-2">Sign In</Button>
                 </Link>
               </div>
             )}

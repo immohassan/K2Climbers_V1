@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { signOut } from "next-auth/react"
 
 const navItems = [
+  { href: "/", label: "Home", icon: LayoutDashboard },
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/expeditions", label: "Expeditions", icon: Mountain },
   { href: "/dashboard/products", label: "Products", icon: ShoppingBag },
