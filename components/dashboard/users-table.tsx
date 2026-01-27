@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -125,10 +126,35 @@ export function UsersTable() {
                     </td>
                     <td className="p-3 md:p-4">
                       <div className="flex items-center justify-end gap-1 md:gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10">
-                          <Edit className="h-3 w-3 md:h-4 md:w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10">
+                        <Link href={`/dashboard/users/${user.id}`}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10">
+                            <Edit className="h-3 w-3 md:h-4 md:w-4" />
+                          </Button>
+                        </Link>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 md:h-10 md:w-10"
+                          onClick={async () => {
+                            if (confirm(`Are you sure you want to delete ${user.name || user.email}?`)) {
+                              try {
+                                const res = await fetch(`/api/users/${user.id}`, {
+                                  method: "DELETE",
+                                })
+                                if (res.ok) {
+                                  toast.success("User deleted successfully")
+                                  fetchUsers()
+                                } else {
+                                  const error = await res.json()
+                                  toast.error(error.error || "Failed to delete user")
+                                }
+                              } catch (error) {
+                                console.error("Error deleting user:", error)
+                                toast.error("Failed to delete user")
+                              }
+                            }
+                          }}
+                        >
                           <Trash2 className="h-3 w-3 md:h-4 md:w-4 text-destructive" />
                         </Button>
                       </div>
