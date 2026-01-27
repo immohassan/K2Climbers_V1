@@ -26,6 +26,7 @@ import Image from "next/image"
 import Link from "next/link"
 import toast from "react-hot-toast"
 import { formatDate, formatCurrency } from "@/lib/utils"
+import { ImageEditor } from "@/components/image-editor"
 
 interface ProfileData {
   id: string
@@ -87,6 +88,8 @@ export default function ProfilePage() {
     confirmPassword: "",
   })
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [imageEditorOpen, setImageEditorOpen] = useState(false)
+  const [selectedImageFile, setSelectedImageFile] = useState<string | null>(null)
 
   useEffect(() => {
     if (session) {
@@ -121,7 +124,7 @@ export default function ProfilePage() {
     }
   }
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -130,13 +133,36 @@ export default function ProfilePage() {
       return
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Image size must be less than 10MB")
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error("Image size must be less than 20MB")
       return
     }
 
+    // Create a preview URL for the image editor
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setSelectedImageFile(reader.result as string)
+      setImageEditorOpen(true)
+    }
+    reader.onerror = () => {
+      toast.error("Failed to read image file")
+    }
+    reader.readAsDataURL(file)
+    e.target.value = ""
+  }
+
+  const handleImageEditorSave = async (croppedImageDataUrl: string) => {
+    setImageEditorOpen(false)
     setUploadingImage(true)
+
     try {
+      // Convert data URL to blob
+      const response = await fetch(croppedImageDataUrl)
+      const blob = await response.blob()
+      
+      // Create a File object from the blob
+      const file = new File([blob], "profile-image.jpg", { type: "image/jpeg" })
+
       const formData = new FormData()
       formData.append("file", file)
 
@@ -158,7 +184,7 @@ export default function ProfilePage() {
       toast.error("Failed to upload image")
     } finally {
       setUploadingImage(false)
-      e.target.value = ""
+      setSelectedImageFile(null)
     }
   }
 
@@ -337,8 +363,8 @@ export default function ProfilePage() {
                             id="image"
                             type="file"
                             accept="image/*"
-                            onChange={handleImageUpload}
-                            disabled={uploadingImage}
+                            onChange={handleImageSelect}
+                            disabled={uploadingImage || imageEditorOpen}
                             className="cursor-pointer"
                           />
                           {formData.image && (
@@ -356,9 +382,22 @@ export default function ProfilePage() {
                             <p className="text-sm text-muted-foreground">Uploading...</p>
                           )}
                           <p className="text-xs text-muted-foreground">
-                            Upload profile image from your device (max 10MB)
+                            Upload profile image from your device (max 20MB). You can crop and rotate before uploading.
                           </p>
                         </div>
+                        {selectedImageFile && (
+                          <ImageEditor
+                            image={selectedImageFile}
+                            isOpen={imageEditorOpen}
+                            onClose={() => {
+                              setImageEditorOpen(false)
+                              setSelectedImageFile(null)
+                            }}
+                            onSave={handleImageEditorSave}
+                            aspect={1}
+                            circularCrop={true}
+                          />
+                        )}
                         <div className="space-y-2">
                           <Label htmlFor="password">New Password (optional)</Label>
                           <Input
