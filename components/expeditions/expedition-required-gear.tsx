@@ -27,14 +27,14 @@ export function ExpeditionRequiredGear({ requiredGear }: { requiredGear: Require
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <ShoppingBag className="h-5 w-5" />
-          Required Gear & Equipment
+    <Card className="min-w-0 overflow-hidden">
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="flex flex-wrap items-center gap-2 text-base sm:text-lg md:text-xl">
+          <ShoppingBag className="h-5 w-5 shrink-0" />
+          <span className="break-words">Required Gear & Equipment</span>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
         <div className="space-y-4">
           {requiredGear.map((gear) => (
             <div

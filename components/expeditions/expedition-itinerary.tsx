@@ -16,11 +16,11 @@ export function ExpeditionItinerary({ itineraries }: { itineraries: Itinerary[] 
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Itinerary</CardTitle>
+    <Card className="min-w-0 overflow-hidden">
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="text-base sm:text-lg md:text-xl">Itinerary</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
         <div className="space-y-4 sm:space-y-6">
           {itineraries.map((day) => (
             <div key={day.id} className="border-l-2 border-glacier-500 pl-3 sm:pl-4 md:pl-6 pb-4 sm:pb-6 last:pb-0">

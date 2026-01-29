@@ -60,11 +60,11 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg sm:text-xl">Book This Expedition</CardTitle>
+    <Card className="w-full min-w-0 overflow-hidden">
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="text-base sm:text-lg md:text-xl">Book This Expedition</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
         <div className="space-y-2">
           <Label htmlFor="people">Number of People</Label>
           <Input

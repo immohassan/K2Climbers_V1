@@ -60,11 +60,11 @@ export default async function ExpeditionPage({
   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-16">
+      <main className="min-h-screen pt-14 sm:pt-16 overflow-x-hidden">
         <ExpeditionHeader expedition={expedition} successRate={successRate} />
-        <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
-          <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
-            <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+        <div className="container mx-auto w-full max-w-7xl px-3 py-4 sm:px-4 sm:py-6 md:py-8 lg:py-12">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:gap-8">
+            <div className="min-w-0 space-y-4 sm:space-y-6 lg:col-span-2 lg:space-y-8">
               <ExpeditionDetails expedition={expedition} />
               <ExpeditionWeather
                 latitude={(expedition as { latitude?: number | null }).latitude ?? null}
@@ -74,7 +74,7 @@ export default async function ExpeditionPage({
               <ExpeditionItinerary itineraries={expedition.itineraries} />
               <ExpeditionRequiredGear requiredGear={expedition.requiredGear} />
             </div>
-            <div className="lg:col-span-1">
+            <div className="min-w-0 lg:col-span-1">
               <div className="lg:sticky lg:top-24">
                 <BookingPanel expedition={expedition} />
               </div>

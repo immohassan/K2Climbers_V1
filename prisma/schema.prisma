@@ -293,3 +293,12 @@ model SiteSettings {
   
   @@map("site_settings")
 }
+
+model StoredImage {
+  id        String   @id @default(cuid())
+  data      Bytes    // image binary data
+  mimeType  String   // e.g. image/jpeg, image/png
+  createdAt DateTime @default(now())
+  
+  @@map("stored_images")
+}

@@ -134,9 +134,9 @@ export function ExpeditionWeather({
   const range = tempMax - tempMin || 1
 
   return (
-    <Card className="overflow-hidden border-glacier-500/20 bg-gradient-to-br from-snow-50 to-glacier-50 dark:from-glacier-900/20 dark:to-glacier-950/30">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center justify-between gap-2 text-lg">
+    <Card className="min-w-0 overflow-hidden border-glacier-500/20 bg-gradient-to-br from-snow-50 to-glacier-50 dark:from-glacier-900/20 dark:to-glacier-950/30">
+      <CardHeader className="p-4 pb-2 sm:p-6">
+        <CardTitle className="flex flex-col gap-1 text-base sm:flex-row sm:items-center sm:justify-between sm:gap-2 sm:text-lg">
           <span className="flex items-center gap-2">
             <Cloud className="h-5 w-5 text-glacier-500" />
             7-Day Forecast
@@ -149,9 +149,9 @@ export function ExpeditionWeather({
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
         {/* Day strip: clickable day pills */}
-        <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-thin">
+        <div className="-mx-1 flex gap-1 overflow-x-auto pb-1 scrollbar-thin sm:mx-0">
           {days.map((day, i) => (
             <button
               key={day.time}
@@ -185,7 +185,7 @@ export function ExpeditionWeather({
               </div>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
               <div className="flex items-center gap-2">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-glacier-500/15">
                   <Thermometer className="h-5 w-5 text-glacier-500" />
