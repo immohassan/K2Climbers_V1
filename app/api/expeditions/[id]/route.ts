@@ -87,13 +87,21 @@ export async function PUT(
       ...expeditionData
     } = body
 
+    const updateData: Record<string, unknown> = {
+      ...expeditionData,
+      successRate: expeditionData.successRate ? parseFloat(expeditionData.successRate) : null,
+    }
+    if (expeditionData.latitude !== undefined) {
+      updateData.latitude = expeditionData.latitude === "" || expeditionData.latitude == null ? null : parseFloat(expeditionData.latitude)
+    }
+    if (expeditionData.longitude !== undefined) {
+      updateData.longitude = expeditionData.longitude === "" || expeditionData.longitude == null ? null : parseFloat(expeditionData.longitude)
+    }
+
     // Update expedition basic data
     const expedition = await prisma.expedition.update({
       where: { id },
-      data: {
-        ...expeditionData,
-        successRate: expeditionData.successRate ? parseFloat(expeditionData.successRate) : null,
-      },
+      data: updateData,
     })
 
     // Update itineraries if provided

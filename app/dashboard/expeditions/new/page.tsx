@@ -41,6 +41,8 @@ export default function NewExpeditionPage() {
     duration: "",
     basePrice: "",
     location: "",
+    latitude: "",
+    longitude: "",
     heroImage: "",
     maxGroupSize: "",
     minGroupSize: "1",
@@ -169,6 +171,8 @@ export default function NewExpeditionPage() {
           maxGroupSize: parseInt(formData.maxGroupSize),
           minGroupSize: parseInt(formData.minGroupSize),
           successRate: formData.successRate ? parseFloat(formData.successRate) : null,
+          latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+          longitude: formData.longitude ? parseFloat(formData.longitude) : null,
           itineraries,
           requiredGear,
         }),
@@ -295,6 +299,31 @@ export default function NewExpeditionPage() {
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   required
+                />
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="latitude">Latitude (for weather)</Label>
+                <Input
+                  id="latitude"
+                  type="number"
+                  step="any"
+                  value={formData.latitude}
+                  onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+                  placeholder="e.g., 34.787"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="longitude">Longitude (for weather)</Label>
+                <Input
+                  id="longitude"
+                  type="number"
+                  step="any"
+                  value={formData.longitude}
+                  onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                  placeholder="e.g., 73.333"
                 />
               </div>
             </div>

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { ExpeditionHeader } from "@/components/expeditions/expedition-header"
 import { ExpeditionDetails } from "@/components/expeditions/expedition-details"
+import { ExpeditionWeather } from "@/components/expeditions/expedition-weather"
 import { ExpeditionItinerary } from "@/components/expeditions/expedition-itinerary"
 import { ExpeditionRequiredGear } from "@/components/expeditions/expedition-required-gear"
 import { BookingPanel } from "@/components/expeditions/booking-panel"
@@ -73,6 +74,11 @@ export default async function ExpeditionPage({
           <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
             <div className="lg:col-span-2 space-y-6 sm:space-y-8">
               <ExpeditionDetails expedition={expedition} />
+              <ExpeditionWeather
+                latitude={expedition.latitude ?? null}
+                longitude={expedition.longitude ?? null}
+                locationName={expedition.location}
+              />
               <ExpeditionItinerary itineraries={expedition.itineraries} />
               <ExpeditionRequiredGear requiredGear={expedition.requiredGear} />
             </div>
