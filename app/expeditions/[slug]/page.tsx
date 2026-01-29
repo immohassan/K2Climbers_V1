@@ -13,14 +13,6 @@ async function getExpedition(slug: string) {
     const expedition = await prisma.expedition.findUnique({
       where: { slug },
       include: {
-        guides: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            bio: true,
-          },
-        },
         itineraries: {
           orderBy: { dayNumber: "asc" },
         },
@@ -75,8 +67,8 @@ export default async function ExpeditionPage({
             <div className="lg:col-span-2 space-y-6 sm:space-y-8">
               <ExpeditionDetails expedition={expedition} />
               <ExpeditionWeather
-                latitude={expedition.latitude ?? null}
-                longitude={expedition.longitude ?? null}
+                latitude={(expedition as { latitude?: number | null }).latitude ?? null}
+                longitude={(expedition as { longitude?: number | null }).longitude ?? null}
                 locationName={expedition.location}
               />
               <ExpeditionItinerary itineraries={expedition.itineraries} />
