@@ -97,6 +97,9 @@ export async function PUT(
     if (expeditionData.longitude !== undefined) {
       updateData.longitude = expeditionData.longitude === "" || expeditionData.longitude == null ? null : parseFloat(expeditionData.longitude)
     }
+    if (expeditionData.videoUrl !== undefined) {
+      updateData.videoUrl = expeditionData.videoUrl === "" ? null : expeditionData.videoUrl
+    }
 
     // Update expedition basic data
     const expedition = await prisma.expedition.update({

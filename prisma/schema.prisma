@@ -103,7 +103,8 @@ model Expedition {
   latitude        Float?            // for weather forecast
   longitude       Float?            // for weather forecast
   heroImage       String?
-  gallery         String[]          // Array of image URLs
+  videoUrl        String?            // YouTube, Vimeo, or direct video URL
+  gallery         String[]           // Array of image URLs
   
   // SEO & Content
   metaTitle       String?

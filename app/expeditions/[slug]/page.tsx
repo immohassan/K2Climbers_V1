@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { ExpeditionHeader } from "@/components/expeditions/expedition-header"
 import { ExpeditionDetails } from "@/components/expeditions/expedition-details"
+import { ExpeditionVideo } from "@/components/expeditions/expedition-video"
 import { ExpeditionWeather } from "@/components/expeditions/expedition-weather"
 import { ExpeditionItinerary } from "@/components/expeditions/expedition-itinerary"
 import { ExpeditionRequiredGear } from "@/components/expeditions/expedition-required-gear"
@@ -66,6 +67,7 @@ export default async function ExpeditionPage({
           <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:gap-8">
             <div className="min-w-0 space-y-4 sm:space-y-6 lg:col-span-2 lg:space-y-8">
               <ExpeditionDetails expedition={expedition} />
+              <ExpeditionVideo videoUrl={(expedition as { videoUrl?: string | null }).videoUrl ?? null} />
               <ExpeditionWeather
                 latitude={(expedition as { latitude?: number | null }).latitude ?? null}
                 longitude={(expedition as { longitude?: number | null }).longitude ?? null}

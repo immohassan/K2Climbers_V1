@@ -44,6 +44,7 @@ export default function NewExpeditionPage() {
     latitude: "",
     longitude: "",
     heroImage: "",
+    videoUrl: "",
     maxGroupSize: "",
     minGroupSize: "1",
     successRate: "",
@@ -173,6 +174,7 @@ export default function NewExpeditionPage() {
           successRate: formData.successRate ? parseFloat(formData.successRate) : null,
           latitude: formData.latitude ? parseFloat(formData.latitude) : null,
           longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+          videoUrl: formData.videoUrl?.trim() || null,
           itineraries,
           requiredGear,
         }),
@@ -440,6 +442,20 @@ export default function NewExpeditionPage() {
               </div>
               <p className="text-xs text-muted-foreground">
                 Upload hero image from your device (max 10MB). Supported formats: JPEG, PNG, WebP, GIF
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="videoUrl">Video URL (optional)</Label>
+              <Input
+                id="videoUrl"
+                type="url"
+                value={formData.videoUrl}
+                onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                placeholder="YouTube, Vimeo, or direct video link"
+              />
+              <p className="text-xs text-muted-foreground">
+                Paste a YouTube or Vimeo URL, or a direct link to an MP4/WebM video. Leave empty to hide the video section.
               </p>
             </div>
 
