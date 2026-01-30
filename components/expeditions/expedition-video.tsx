@@ -13,6 +13,10 @@ export function ExpeditionVideo({ videoUrl }: { videoUrl: string | null }) {
   if (!embed) {
     return null
   }
+  const embedSrcWithAutoplay =
+  embed.type === "youtube" || embed.type === "vimeo"
+  ? `${embed.src}${embed.src.includes("?") ? "&" : "?"}autoplay=1&mute=1`
+  : embed.src
 
   return (
     <Card className="min-w-0 overflow-hidden">
@@ -27,7 +31,7 @@ export function ExpeditionVideo({ videoUrl }: { videoUrl: string | null }) {
           <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
             {embed.type === "youtube" || embed.type === "vimeo" ? (
               <iframe
-                src={embed.src}
+                src={embedSrcWithAutoplay}
                 title="Expedition video"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
