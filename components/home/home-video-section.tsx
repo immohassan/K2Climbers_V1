@@ -25,9 +25,9 @@ export async function HomeVideoSection() {
               <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
                 {embed.type === "youtube" || embed.type === "vimeo" ? (
                   <iframe
-                    src={`${embed.src}?autoplay=1&muted=1&playsinline=1`}
+                    src={embed.src}
                     title="Our expeditions and tours"
-                    allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                     className="absolute inset-0 h-full w-full"
                   />
