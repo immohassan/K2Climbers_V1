@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { SettingsAboutUs } from "@/components/dashboard/settings-about-us"
+import { SettingsHomeVideo } from "@/components/dashboard/settings-home-video"
 
 export default function SettingsPage() {
   return (
@@ -12,6 +14,11 @@ export default function SettingsPage() {
         <p className="text-sm md:text-base text-muted-foreground">
           Manage site settings and configuration
         </p>
+      </div>
+
+      <div className="space-y-6">
+        <SettingsAboutUs />
+        <SettingsHomeVideo />
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">

@@ -1,34 +1,51 @@
 # Supabase Database Setup Guide
 
+## Fix: "MaxClientsInSessionMode: max clients reached"
+
+This error happens when using **Session mode** (port 5432 on the pooler or direct connection). Each serverless request holds a connection for the whole request, so you hit Supabase’s connection limit.
+
+**Use Transaction mode instead:**
+
+1. **App (runtime):** Use the **Transaction** pooler on port **6543** (not 5432):
+   - In Supabase: **Settings → Database → Connection string → Transaction** (or "Connection pooling" with port **6543**).
+   - Add `?pgbouncer=true&connection_limit=1` so Prisma works with PgBouncer and each instance uses one connection that is returned to the pool after each transaction.
+
+2. **Migrations:** Use a **direct** connection so `prisma migrate` works. Set `DIRECT_URL` in `.env` (see below).
+
+3. **Two URLs in `.env`:**
+   ```env
+   # App: Transaction mode pooler (port 6543) – avoids "max clients reached"
+   DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+
+   # Migrations only: direct connection (port 5432)
+   DIRECT_URL="postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres"
+   ```
+   Replace `[PROJECT-REF]`, `[YOUR-PASSWORD]`, and `[REGION]` (e.g. `us-east-1`, `ap-northeast-2`) with your Supabase values. Get both URLs from **Settings → Database** in the Supabase dashboard.
+
+---
+
 ## Connection String Formats
 
-Supabase provides different connection strings depending on your use case. For Prisma, you need the **direct connection** or **connection pooling** string.
+### Option 1: Transaction mode pooler (recommended for production / serverless)
 
-### Option 1: Direct Connection (Recommended for Prisma)
+Use this as **DATABASE_URL** to avoid "max clients reached":
 
-Format:
 ```
-postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres?pgbouncer=true&connection_limit=1
+postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
 ```
 
-Or without pgbouncer:
+- Port **6543** = Transaction mode (connections returned after each transaction).
+- Port 5432 on the pooler = Session mode (connection held for whole request → limit hit quickly).
+
+### Option 2: Direct connection (for DIRECT_URL / migrations)
+
+Use this as **DIRECT_URL** (required for `prisma migrate`):
+
 ```
 postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
 ```
 
-### Option 2: Connection Pooling (Better for production)
-
-Format:
-```
-postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true
-```
-
-### Option 3: Using Connection Pooler Port
-
-Format:
-```
-postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:6543/postgres?pgbouncer=true
-```
+Add `?sslmode=require` if your project requires SSL.
 
 ## How to Get Your Credentials
 
@@ -60,11 +77,14 @@ postgresql://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres?pgbo
 ## Example .env File
 
 ```env
-# Supabase Database Connection
-# Replace [YOUR-PASSWORD] with your actual database password
-# Replace [PROJECT-REF] with your Supabase project reference
+# Supabase – use Transaction mode (6543) to avoid "max clients reached"
+# Get both URLs from Supabase Dashboard → Settings → Database
 
-DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres?pgbouncer=true&connection_limit=1"
+# App runtime (Transaction pooler, port 6543)
+DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+
+# Migrations only (direct connection, port 5432)
+DIRECT_URL="postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres"
 
 # NextAuth
 NEXTAUTH_URL="http://localhost:3000"
@@ -74,32 +94,29 @@ NEXTAUTH_SECRET="your-secret-key-here"
 NODE_ENV="development"
 ```
 
-## Steps to Fix Your Connection
+Replace `[PROJECT-REF]`, `[YOUR-PASSWORD]`, and `[REGION]` (e.g. `ap-northeast-2`) with your values.
 
-1. **Get your Supabase connection string:**
-   - Go to Supabase Dashboard → Settings → Database
-   - Copy the connection string from the "URI" tab
-   - Make sure it includes your password
+## Steps to Fix Your Connection (and "max clients reached")
 
-2. **Update your .env file:**
+1. **Get both URLs from Supabase:**
+   - Go to **Supabase Dashboard → Settings → Database**
+   - Under **Connection string**, copy:
+     - **URI** (Transaction) or **Connection pooling** with port **6543** → use for `DATABASE_URL`
+     - **URI** (Direct) or the direct `db....supabase.co:5432` URL → use for `DIRECT_URL`
+
+2. **Update your .env** (and Vercel → Settings → Environment Variables):
    ```env
-   DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT_REF.supabase.co:5432/postgres"
+   DATABASE_URL="postgresql://postgres.[REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+   DIRECT_URL="postgresql://postgres:[PASSWORD]@db.[REF].supabase.co:5432/postgres"
    ```
+   Use your actual project ref, password, and region (e.g. `ap-northeast-2`).
 
 3. **Test the connection:**
    ```powershell
-   npm run db:push
+   npx prisma generate
+   npx prisma db push
    ```
-
-4. **If still failing, try with SSL:**
-   ```env
-   DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT_REF.supabase.co:5432/postgres?sslmode=require"
-   ```
-
-5. **Or use connection pooling:**
-   ```env
-   DATABASE_URL="postgresql://postgres.YOUR_PROJECT_REF:YOUR_PASSWORD@aws-0-us-east-1.pooler.supabase.com:6543/postgres"
-   ```
+   Migrations use `DIRECT_URL`; the app uses `DATABASE_URL` (Transaction pooler).
 
 ## Verify Connection
 
@@ -115,6 +132,9 @@ If successful, you'll see:
 ```
 
 ## Troubleshooting
+
+### "DIRECT_URL is not set" or Prisma fails at generate
+Add `DIRECT_URL` to your `.env` (and to Vercel → Settings → Environment Variables). Use the **direct** connection (db.xxx:5432). See the Example .env above.
 
 ### Check if Supabase is accessible:
 ```powershell
