@@ -1,6 +1,9 @@
 import { ExpeditionsList } from "@/components/expeditions/expeditions-list"
 import { prisma } from "@/lib/prisma"
 
+// Always fetch fresh data so new expeditions show up on deploy (no static cache)
+export const dynamic = "force-dynamic"
+
 async function getExpeditions() {
   try {
     const expeditions = await prisma.expedition.findMany({

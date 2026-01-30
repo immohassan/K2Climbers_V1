@@ -21,7 +21,7 @@ interface Expedition {
 }
 
 export function ExpeditionsList({ expeditions }: { expeditions: Expedition[] }) {
-  if (expeditions.length === 0) {
+  if (expeditions.length == 0) {
     return (
       <div className="text-center py-20">
         <p className="text-muted-foreground text-lg">No expeditions available at the moment.</p>
@@ -29,7 +29,6 @@ export function ExpeditionsList({ expeditions }: { expeditions: Expedition[] }) 
       </div>
     )
   }
-
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
       {expeditions.map((expedition) => (

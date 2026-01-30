@@ -4,6 +4,9 @@ import { StatsSection } from "@/components/home/stats-section"
 import { FeaturedClimbers } from "@/components/home/featured-climbers"
 import { Footer } from "@/components/footer"
 
+// Always fetch fresh data so new expeditions show up on deploy (no static cache)
+export const dynamic = "force-dynamic"
+
 export default function HomePage() {
   return (
     <>
