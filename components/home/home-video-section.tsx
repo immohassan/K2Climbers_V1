@@ -15,19 +15,19 @@ export async function HomeVideoSection() {
       <div className="container mx-auto max-w-4xl px-4 sm:px-6">
         <Card className="min-w-0 overflow-hidden">
           <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl">
+            {/* <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl">
               <Play className="h-5 w-5 shrink-0 text-glacier-500" />
               Our Expeditions & Tours
-            </CardTitle>
+            </CardTitle> */}
           </CardHeader>
           <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
             <div className="relative w-full overflow-hidden rounded-lg border border-border bg-muted/30">
               <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
                 {embed.type === "youtube" || embed.type === "vimeo" ? (
                   <iframe
-                    src={embed.src}
+                    src={`${embed.src}?autoplay=1&muted=1&playsinline=1`}
                     title="Our expeditions and tours"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                     className="absolute inset-0 h-full w-full"
                   />
