@@ -20,13 +20,7 @@ export async function HomeVideoSection() {
     <section className="border-t border-border bg-card/30 py-8 sm:py-12 md:py-16">
       <div className="container mx-auto max-w-4xl px-4 sm:px-6">
         <Card className="min-w-0 overflow-hidden">
-          <CardHeader className="sm:p-6">
-            {/* <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl">
-              <Play className="h-5 w-5 shrink-0 text-glacier-500" />
-              Our Expeditions & Tours
-            </CardTitle> */}
-          </CardHeader>
-          <CardContent className="pt-0 sm:p-6 sm:pt-0">
+          <CardContent className="pt-0 sm:pt-0 p-0">
             <div className="relative w-full overflow-hidden rounded-lg border border-border bg-muted/30">
               <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
                 {embed.type === "youtube" || embed.type === "vimeo" ? (
