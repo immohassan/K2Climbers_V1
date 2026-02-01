@@ -29,7 +29,6 @@ export async function GET(request: NextRequest) {
     }
 
     const users = (await prisma.user.findMany({
-      // @ts-expect-error - featured/summitRecords exist in schema; run npx prisma generate if types are stale
       select: {
         id: true,
         email: true,
@@ -50,7 +49,7 @@ export async function GET(request: NextRequest) {
             expedition: { select: { category: true } },
           },
         },
-      },
+      } as import("@prisma/client").Prisma.UserSelect,
       orderBy: { createdAt: "desc" },
     })) as unknown as UserWithSummitRecords[]
 

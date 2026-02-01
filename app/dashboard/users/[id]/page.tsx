@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -44,13 +44,8 @@ export default function EditUserPage() {
   })
   const [createdAt, setCreatedAt] = useState<string>("")
 
-  useEffect(() => {
-    if (id) {
-      fetchUser()
-    }
-  }, [id])
-
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
+    if (!id) return
     try {
       const res = await fetch(`/api/users/${id}`)
       if (res.ok) {
@@ -83,7 +78,11 @@ export default function EditUserPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [id, router])
+
+  useEffect(() => {
+    fetchUser()
+  }, [fetchUser])
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
