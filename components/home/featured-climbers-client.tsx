@@ -10,9 +10,8 @@ interface Climber {
   id: string
   name: string | null
   image: string | null
-  _count: {
-    summitRecords: number
-  }
+  summitCount: number
+  _count?: { summitRecords: number }
   certificates?: Array<unknown>
 }
 
@@ -61,7 +60,7 @@ export function FeaturedClimbersClient({ climbers }: { climbers: Climber[] }) {
                         <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
                           <div className="flex items-center">
                             <Mountain className="h-4 w-4 mr-1" />
-                            {climber._count.summitRecords} summits
+                            {climber.summitCount} summits
                           </div>
                           <div className="flex items-center">
                             <Award className="h-4 w-4 mr-1" />

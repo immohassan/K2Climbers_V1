@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import bcrypt from "bcryptjs"
+import { recordCountsAsSummit } from "@/lib/summit-utils"
 
 export async function GET(
   request: NextRequest,
@@ -39,6 +40,12 @@ export async function GET(
             rentals: true,
           },
         },
+        summitRecords: {
+          where: { status: "SUCCESSFUL" },
+          include: {
+            expedition: { select: { category: true } },
+          },
+        },
       },
     })
 
@@ -49,7 +56,12 @@ export async function GET(
       )
     }
 
-    return NextResponse.json(user)
+    const { summitRecords, ...rest } = user
+    const summitCount = summitRecords.filter((r) =>
+      recordCountsAsSummit(r.expedition.category)
+    ).length
+
+    return NextResponse.json({ ...rest, summitCount })
   } catch (error) {
     console.error("Error fetching user:", error)
     return NextResponse.json(

@@ -71,12 +71,12 @@ export function DashboardStats() {
       icon: Award,
       color: "text-summit-600",
     },
-    {
-      title: "Products",
-      value: stats.products,
-      icon: ShoppingBag,
-      color: "text-glacier-500",
-    },
+    // {
+    //   title: "Products",
+    //   value: stats.products,
+    //   icon: ShoppingBag,
+    //   color: "text-glacier-500",
+    // },
   ]
 
   return (

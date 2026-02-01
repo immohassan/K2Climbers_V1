@@ -2,12 +2,14 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Mountain, Menu, X, User } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 
 export function Navbar() {
+  const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
   const { data: session } = useSession()
@@ -18,6 +20,10 @@ export function Navbar() {
       .then((data) => data?.logoUrl && setLogoUrl(data.logoUrl))
       .catch(() => {})
   }, [])
+
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [pathname])
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">

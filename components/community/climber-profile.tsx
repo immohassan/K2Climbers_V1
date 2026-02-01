@@ -20,6 +20,7 @@ interface Climber {
       title: string
       slug: string
       altitude: number
+      category?: string
       heroImage: string | null
     }
   }>

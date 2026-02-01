@@ -67,10 +67,10 @@ export default function EditUserPage() {
           confirmPassword: "",
         })
         setUserStats({
-          summitRecords: data._count.summitRecords || 0,
-          bookings: data._count.bookings || 0,
-          certificates: data._count.certificates || 0,
-          rentals: data._count.rentals || 0,
+          summitRecords: data.summitCount ?? data._count?.summitRecords ?? 0,
+          bookings: data._count?.bookings ?? 0,
+          certificates: data._count?.certificates ?? 0,
+          rentals: data._count?.rentals ?? 0,
         })
         setCreatedAt(data.createdAt)
       } else {

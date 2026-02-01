@@ -22,7 +22,7 @@ const navItems = [
   { href: "/", label: "Home", icon: LayoutDashboard },
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/expeditions", label: "Expeditions", icon: Mountain },
-  { href: "/dashboard/products", label: "Products", icon: ShoppingBag },
+  // { href: "/dashboard/products", label: "Products", icon: ShoppingBag },
   { href: "/dashboard/users", label: "Users", icon: Users },
   { href: "/dashboard/certificates", label: "Certificates", icon: FileText },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },

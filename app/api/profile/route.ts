@@ -35,18 +35,18 @@ export async function GET(request: NextRequest) {
           },
         },
         summitRecords: {
-          where: { status: "SUCCESSFUL" },
           include: {
             expedition: {
               select: {
+                id: true,
                 title: true,
                 slug: true,
                 altitude: true,
+                category: true,
               },
             },
           },
           orderBy: { summitDate: "desc" },
-          take: 5,
         },
         bookings: {
           include: {

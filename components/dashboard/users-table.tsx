@@ -18,7 +18,8 @@ interface User {
   image: string | null
   featured: boolean
   createdAt: Date
-  _count: {
+  summitCount: number
+  _count?: {
     summitRecords: number
     bookings: number
   }
@@ -150,7 +151,7 @@ export function UsersTable() {
                         {user.featured ? "On" : "Off"}
                       </button>
                     </td>
-                    <td className="p-3 md:p-4 text-xs md:text-sm">{user._count.summitRecords}</td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm">{user.summitCount}</td>
                     <td className="p-3 md:p-4 text-xs md:text-sm">{user._count.bookings}</td>
                     <td className="p-3 md:p-4 text-xs text-muted-foreground">
                       <span className="hidden sm:inline">{formatDate(user.createdAt)}</span>

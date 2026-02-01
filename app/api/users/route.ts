@@ -3,6 +3,19 @@ import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import bcrypt from "bcryptjs"
+import { recordCountsAsSummit } from "@/lib/summit-utils"
+
+type UserWithSummitRecords = {
+  id: string
+  email: string
+  name: string | null
+  role: string
+  image: string | null
+  featured: boolean
+  createdAt: Date
+  _count: { summitRecords: number; bookings: number }
+  summitRecords: Array<{ expedition: { category: string } }>
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,7 +28,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const users = await prisma.user.findMany({
+    const users = (await prisma.user.findMany({
+      // @ts-expect-error - featured/summitRecords exist in schema; run npx prisma generate if types are stale
       select: {
         id: true,
         email: true,
@@ -30,11 +44,25 @@ export async function GET(request: NextRequest) {
             bookings: true,
           },
         },
+        summitRecords: {
+          where: { status: "SUCCESSFUL" },
+          include: {
+            expedition: { select: { category: true } },
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
+    })) as unknown as UserWithSummitRecords[]
+
+    const usersWithSummitCount = users.map((u) => {
+      const { summitRecords, ...rest } = u
+      const summitCount = summitRecords.filter((r: { expedition: { category: string } }) =>
+        recordCountsAsSummit(r.expedition.category)
+      ).length
+      return { ...rest, summitCount }
     })
 
-    return NextResponse.json(users)
+    return NextResponse.json(usersWithSummitCount)
   } catch (error) {
     console.error("Error fetching users:", error)
     return NextResponse.json(

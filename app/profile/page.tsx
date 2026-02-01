@@ -20,13 +20,32 @@ import {
   Mountain, 
   Calendar, 
   Award, 
-  TrendingUp
+  TrendingUp,
+  Plus,
+  Pencil,
+  Trash2
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import toast from "react-hot-toast"
 import { formatDate, formatCurrency } from "@/lib/utils"
 import { ImageEditor } from "@/components/image-editor"
+import { recordCountsAsSummit } from "@/lib/summit-utils"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface ProfileData {
   id: string
@@ -45,11 +64,15 @@ interface ProfileData {
   }
   summitRecords: Array<{
     id: string
+    status: string
     summitDate: string | null
+    altitude: number
     expedition: {
+      id: string
       title: string
       slug: string
       altitude: number
+      category: string
     }
   }>
   bookings: Array<{
@@ -90,6 +113,17 @@ export default function ProfilePage() {
   const [uploadingImage, setUploadingImage] = useState(false)
   const [imageEditorOpen, setImageEditorOpen] = useState(false)
   const [selectedImageFile, setSelectedImageFile] = useState<string | null>(null)
+
+  // Summit records: add/edit dialog
+  const [summitDialogOpen, setSummitDialogOpen] = useState(false)
+  const [summitEditingId, setSummitEditingId] = useState<string | null>(null)
+  const [expeditions, setExpeditions] = useState<Array<{ id: string; title: string; altitude: number; category: string }>>([])
+  const [summitForm, setSummitForm] = useState({
+    expeditionId: "",
+    status: "SUCCESSFUL",
+    summitDate: "",
+  })
+  const [summitSaving, setSummitSaving] = useState(false)
 
   useEffect(() => {
     if (session) {
@@ -273,10 +307,124 @@ export default function ProfilePage() {
     )
   }
 
-  const successfulSummits = profile.summitRecords.length
-  const highestAltitude = profile.summitRecords.length > 0
-    ? Math.max(...profile.summitRecords.map(r => r.expedition.altitude))
-    : 0
+  // Only SMALL_PEAKS and MOUNTAINEERING count toward summit count
+  const recordsThatCount = profile.summitRecords.filter(
+    (r) => r.status === "SUCCESSFUL" && recordCountsAsSummit(r.expedition.category)
+  )
+  const successfulSummits = recordsThatCount.length
+  const highestAltitude =
+    recordsThatCount.length > 0
+      ? Math.max(...recordsThatCount.map((r) => r.expedition.altitude))
+      : 0
+
+  const openAddSummit = () => {
+    setSummitEditingId(null)
+    setSummitForm({ expeditionId: "", status: "SUCCESSFUL", summitDate: "" })
+    setSummitDialogOpen(true)
+    fetchExpeditions()
+  }
+
+  const openEditSummit = (record: ProfileData["summitRecords"][0]) => {
+    setSummitEditingId(record.id)
+    setSummitForm({
+      expeditionId: record.expedition.id,
+      status: record.status,
+      summitDate: record.summitDate
+        ? new Date(record.summitDate).toISOString().slice(0, 10)
+        : "",
+    })
+    setSummitDialogOpen(true)
+    fetchExpeditions()
+  }
+
+  const fetchExpeditions = async () => {
+    try {
+      const res = await fetch("/api/expeditions")
+      if (res.ok) {
+        const data = await res.json()
+        setExpeditions(
+          data.map((e: { id: string; title: string; altitude: number; category: string }) => ({
+            id: e.id,
+            title: e.title,
+            altitude: e.altitude,
+            category: e.category,
+          }))
+        )
+      }
+    } catch {
+      toast.error("Failed to load expeditions")
+    }
+  }
+
+  const selectedExpeditionAltitude =
+    summitForm.expeditionId
+      ? expeditions.find((e) => e.id === summitForm.expeditionId)?.altitude ?? 0
+      : 0
+
+  const handleSummitSave = async () => {
+    if (!summitForm.expeditionId) {
+      toast.error("Please select an expedition")
+      return
+    }
+    setSummitSaving(true)
+    try {
+      if (summitEditingId) {
+        const res = await fetch(`/api/profile/summit-records/${summitEditingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            expeditionId: summitForm.expeditionId,
+            status: summitForm.status,
+            summitDate: summitForm.summitDate || null,
+          }),
+        })
+        if (res.ok) {
+          toast.success("Summit record updated")
+          setSummitDialogOpen(false)
+          await fetchProfile()
+        } else {
+          const err = await res.json()
+          toast.error(err.error || "Failed to update")
+        }
+      } else {
+        const res = await fetch("/api/profile/summit-records", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            expeditionId: summitForm.expeditionId,
+            status: summitForm.status,
+            summitDate: summitForm.summitDate || null,
+          }),
+        })
+        if (res.ok) {
+          toast.success("Summit record added")
+          setSummitDialogOpen(false)
+          await fetchProfile()
+        } else {
+          const err = await res.json()
+          toast.error(err.error || "Failed to add")
+        }
+      }
+    } finally {
+      setSummitSaving(false)
+    }
+  }
+
+  const handleSummitDelete = async (id: string) => {
+    if (!confirm("Remove this summit record?")) return
+    try {
+      const res = await fetch(`/api/profile/summit-records/${id}`, { method: "DELETE" })
+      if (res.ok) {
+        toast.success("Summit record removed")
+        await fetchProfile()
+      } else {
+        const err = await res.json()
+        toast.error(err.error || "Failed to remove")
+      }
+    } catch {
+      toast.error("Failed to remove")
+    }
+  }
 
   return (
     <main className="min-h-screen pt-16 bg-background">
@@ -498,36 +646,171 @@ export default function ProfilePage() {
                   </Card>
                 </div>
 
-                {/* Recent Summits */}
-                {profile.summitRecords.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Recent Summits</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
+                {/* Summit Records */}
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                    <div>
+                      <CardTitle>Summit Records</CardTitle>
+                      <CardDescription>
+                        Add or edit records from available expeditions. Only Small Peaks and Mountaineering count toward your summit total.
+                      </CardDescription>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={openAddSummit}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add record
+                    </Button>
+                  </CardHeader>
+                  <CardContent>
+                    {profile.summitRecords.length === 0 ? (
+                      <p className="text-sm text-muted-foreground py-4">
+                        No summit records yet. Add one by selecting an expedition above.
+                      </p>
+                    ) : (
+                      <div className="space-y-3">
                         {profile.summitRecords.map((record) => (
-                          <Link
+                          <div
                             key={record.id}
-                            href={`/expeditions/${record.expedition.slug}`}
-                            className="flex items-center gap-4 p-3 rounded-lg border border-border hover:bg-card transition-colors"
+                            className="flex items-center gap-3 p-3 rounded-lg border border-border"
                           >
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-sm sm:text-base">{record.expedition.title}</h3>
-                              <div className="flex items-center gap-4 text-xs sm:text-sm text-muted-foreground mt-1">
+                            <Link
+                              href={`/expeditions/${record.expedition.slug}`}
+                              className="flex-1 min-w-0"
+                            >
+                              <h3 className="font-semibold text-sm sm:text-base truncate">
+                                {record.expedition.title}
+                              </h3>
+                              <div className="flex items-center gap-3 text-xs sm:text-sm text-muted-foreground mt-1 flex-wrap">
                                 <span>{record.expedition.altitude}m</span>
                                 {record.summitDate && (
                                   <span>{formatDate(record.summitDate)}</span>
                                 )}
+                                <Badge
+                                  variant={
+                                    record.status === "SUCCESSFUL"
+                                      ? "default"
+                                      : record.status === "FAILED"
+                                      ? "destructive"
+                                      : "secondary"
+                                  }
+                                  className="text-xs"
+                                >
+                                  {record.status.replace("_", " ")}
+                                </Badge>
+                                {record.status === "SUCCESSFUL" &&
+                                  recordCountsAsSummit(record.expedition.category) && (
+                                    <span className="text-summit text-xs">counts</span>
+                                  )}
                               </div>
+                            </Link>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => openEditSummit(record)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive hover:text-destructive"
+                                onClick={() => handleSummitDelete(record.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
-                            <Mountain className="h-5 w-5 text-summit flex-shrink-0" />
-                          </Link>
+                          </div>
                         ))}
                       </div>
-                    </CardContent>
-                  </Card>
-                )}
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Add/Edit Summit Record Dialog */}
+                <Dialog open={summitDialogOpen} onOpenChange={setSummitDialogOpen}>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>
+                        {summitEditingId ? "Edit summit record" : "Add summit record"}
+                      </DialogTitle>
+                      <DialogDescription>
+                        Select an expedition. Altitude is taken from the expedition. Only Small Peaks and Mountaineering count toward your summit total.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="space-y-2">
+                        <Label>Expedition</Label>
+                        <Select
+                          value={summitForm.expeditionId}
+                          onValueChange={(v) =>
+                            setSummitForm((f) => ({ ...f, expeditionId: v }))
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select expedition" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {expeditions.map((e) => (
+                              <SelectItem key={e.id} value={e.id}>
+                                {e.title} ({e.altitude}m)
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Status</Label>
+                        <Select
+                          value={summitForm.status}
+                          onValueChange={(v) =>
+                            setSummitForm((f) => ({ ...f, status: v }))
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="SUCCESSFUL">Successful</SelectItem>
+                            <SelectItem value="FAILED">Failed</SelectItem>
+                            <SelectItem value="IN_PROGRESS">In progress</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="summit-date">Summit date (optional)</Label>
+                        <Input
+                          id="summit-date"
+                          type="date"
+                          value={summitForm.summitDate}
+                          onChange={(e) =>
+                            setSummitForm((f) => ({ ...f, summitDate: e.target.value }))
+                          }
+                        />
+                      </div>
+                      {summitForm.expeditionId && (
+                        <p className="text-sm text-muted-foreground">
+                          Altitude: <strong>{selectedExpeditionAltitude}m</strong> (from expedition)
+                        </p>
+                      )}
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setSummitDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="summit"
+                        onClick={handleSummitSave}
+                        disabled={summitSaving || !summitForm.expeditionId}
+                      >
+                        {summitSaving ? "Saving..." : summitEditingId ? "Update" : "Add"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
 
                 {/* Recent Bookings */}
                 {profile.bookings.length > 0 && (
