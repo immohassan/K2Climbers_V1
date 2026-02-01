@@ -1,14 +1,31 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Mountain } from "lucide-react"
+import { getSiteLogoUrl } from "@/lib/settings"
 
-export function Footer() {
+export async function Footer() {
+  const logoUrl = await getSiteLogoUrl()
+
   return (
     <footer className="border-t border-border bg-card mt-20">
       <div className="container mx-auto px-4 py-12">
         <div className="grid md:grid-cols-4 gap-8">
           <div>
             <Link href="/" className="flex items-center space-x-2 mb-4">
-              <Mountain className="h-6 w-6 text-summit" />
+              {logoUrl ? (
+                <div className="relative h-6 w-6 shrink-0">
+                  <Image
+                    src={logoUrl}
+                    alt="K2 Climbers"
+                    fill
+                    className="object-contain"
+                    sizes="24px"
+                    unoptimized={logoUrl.startsWith("http")}
+                  />
+                </div>
+              ) : (
+                <Mountain className="h-6 w-6 text-summit" />
+              )}
               <span className="text-xl font-bold">K2 Climbers</span>
             </Link>
             <p className="text-sm text-muted-foreground">
@@ -75,8 +92,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-border mt-12 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} K2 Climbers. All rights reserved.</p>
+        <div className="border-t border-border mt-12 pt-8 text-center text-sm text-muted-foreground space-y-1">
+          {/* <p>&copy; {new Date().getFullYear()} K2 Climbers. All rights reserved.</p> */}
+          <p className="">Created with ❤️ by Mountaineers | &copy; K2 Climbers. All rights reserved.</p>
         </div>
       </div>
     </footer>

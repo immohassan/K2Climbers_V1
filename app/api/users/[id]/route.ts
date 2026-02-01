@@ -29,6 +29,7 @@ export async function GET(
         image: true,
         bio: true,
         phone: true,
+        featured: true,
         createdAt: true,
         _count: {
           select: {
@@ -74,7 +75,7 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { email, name, role, bio, phone, image, password } = body
+    const { email, name, role, bio, phone, image, password, featured } = body
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
@@ -97,6 +98,7 @@ export async function PUT(
     if (bio !== undefined) updateData.bio = bio
     if (phone !== undefined) updateData.phone = phone
     if (image !== undefined) updateData.image = image
+    if (featured !== undefined) updateData.featured = Boolean(featured)
     if (password) {
       updateData.password = await bcrypt.hash(password, 10)
     }
@@ -112,6 +114,7 @@ export async function PUT(
         image: true,
         bio: true,
         phone: true,
+        featured: true,
         createdAt: true,
       },
     })

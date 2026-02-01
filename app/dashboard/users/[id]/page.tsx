@@ -32,6 +32,7 @@ export default function EditUserPage() {
     bio: "",
     phone: "",
     image: "",
+    featured: false,
     password: "",
     confirmPassword: "",
   })
@@ -61,6 +62,7 @@ export default function EditUserPage() {
           bio: data.bio || "",
           phone: data.phone || "",
           image: data.image || "",
+          featured: data.featured ?? false,
           password: "",
           confirmPassword: "",
         })
@@ -165,6 +167,7 @@ export default function EditUserPage() {
         bio: formData.bio,
         phone: formData.phone,
         image: formData.image,
+        featured: formData.featured,
       }
 
       if (formData.password) {
@@ -295,6 +298,16 @@ export default function EditUserPage() {
                       placeholder="+92 300 1234567"
                     />
                   </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="featured"
+                    checked={formData.featured}
+                    onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                    className="rounded"
+                  />
+                  <Label htmlFor="featured">Featured climber (show on home page)</Label>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="bio">Bio</Label>

@@ -7,7 +7,7 @@ export async function AboutUsSection() {
     data.founder1Image || data.founder2Image || data.founder3Image
 
   return (
-    <section className="border-t border-border bg-card/50 py-12 sm:py-16 md:py-20">
+    <section className="bg-card/50 py-12 sm:py-16 md:py-20">
       <div className="container mx-auto px-4 sm:px-6">
         <h2 className="mb-8 text-center text-2xl font-bold sm:text-3xl md:text-4xl">
           About Us

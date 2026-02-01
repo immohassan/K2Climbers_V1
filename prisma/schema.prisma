@@ -68,6 +68,7 @@ model User {
   image         String?
   bio           String?
   phone         String?
+  featured      Boolean   @default(false)  // show on Featured Climbers (any role)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -305,4 +306,27 @@ model StoredImage {
   createdAt DateTime @default(now())
   
   @@map("stored_images")
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+  
+  @@map("contact_messages")
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  role      String?  // e.g. "Adventurer", "Expedition Leader"
+  content   String   @db.Text
+  imageUrl  String?  // optional photo
+  order     Int      @default(0) // sort order
+  createdAt DateTime @default(now())
+  
+  @@map("testimonials")
 }

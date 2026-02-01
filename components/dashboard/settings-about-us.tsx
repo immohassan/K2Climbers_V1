@@ -13,11 +13,15 @@ import Image from "next/image"
 const DEFAULT_TEXT =
   "The company's expertise lies in Road tours, treks, Hiking, Climbing and also expedition assistance in Gilgit Baltistan KPK & In Kashmir Pakistan.\n\nOur company is equally involved in tourism-related activities throughout Pakistan with the same volume.\n\nWe have team from young minds to experienced team members, the company understands the strengths, weaknesses and most importantly the potential-for-improvement of tourism industry in Pakistan."
 
+const DEFAULT_MISSION =
+  "We Want to create an enabling environment for Pakistan's tourism industry by providing facilities that commensurate with our rich cultural heritage, rare archaeological treasures and exquisite environmental beauty.\n\nWe want to Project Pakistan as a tourist friendly destination."
+
 export function SettingsAboutUs() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState<number | null>(null)
   const [text, setText] = useState(DEFAULT_TEXT)
+  const [mission, setMission] = useState(DEFAULT_MISSION)
   const [founder1Image, setFounder1Image] = useState<string | null>(null)
   const [founder2Image, setFounder2Image] = useState<string | null>(null)
   const [founder3Image, setFounder3Image] = useState<string | null>(null)
@@ -30,6 +34,7 @@ export function SettingsAboutUs() {
       .then((res) => res.ok ? res.json() : Promise.reject(new Error("Failed to load")))
       .then((data) => {
         setText(data.text || DEFAULT_TEXT)
+        setMission(data.mission || DEFAULT_MISSION)
         setFounder1Image(data.founder1Image || null)
         setFounder2Image(data.founder2Image || null)
         setFounder3Image(data.founder3Image || null)
@@ -79,6 +84,7 @@ export function SettingsAboutUs() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           text,
+          mission,
           founder1Image,
           founder2Image,
           founder3Image,
@@ -123,6 +129,18 @@ export function SettingsAboutUs() {
             onChange={(e) => setText(e.target.value)}
             rows={6}
             className="resize-y"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="mission-text">Our Mission (About page)</Label>
+          <Textarea
+            id="mission-text"
+            value={mission}
+            onChange={(e) => setMission(e.target.value)}
+            rows={4}
+            className="resize-y"
+            placeholder="Mission statement shown on About Us page"
           />
         </div>
 

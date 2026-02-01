@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 
 const ABOUT_KEYS = [
   "about_us_text",
+  "about_us_mission",
   "about_us_founder_1_image",
   "about_us_founder_2_image",
   "about_us_founder_3_image",
@@ -25,6 +26,10 @@ async function getAboutUsValues(): Promise<Record<string, string>> {
     map[k] = rows.find((r) => r.key === k)?.value ?? ""
   }
   if (!map.about_us_text?.trim()) map.about_us_text = DEFAULT_TEXT
+  if (!map.about_us_mission?.trim()) {
+    map.about_us_mission =
+      "We Want to create an enabling environment for Pakistan's tourism industry by providing facilities that commensurate with our rich cultural heritage, rare archaeological treasures and exquisite environmental beauty.\n\nWe want to Project Pakistan as a tourist friendly destination."
+  }
   return map
 }
 
@@ -34,6 +39,7 @@ export async function GET() {
     const values = await getAboutUsValues()
     return NextResponse.json({
       text: values.about_us_text || DEFAULT_TEXT,
+      mission: values.about_us_mission || "",
       founder1Image: values.about_us_founder_1_image || null,
       founder2Image: values.about_us_founder_2_image || null,
       founder3Image: values.about_us_founder_3_image || null,
@@ -61,6 +67,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const {
       text,
+      mission,
       founder1Image,
       founder2Image,
       founder3Image,
@@ -71,6 +78,7 @@ export async function PUT(request: NextRequest) {
 
     const updates: { key: string; value: string }[] = [
       { key: "about_us_text", value: typeof text === "string" ? text : "" },
+      { key: "about_us_mission", value: typeof mission === "string" ? mission : "" },
       { key: "about_us_founder_1_image", value: founder1Image ?? "" },
       { key: "about_us_founder_2_image", value: founder2Image ?? "" },
       { key: "about_us_founder_3_image", value: founder3Image ?? "" },
@@ -90,6 +98,7 @@ export async function PUT(request: NextRequest) {
     const values = await getAboutUsValues()
     return NextResponse.json({
       text: values.about_us_text,
+      mission: values.about_us_mission || "",
       founder1Image: values.about_us_founder_1_image || null,
       founder2Image: values.about_us_founder_2_image || null,
       founder3Image: values.about_us_founder_3_image || null,

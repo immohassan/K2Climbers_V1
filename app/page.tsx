@@ -16,9 +16,9 @@ export default function HomePage() {
         <HeroSection />
         <StatsSection />
         <AboutUsSection />
-        <HomeVideoSection />
         <FeaturedExpeditions />
         <FeaturedClimbers />
+        <HomeVideoSection />
       </main>
       <Footer />
     </>

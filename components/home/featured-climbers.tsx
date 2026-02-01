@@ -4,14 +4,7 @@ import { prisma } from "@/lib/prisma"
 async function getFeaturedClimbers() {
   try {
     const climbers = await prisma.user.findMany({
-      where: {
-        role: "CLIMBER",
-        summitRecords: {
-          some: {
-            status: "SUCCESSFUL",
-          },
-        },
-      },
+      where: { featured: true },
       include: {
         summitRecords: {
           where: { status: "SUCCESSFUL" },
@@ -25,11 +18,7 @@ async function getFeaturedClimbers() {
         },
       },
       take: 6,
-      orderBy: {
-        summitRecords: {
-          _count: "desc",
-        },
-      },
+      orderBy: { updatedAt: "desc" },
     })
     return climbers
   } catch (error) {

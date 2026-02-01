@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
         name: true,
         role: true,
         image: true,
+        featured: true,
         createdAt: true,
         _count: {
           select: {

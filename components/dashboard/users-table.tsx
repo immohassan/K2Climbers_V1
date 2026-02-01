@@ -16,6 +16,7 @@ interface User {
   name: string | null
   role: string
   image: string | null
+  featured: boolean
   createdAt: Date
   _count: {
     summitRecords: number
@@ -71,6 +72,7 @@ export function UsersTable() {
                 <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">User</th>
                 <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Email</th>
                 <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Role</th>
+                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Featured</th>
                 <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Summits</th>
                 <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Bookings</th>
                 <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Joined</th>
@@ -80,7 +82,7 @@ export function UsersTable() {
             <tbody>
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={8} className="p-8 text-center text-muted-foreground">
                     No users found.
                   </td>
                 </tr>
@@ -117,6 +119,36 @@ export function UsersTable() {
                       <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
                         {user.role.replace("_", " ")}
                       </Badge>
+                    </td>
+                    <td className="p-3 md:p-4">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            const res = await fetch(`/api/users/${user.id}`, {
+                              method: "PUT",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ featured: !user.featured }),
+                            })
+                            if (res.ok) {
+                              toast.success(user.featured ? "Removed from featured" : "Added to featured")
+                              fetchUsers()
+                            } else {
+                              const err = await res.json()
+                              toast.error(err.error || "Failed to update")
+                            }
+                          } catch {
+                            toast.error("Failed to update featured")
+                          }
+                        }}
+                        className={`rounded-full px-2 py-1 text-xs font-medium transition-colors ${
+                          user.featured
+                            ? "bg-summit/20 text-summit hover:bg-summit/30"
+                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        }`}
+                      >
+                        {user.featured ? "On" : "Off"}
+                      </button>
                     </td>
                     <td className="p-3 md:p-4 text-xs md:text-sm">{user._count.summitRecords}</td>
                     <td className="p-3 md:p-4 text-xs md:text-sm">{user._count.bookings}</td>

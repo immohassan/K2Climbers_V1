@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { SettingsAboutUs } from "@/components/dashboard/settings-about-us"
 import { SettingsHomeVideo } from "@/components/dashboard/settings-home-video"
+import { SettingsTestimonials } from "@/components/dashboard/settings-testimonials"
+import { SettingsSiteLogo } from "@/components/dashboard/settings-site-logo"
 
 export default function SettingsPage() {
   return (
@@ -17,8 +19,10 @@ export default function SettingsPage() {
       </div>
 
       <div className="space-y-6">
+        <SettingsSiteLogo />
         <SettingsAboutUs />
         <SettingsHomeVideo />
+        <SettingsTestimonials />
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
