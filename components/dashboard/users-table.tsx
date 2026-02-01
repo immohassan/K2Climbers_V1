@@ -152,7 +152,7 @@ export function UsersTable() {
                       </button>
                     </td>
                     <td className="p-3 md:p-4 text-xs md:text-sm">{user.summitCount}</td>
-                    <td className="p-3 md:p-4 text-xs md:text-sm">{user._count.bookings}</td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm">{user._count?.bookings ?? 0}</td>
                     <td className="p-3 md:p-4 text-xs text-muted-foreground">
                       <span className="hidden sm:inline">{formatDate(user.createdAt)}</span>
                       <span className="sm:hidden">{new Date(user.createdAt).toLocaleDateString()}</span>
