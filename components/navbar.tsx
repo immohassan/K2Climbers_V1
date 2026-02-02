@@ -7,6 +7,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Mountain, Menu, X, User } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export function Navbar() {
   const pathname = usePathname()
@@ -80,9 +81,7 @@ export function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            {/* <Button variant="ghost" size="icon">
-              <Search className="h-5 w-5" />
-            </Button> */}
+            <ThemeToggle />
             {session ? (
               <div className="flex items-center space-x-2">
                 <Link href="/profile">
@@ -119,6 +118,10 @@ export function Navbar() {
 
         {mobileMenuOpen && (
           <div className="md:hidden py-4 space-y-4 border-t border-border">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Theme</span>
+              <ThemeToggle />
+            </div>
             <Link href="/about" className="block text-sm">About Us</Link>
             <Link href="/expeditions" className="block text-sm">Expeditions</Link>
             <Link href="/contact" className="block text-sm">Contact Us</Link>
