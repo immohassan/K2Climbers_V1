@@ -71,7 +71,7 @@ export async function AboutUsSection() {
             <div className="bg-background pl-0 md:pl-12 lg:pl-20 pt-8 md:pt-0 flex items-center">
               <blockquote className="border-l-2 border-summit pl-5">
                 <p className="text-xl sm:text-2xl font-black leading-tight text-foreground/80 italic">
-                  "The mountains are calling and I must go."
+                  &quot;The mountains are calling and I must go.&quot;
                 </p>
                 <cite className="text-xs text-muted-foreground mt-3 block not-italic tracking-widest uppercase">
                   — John Muir

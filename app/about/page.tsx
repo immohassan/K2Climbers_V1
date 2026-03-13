@@ -74,7 +74,7 @@ export default async function AboutPage() {
               <div className="flex items-center">
                 <blockquote className="border-l-2 border-orange-500/40 pl-5">
                   <p className="text-lg sm:text-xl font-semibold leading-snug text-foreground/70 italic">
-                    "The mountains are calling and I must go."
+                    &quot;The mountains are calling and I must go.&quot;
                   </p>
                   <cite className="text-xs text-muted-foreground mt-3 block not-italic tracking-wider uppercase">
                     — John Muir

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import toast from "react-hot-toast"
 import { slugify } from "@/lib/utils"
 import { Plus, Trash2 } from "lucide-react"
+import Image from "next/image"
 
 interface ItineraryItem {
   dayNumber: number
@@ -59,13 +60,7 @@ export default function EditExpeditionPage() {
   const [requiredGear, setRequiredGear] = useState<RequiredGear[]>([])
   const [uploadingHero, setUploadingHero] = useState(false)
 
-  useEffect(() => {
-    if (id) {
-      fetchExpedition()
-    }
-  }, [id])
-
-  const fetchExpedition = async () => {
+  const fetchExpedition = useCallback(async () => {
     try {
       const res = await fetch(`/api/expeditions/${id}`)
       if (res.ok) {
@@ -119,8 +114,13 @@ export default function EditExpeditionPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [id, router])
 
+  useEffect(() => {
+    if (id) {
+      fetchExpedition()
+    }
+  }, [id, fetchExpedition])
 
   const handleTitleChange = (value: string) => {
     setFormData({
@@ -470,8 +470,8 @@ export default function EditExpeditionPage() {
                 className="cursor-pointer"
               />
               {formData.heroImage && (
-                <div className="mt-2">
-                  <img src={formData.heroImage} alt="Hero preview" className="max-w-xs rounded-lg border border-border" />
+                <div className="mt-2 relative w-64 h-40">
+                  <Image src={formData.heroImage} alt="Hero preview" fill className="object-cover rounded-lg border border-border" sizes="256px" />
                 </div>
               )}
               {uploadingHero && (

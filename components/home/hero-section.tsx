@@ -64,7 +64,7 @@ export function HeroSection() {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="text-white/50 text-[11px] sm:text-xs font-mono tracking-[0.25em] uppercase mb-3 sm:mb-4"
           >
-            Pakistan's Premier Mountaineering Company
+            Pakistan&apos;s Premier Mountaineering Company
           </motion.p>
 
           {/* Headline + side column */}
@@ -87,7 +87,7 @@ export function HeroSection() {
               className="sm:pb-2 sm:border-l sm:border-white/15 sm:pl-6 max-w-[280px]"
             >
               <p className="text-white/55 text-xs sm:text-sm leading-relaxed mb-5">
-                Expert-guided expeditions to Pakistan's highest peaks. Every route. Every season.
+                Expert-guided expeditions to Pakistan&apos;s highest peaks. Every route. Every season.
               </p>
               <Link href="/expeditions">
                 <motion.div
