@@ -1,5 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, Mountain as MountainIcon } from "lucide-react"
+import { Mountain as MountainIcon } from "lucide-react"
 
 interface Itinerary {
   id: string
@@ -16,37 +15,38 @@ export function ExpeditionItinerary({ itineraries }: { itineraries: Itinerary[] 
   }
 
   return (
-    <Card className="min-w-0 overflow-hidden">
-      <CardHeader className="p-4 sm:p-6">
-        <CardTitle className="text-base sm:text-lg md:text-xl">Itinerary</CardTitle>
-      </CardHeader>
-      <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-        <div className="space-y-4 sm:space-y-6">
-          {itineraries.map((day) => (
-            <div key={day.id} className="border-l-2 border-glacier-500 pl-3 sm:pl-4 md:pl-6 pb-4 sm:pb-6 last:pb-0">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
-                <h3 className="font-semibold text-base sm:text-lg leading-tight">
-                  Day {day.dayNumber}: {day.title}
-                </h3>
-                {day.altitude && (
-                  <div className="flex items-center text-xs sm:text-sm text-muted-foreground flex-shrink-0">
-                    <MountainIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                    {day.altitude}m
-                  </div>
-                )}
+    <div className="border border-border p-5 sm:p-6">
+      <p className="text-xs font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-6">Itinerary</p>
+      <div className="space-y-0">
+        {itineraries.map((day, idx) => (
+          <div key={day.id} className="border-l border-orange-500/30 pl-5 pb-6 last:pb-0 relative">
+            <div className="absolute -left-[5px] top-0 w-2.5 h-2.5 rounded-full bg-orange-500/60" />
+            <div className="flex items-start justify-between gap-4 mb-1.5">
+              <div>
+                <span className="text-[10px] font-bold tracking-widest uppercase text-orange-500/70 mr-2">Day {day.dayNumber}</span>
+                <h3 className="font-black text-sm sm:text-base leading-tight inline">{day.title}</h3>
               </div>
-              <p className="text-sm sm:text-base text-muted-foreground mb-2 sm:mb-3 leading-relaxed">{day.description}</p>
-              {day.activities.length > 0 && (
-                <ul className="list-disc list-inside text-xs sm:text-sm text-muted-foreground space-y-1">
-                  {day.activities.map((activity, idx) => (
-                    <li key={idx}>{activity}</li>
-                  ))}
-                </ul>
+              {day.altitude && (
+                <div className="flex items-center text-[11px] text-muted-foreground font-mono shrink-0">
+                  <MountainIcon className="h-3 w-3 mr-1" />
+                  {day.altitude.toLocaleString()}m
+                </div>
               )}
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-2">{day.description}</p>
+            {day.activities.length > 0 && (
+              <ul className="text-xs text-muted-foreground space-y-0.5">
+                {day.activities.map((activity, i) => (
+                  <li key={i} className="flex items-start gap-1.5">
+                    <span className="text-orange-500/50 mt-0.5">–</span>
+                    {activity}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }

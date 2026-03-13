@@ -1,9 +1,4 @@
-import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ShoppingBag, ExternalLink } from "lucide-react"
-import { formatCurrency } from "@/lib/utils"
+import { ShoppingBag } from "lucide-react"
 
 interface RequiredGear {
   id: string
@@ -27,71 +22,21 @@ export function ExpeditionRequiredGear({ requiredGear }: { requiredGear: Require
   }
 
   return (
-    <Card className="min-w-0 overflow-hidden">
-      <CardHeader className="p-4 sm:p-6">
-        <CardTitle className="flex flex-wrap items-center gap-2 text-base sm:text-lg md:text-xl">
-          <ShoppingBag className="h-5 w-5 shrink-0" />
-          <span className="break-words">Required Gear & Equipment</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-        <div className="space-y-4">
-          {requiredGear.map((gear) => (
-            <div
-              key={gear.id}
-              className="hover:bg-card transition-colors"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className=" text-sm sm:text-base break-words">{gear.product.name}</h3>
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      {/* {gear.required && (
-                        <Badge variant="destructive" className="text-xs">
-                          Required
-                        </Badge>
-                      )} */}
-                      {/* {gear.quantity > 1 && (
-                        <Badge variant="outline" className="text-xs">
-                          Qty: {gear.quantity}
-                        </Badge>
-                      )} */}
-                    </div>
-                  </div>
-                  {/* <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
-                    <span className="capitalize">{gear.product.category.toLowerCase().replace("_", " ")}</span>
-                    {gear.product.price > 0 && (
-                      <span className="font-medium text-foreground">
-                        {formatCurrency(gear.product.price)}
-                      </span>
-                    )}
-                    {gear.product.rentalPrice && (
-                      <span className="text-glacier-400 whitespace-nowrap">
-                        Rent: {formatCurrency(gear.product.rentalPrice)}/day
-                      </span>
-                    )}
-                  </div> */}
-                </div>
-                {/* <Link href={`/shop/${gear.product.slug}`} className="flex-shrink-0">
-                  <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                    <span className="hidden sm:inline">View Product</span>
-                    <span className="sm:hidden">View</span>
-                    <ExternalLink className="h-3 w-3 ml-2" />
-                  </Button>
-                </Link> */}
-              </div>
-            </div>
-          ))}
-        </div>
-        {/* <div className="mt-6 pt-6 border-t">
-          <Link href="/shop">
-            <Button variant="summit" className="w-full">
-              <ShoppingBag className="h-4 w-4 mr-2" />
-              Browse All Gear
-            </Button>
-          </Link>
-        </div> */}
-      </CardContent>
-    </Card>
+    <div className="border border-border p-5 sm:p-6">
+      <div className="flex items-center gap-2 mb-5">
+        <ShoppingBag className="h-3.5 w-3.5 text-muted-foreground" />
+        <p className="text-xs font-semibold tracking-[0.2em] uppercase text-muted-foreground">Required Gear & Equipment</p>
+      </div>
+      <div className="divide-y divide-border">
+        {requiredGear.map((gear) => (
+          <div key={gear.id} className="py-3 first:pt-0 last:pb-0">
+            <p className="text-sm font-semibold">{gear.product.name}</p>
+            <p className="text-xs text-muted-foreground capitalize mt-0.5">
+              {gear.product.category.toLowerCase().replace("_", " ")}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }

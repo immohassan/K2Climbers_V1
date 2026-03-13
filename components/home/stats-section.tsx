@@ -1,48 +1,59 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { Mountain, Users, Award, TrendingUp } from "lucide-react"
+import { motion, useInView } from "framer-motion"
+import { useRef, useEffect, useState } from "react"
 
 const stats = [
-  { icon: Mountain, value: "150+", label: "Peaks Conquered", color: "text-glacier-400" },
-  { icon: Users, value: "2,500+", label: "Active Climbers", color: "text-summit" },
-  { icon: Award, value: "85%", label: "Success Rate", color: "text-glacier-300" },
-  { icon: TrendingUp, value: "100+", label: "Expeditions", color: "text-summit-600" },
+  { value: 150, suffix: "+", label: "Peaks", sublabel: "Conquered", accent: "text-orange-500" },
+  { value: 2500, suffix: "+", label: "Climbers", sublabel: "Active Community", accent: "text-foreground" },
+  { value: 85, suffix: "%", label: "Success", sublabel: "Summit Rate", accent: "text-summit" },
+  { value: 100, suffix: "+", label: "Expeditions", sublabel: "Completed", accent: "text-orange-400" },
 ]
+
+function CountUp({ target, suffix }: { target: number; suffix: string }) {
+  const [count, setCount] = useState(0)
+  const ref = useRef<HTMLSpanElement>(null)
+  const inView = useInView(ref, { once: true })
+
+  useEffect(() => {
+    if (!inView) return
+    const duration = 1600
+    const steps = 50
+    const increment = target / steps
+    let current = 0
+    const timer = setInterval(() => {
+      current += increment
+      if (current >= target) { setCount(target); clearInterval(timer) }
+      else setCount(Math.floor(current))
+    }, duration / steps)
+    return () => clearInterval(timer)
+  }, [inView, target])
+
+  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>
+}
 
 export function StatsSection() {
   return (
-    <section className="py-20 bg-background">
+    <section className="py-10 md:py-14 bg-background border-b border-border">
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-8"
-        >
-          {stats.map((stat, index) => {
-            const Icon = stat.icon
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="text-center"
-              >
-                <div className="flex justify-center mb-4">
-                  <div className="p-4 rounded-full bg-card border border-border">
-                    <Icon className={`h-8 w-8 ${stat.color}`} />
-                  </div>
-                </div>
-                <div className="text-4xl font-bold mb-2">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </motion.div>
-            )
-          })}
-        </motion.div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border">
+          {stats.map((stat, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08, duration: 0.5 }}
+              className="bg-background px-6 py-8 md:px-10 md:py-10 group"
+            >
+              <div className={`text-4xl md:text-5xl font-black tracking-tight mb-1 tabular-nums ${stat.accent}`}>
+                <CountUp target={stat.value} suffix={stat.suffix} />
+              </div>
+              <div className="text-base font-bold text-foreground">{stat.label}</div>
+              <div className="text-xs text-muted-foreground mt-0.5 tracking-wide">{stat.sublabel}</div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   )

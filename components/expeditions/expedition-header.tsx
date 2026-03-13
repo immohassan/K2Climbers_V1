@@ -1,4 +1,4 @@
-import { Mountain, MapPin, Calendar, Users, TrendingUp } from "lucide-react"
+import { Mountain, MapPin, Clock, TrendingUp } from "lucide-react"
 
 interface Expedition {
   id: string
@@ -18,41 +18,51 @@ interface ExpeditionHeaderProps {
 
 export function ExpeditionHeader({ expedition, successRate }: ExpeditionHeaderProps) {
   return (
-    <div className="relative flex min-h-[220px] items-end sm:min-h-[300px] sm:h-[45vh] md:min-h-[380px] md:h-[50vh] lg:min-h-[450px] lg:h-[55vh]">
+    <div className="relative flex min-h-[260px] items-end sm:min-h-[340px] sm:h-[48vh] md:min-h-[400px] md:h-[52vh]">
       {expedition.heroImage && (
         <>
-          <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: `url(${expedition.heroImage})` }}
           />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
         </>
       )}
-      <div className="relative z-20 w-full min-w-0">
-        <div className="container mx-auto max-w-3xl px-3 pb-4 pt-2 sm:px-4 sm:pb-6 md:pb-8 lg:pb-12">
-          <h1 className="mb-2 line-clamp-3 text-xl font-bold leading-tight text-white sm:mb-3 sm:text-2xl md:text-3xl md:line-clamp-none lg:text-4xl xl:text-5xl 2xl:text-6xl">
+      {!expedition.heroImage && (
+        <div className="absolute inset-0 bg-card" />
+      )}
+
+      <div className="relative z-10 w-full">
+        <div className="container mx-auto max-w-6xl px-4 sm:px-6 pb-8 sm:pb-10 md:pb-12">
+          <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-orange-400/80 mb-3">
+            {expedition.difficulty} · Expedition
+          </p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white mb-4 max-w-3xl">
             {expedition.title}
           </h1>
-          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-white/90 sm:gap-x-4 sm:gap-y-2 sm:text-sm md:gap-x-5 md:text-base">
-            <div className="flex shrink-0 items-center">
-              <Mountain className="mr-1 h-3.5 w-3.5 sm:mr-1.5 sm:h-4 sm:w-4 md:h-5 md:w-5" />
-              <span className="whitespace-nowrap">{expedition.altitude}m</span>
-            </div>
-            <div className="flex shrink-0 items-center">
-              <Calendar className="mr-1 h-3.5 w-3.5 sm:mr-1.5 sm:h-4 sm:w-4 md:h-5 md:w-5" />
-              <span className="whitespace-nowrap">{expedition.duration} days</span>
-            </div>
-            <div className="flex min-w-0 shrink items-center overflow-hidden">
-              <MapPin className="mr-1 h-3.5 w-3.5 shrink-0 sm:mr-1.5 sm:h-4 sm:w-4 md:h-5 md:w-5" />
-              <span className="truncate">{expedition.location}</span>
-            </div>
-            <div className="flex shrink-0 items-center">
-              <TrendingUp className="mr-1 h-3.5 w-3.5 sm:mr-1.5 sm:h-4 sm:w-4 md:h-5 md:w-5" />
-              <span className="whitespace-nowrap">{successRate.toFixed(1)}% success</span>
-            </div>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-white/55 font-mono tracking-wider">
+            <span className="flex items-center gap-1.5">
+              <Mountain className="h-3 w-3" />{expedition.altitude.toLocaleString()}m
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Clock className="h-3 w-3" />{expedition.duration} days
+            </span>
+            <span className="flex items-center gap-1.5">
+              <MapPin className="h-3 w-3" />{expedition.location}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <TrendingUp className="h-3 w-3" />{successRate.toFixed(0)}% success rate
+            </span>
           </div>
         </div>
       </div>
+
+      {/* Bottom fade */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none z-20"
+        style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background)) 100%)" }}
+      />
     </div>
   )
 }

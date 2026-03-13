@@ -1,4 +1,5 @@
 import { ExpeditionsList } from "@/components/expeditions/expeditions-list"
+import { Footer } from "@/components/footer"
 import { prisma } from "@/lib/prisma"
 
 // Always fetch fresh data so new expeditions show up on deploy (no static cache)
@@ -35,17 +36,20 @@ export default async function ExpeditionsPage() {
   const expeditions = await getExpeditions()
 
   return (
-    <main className="min-h-screen pt-16">
-      <div className="container mx-auto px-4 py-12">
-        <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Expeditions & Tours</h1>
-          <p className="text-xl text-muted-foreground">
-            Discover your next mountaineering adventure
-          </p>
-        </div>
+    <>
+      <main className="min-h-screen pt-16">
+        <div className="container mx-auto px-4 sm:px-6 py-12 md:py-16 max-w-6xl">
+          <div className="mb-12 md:mb-16">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-orange-500 mb-3">Expeditions</p>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
+              Expeditions & Tours
+            </h1>
+          </div>
 
-        <ExpeditionsList expeditions={expeditions} />
-      </div>
-    </main>
+          <ExpeditionsList expeditions={expeditions} />
+        </div>
+      </main>
+      <Footer />
+    </>
   )
 }

@@ -12,11 +12,11 @@ export const dynamic = "force-dynamic"
 export default function HomePage() {
   return (
     <>
-      <main className="min-h-screen">
+      <main className="min-h-screen pt-16">
         <HeroSection />
         <StatsSection />
-        <AboutUsSection />
         <FeaturedExpeditions />
+        <AboutUsSection />
         <FeaturedClimbers />
         <HomeVideoSection />
       </main>

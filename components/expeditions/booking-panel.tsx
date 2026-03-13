@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -60,54 +59,52 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
   }
 
   return (
-    <Card className="w-full min-w-0 overflow-hidden">
-      <CardHeader className="p-4 sm:p-6">
-        <CardTitle className="text-base sm:text-lg md:text-xl">Book This Expedition</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
-        <div className="space-y-2">
-          <Label htmlFor="people">Number of People</Label>
-          <Input
-            id="people"
-            type="number"
-            min={expedition.minGroupSize}
-            max={expedition.maxGroupSize}
-            value={numberOfPeople}
-            onChange={(e) => setNumberOfPeople(parseInt(e.target.value) || 1)}
-          />
-          <p className="text-xs text-muted-foreground">
-            Group size: {expedition.minGroupSize} - {expedition.maxGroupSize} people
-          </p>
-        </div>
+    <div className="border border-border p-5 sm:p-6">
+      <p className="text-xs font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-5">Book This Expedition</p>
 
-        <div className="border-t border-border pt-4">
-          <div className="flex justify-between mb-2">
-            <span>Price per person</span>
-            <span className="font-semibold">{formatCurrency(expedition.basePrice)}</span>
-          </div>
-          <div className="flex justify-between text-lg font-bold">
-            <span>Total</span>
-            <span>{formatCurrency(totalAmount)}</span>
-          </div>
-        </div>
+      <div className="space-y-2 mb-5">
+        <Label htmlFor="people" className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">Number of People</Label>
+        <Input
+          id="people"
+          type="number"
+          min={expedition.minGroupSize}
+          max={expedition.maxGroupSize}
+          value={numberOfPeople}
+          onChange={(e) => setNumberOfPeople(parseInt(e.target.value) || 1)}
+          className="rounded-none"
+        />
+        <p className="text-xs text-muted-foreground">
+          Group size: {expedition.minGroupSize}–{expedition.maxGroupSize} people
+        </p>
+      </div>
 
-        {session ? (
-          <Button
-            variant="summit"
-            className="w-full"
-            onClick={handleBooking}
-            disabled={loading}
-          >
-            {loading ? "Processing..." : "Book Now"}
+      <div className="border-t border-border pt-4 mb-5 space-y-2">
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Per person</span>
+          <span className="font-semibold">{formatCurrency(expedition.basePrice)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="font-black text-base">Total</span>
+          <span className="font-black text-base text-orange-500">{formatCurrency(totalAmount)}</span>
+        </div>
+      </div>
+
+      {session ? (
+        <Button
+          variant="summit"
+          className="w-full rounded-none"
+          onClick={handleBooking}
+          disabled={loading}
+        >
+          {loading ? "Processing..." : "Book Now"}
+        </Button>
+      ) : (
+        <Link href="/auth/signin" className="block">
+          <Button variant="summit" className="w-full rounded-none">
+            Sign In to Book
           </Button>
-        ) : (
-          <Link href="/auth/signin" className="block">
-            <Button variant="summit" className="w-full">
-              Sign In to Book
-            </Button>
-          </Link>
-        )}
-      </CardContent>
-    </Card>
+        </Link>
+      )}
+    </div>
   )
 }

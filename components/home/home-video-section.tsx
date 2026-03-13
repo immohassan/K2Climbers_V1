@@ -1,5 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Play } from "lucide-react"
 import { getHomeVideoUrl } from "@/lib/settings"
 import { getEmbedUrl } from "@/lib/video-utils"
 
@@ -10,48 +8,59 @@ export async function HomeVideoSection() {
   const embed = getEmbedUrl(videoUrl)
   if (!embed) return null
 
-  // Autoplay: browsers typically allow only when muted
   const embedSrcWithAutoplay =
     embed.type === "youtube" || embed.type === "vimeo"
       ? `${embed.src}${embed.src.includes("?") ? "&" : "?"}autoplay=1&mute=1`
       : embed.src
 
   return (
-    <section className="bg-card/30 py-8 sm:py-12 md:py-16">
-      <div className="container mx-auto max-w-4xl px-4 sm:px-6">
-      <h2 className="mb-8 text-center text-2xl font-bold sm:text-3xl md:text-4xl">
-          Tribute to Our Heroes
-        </h2>
-        <Card className="min-w-0 overflow-hidden">
-          <CardContent className="pt-0 sm:pt-0 p-0">
-            <div className="relative w-full overflow-hidden rounded-lg border border-border bg-muted/30">
-              <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
-                {embed.type === "youtube" || embed.type === "vimeo" ? (
-                  <iframe
-                    src={embedSrcWithAutoplay}
-                    title="Our expeditions and tours"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    className="absolute inset-0 h-full w-full"
-                  />
-                ) : (
-                  <video
-                    src={embed.src}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    controls
-                    className="absolute inset-0 h-full w-full object-contain"
-                    preload="auto"
-                  >
-                    Your browser does not support the video tag.
-                  </video>
-                )}
-              </div>
+    <section className="py-14 md:py-20 bg-background border-b border-border">
+      <div className="container mx-auto px-4 max-w-4xl">
+
+        {/* Label + title */}
+        <div className="flex items-center justify-between mb-8 md:mb-10">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-3 h-3 bg-summit" />
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground">Watch</span>
             </div>
-          </CardContent>
-        </Card>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none">
+              Tribute to<br />Our Heroes
+            </h2>
+          </div>
+          <p className="hidden md:block text-sm text-muted-foreground max-w-[220px] text-right leading-relaxed">
+            For every climber who reached the summit — and those who gave everything trying.
+          </p>
+        </div>
+
+        {/* Video */}
+        <div className="relative overflow-hidden border border-border">
+          <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+            {embed.type === "youtube" || embed.type === "vimeo" ? (
+              <iframe
+                src={embedSrcWithAutoplay}
+                title="K2 Climbers — tribute video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                className="absolute inset-0 h-full w-full"
+              />
+            ) : (
+              <video
+                src={embed.src}
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls
+                className="absolute inset-0 h-full w-full object-contain bg-black"
+                preload="auto"
+              >
+                Your browser does not support the video tag.
+              </video>
+            )}
+          </div>
+        </div>
+
       </div>
     </section>
   )

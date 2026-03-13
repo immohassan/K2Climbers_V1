@@ -17,6 +17,14 @@ const config = {
         "2xl": "1400px",
       },
     },
+    screens: {
+      xs: "480px",
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
+    },
     extend: {
       colors: {
         border: "hsl(var(--border))",
@@ -54,26 +62,38 @@ const config = {
         },
         // Custom K2 Climbers colors
         glacier: {
-          50: "#e6f4ff",
-          100: "#b3dfff",
-          200: "#80caff",
-          300: "#4db5ff",
-          400: "#1aa0ff",
-          500: "#0080cc", // Glacier blue
-          600: "#006699",
-          700: "#004d66",
-          800: "#00334d",
-          900: "#001a33",
+          50:  "#e8f5e9",
+          100: "#c8e6c9",
+          200: "#a5d6a7",
+          300: "#81c784",
+          400: "#4caf50", // Vivid alpine green
+          500: "#388e3c",
+          600: "#2e7d32",
+          700: "#1b5e20",
+          800: "#0d3b12",
+          900: "#051f09",
         },
         snow: {
-          DEFAULT: "#ffffff",
-          50: "#f9fafb",
-          100: "#f3f4f6",
+          DEFAULT: "#fafaf8",
+          50:  "#fafaf8",
+          100: "#f0efea",
         },
         summit: {
-          DEFAULT: "#ff6b35", // Orange/red for CTAs
-          600: "#e55a2b",
-          700: "#cc4a21",
+          DEFAULT: "#e63312", // Vivid burnt orange-red — like summit sunset
+          600: "#cc2c0f",
+          700: "#b5250c",
+        },
+        rock: {
+          50:  "#f5f0eb",
+          100: "#e8ddd2",
+          200: "#d0bfb0",
+          300: "#b59e8c",
+          400: "#9a7e6a",
+          500: "#7d6150", // Warm sandstone
+          600: "#634c3e",
+          700: "#47362d",
+          800: "#2c211c",
+          900: "#150f0b",
         },
       },
       borderRadius: {
