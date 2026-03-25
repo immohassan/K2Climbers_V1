@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 
 const OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 
+export const dynamic = "force-dynamic"
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
