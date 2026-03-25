@@ -6,6 +6,7 @@ import { ExpeditionVideo } from "@/components/expeditions/expedition-video"
 import { ExpeditionWeather } from "@/components/expeditions/expedition-weather"
 import { ExpeditionItinerary } from "@/components/expeditions/expedition-itinerary"
 import { ExpeditionRequiredGear } from "@/components/expeditions/expedition-required-gear"
+import { ExpeditionPolicies } from "@/components/expeditions/expedition-policies"
 import { BookingPanel } from "@/components/expeditions/booking-panel"
 import { Navbar } from "@/components/navbar"
 
@@ -74,7 +75,14 @@ export default async function ExpeditionPage({
                 locationName={expedition.location}
               />
               <ExpeditionItinerary itineraries={expedition.itineraries} />
-              <ExpeditionRequiredGear requiredGear={expedition.requiredGear} />
+              <ExpeditionRequiredGear
+                requiredGear={expedition.requiredGear}
+                requiredEquipment={(expedition as any).requiredEquipment ?? null}
+              />
+              <ExpeditionPolicies
+                paymentPolicy={(expedition as any).paymentPolicy ?? null}
+                refundPolicy={(expedition as any).refundPolicy ?? null}
+              />
             </div>
             <div className="min-w-0 lg:col-span-1">
               <div className="lg:sticky lg:top-24">

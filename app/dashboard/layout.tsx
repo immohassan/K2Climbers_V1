@@ -23,8 +23,11 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-background">
       <DashboardNav />
-      <div className="container mx-auto px-4 py-4 md:py-8">
-        {children}
+      {/* Offset for fixed sidebar on desktop, top bar on mobile */}
+      <div className="lg:pl-56">
+        <div className="px-4 sm:px-6 py-6 md:py-8 max-w-7xl">
+          {children}
+        </div>
       </div>
     </div>
   )

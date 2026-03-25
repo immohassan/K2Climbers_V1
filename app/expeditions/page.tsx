@@ -1,4 +1,6 @@
+import { Suspense } from "react"
 import { ExpeditionsList } from "@/components/expeditions/expeditions-list"
+import { ExpeditionsSkeleton } from "@/components/expeditions/expeditions-skeleton"
 import { Footer } from "@/components/footer"
 import { prisma } from "@/lib/prisma"
 
@@ -10,12 +12,6 @@ async function getExpeditions() {
     const expeditions = await prisma.expedition.findMany({
       where: { isActive: true },
       include: {
-        // guides: {
-        //   select: {
-        //     name: true,
-        //   },
-        //   take: 2,
-        // },
         _count: {
           select: {
             bookings: true,
@@ -32,9 +28,12 @@ async function getExpeditions() {
   }
 }
 
-export default async function ExpeditionsPage() {
+async function ExpeditionsContent() {
   const expeditions = await getExpeditions()
+  return <ExpeditionsList expeditions={expeditions} />
+}
 
+export default function ExpeditionsPage() {
   return (
     <>
       <main className="min-h-screen pt-16">
@@ -42,11 +41,13 @@ export default async function ExpeditionsPage() {
           <div className="mb-12 md:mb-16">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-orange-500 mb-3">Expeditions</p>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
-              Expeditions & Tours
+              Expeditions &amp; Tours
             </h1>
           </div>
 
-          <ExpeditionsList expeditions={expeditions} />
+          <Suspense fallback={<ExpeditionsSkeleton />}>
+            <ExpeditionsContent />
+          </Suspense>
         </div>
       </main>
       <Footer />

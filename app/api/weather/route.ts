@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     const url = new URL(OPEN_METEO_URL)
     url.searchParams.set("latitude", String(latitude))
     url.searchParams.set("longitude", String(longitude))
-    url.searchParams.set("daily", "temperature_2m_max,temperature_2m_min,wind_speed_10m_max")
+    url.searchParams.set("daily", "temperature_2m_max,temperature_2m_min,wind_speed_10m_max,weathercode,precipitation_sum")
     url.searchParams.set("timezone", "auto")
 
     const res = await fetch(url.toString(), { next: { revalidate: 3600 } })

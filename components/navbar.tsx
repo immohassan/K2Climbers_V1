@@ -83,16 +83,24 @@ export function Navbar() {
           <div className="hidden md:flex items-center space-x-4">
             <ThemeToggle />
             {session ? (
-              <div className="flex items-center space-x-2">
-                <Link href="/profile">
-                  <Button variant="ghost" size="sm">
-                    <User className="h-4 w-4 mr-2" />
-                    {session.user?.name || "Profile"}
-                  </Button>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-2 px-3 py-1.5 border border-border hover:border-orange-500/50 hover:text-orange-500 transition-colors text-sm font-semibold"
+                >
+                  <div className="w-6 h-6 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center shrink-0">
+                    <span className="text-[10px] font-black text-orange-500">
+                      {(session.user?.name || session.user?.email || "U")[0].toUpperCase()}
+                    </span>
+                  </div>
+                  {session.user?.name?.split(" ")[0] || "Profile"}
                 </Link>
-                <Button variant="outline" size="sm" onClick={() => signOut()}>
+                <button
+                  onClick={() => signOut()}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5"
+                >
                   Sign Out
-                </Button>
+                </button>
               </div>
             ) : (
               <div className="flex items-center space-x-2">
@@ -128,21 +136,22 @@ export function Navbar() {
             <Link href="/expeditions/custom" className="block text-sm">Custom Expedition</Link>
             {/* <Link href="/community" className="block text-sm">Community</Link> */}
             {/* <Link href="/certificates" className="block text-sm">Certificates</Link> */}
-            {session && session.user.role != "SUPER_ADMIN" ? (
+            {session ? (
               <>
-                <Link href="/profile" className="block text-sm">Profile</Link>
-                <Button variant="outline" size="sm" onClick={() => signOut()}>
+                <Link href="/profile" className="flex items-center gap-2 text-sm font-semibold py-1">
+                  <div className="w-6 h-6 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center shrink-0">
+                    <span className="text-[10px] font-black text-orange-500">
+                      {(session.user?.name || session.user?.email || "U")[0].toUpperCase()}
+                    </span>
+                  </div>
+                  {session.user?.name?.split(" ")[0] || "Profile"}
+                </Link>
+                {session.user.role === "SUPER_ADMIN" && (
+                  <Link href="/dashboard" className="block text-sm">Admin Dashboard</Link>
+                )}
+                <button onClick={() => signOut()} className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left">
                   Sign Out
-                </Button>
-              </>
-            ) : null}
-            {session && session.user.role == "SUPER_ADMIN" ? (
-              <>
-                <Link href="/profile" className="block text-sm">Profile</Link>
-                <Link href="/dashboard" className="block text-sm">Admin Dashboard</Link>
-                <Button variant="outline" size="sm" onClick={() => signOut()}>
-                  Sign Out
-                </Button>
+                </button>
               </>
             ) : (
               <div className="space-y-2">

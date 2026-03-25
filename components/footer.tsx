@@ -1,10 +1,19 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Mountain } from "lucide-react"
-import { getSiteLogoUrl } from "@/lib/settings"
 
-export async function Footer() {
-  const logoUrl = await getSiteLogoUrl()
+export function Footer() {
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch("/api/settings/logo")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => data?.logoUrl && setLogoUrl(data.logoUrl))
+      .catch(() => {})
+  }, [])
 
   return (
     <footer className="border-t border-border bg-card mt-20">

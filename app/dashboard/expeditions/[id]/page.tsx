@@ -12,6 +12,7 @@ import toast from "react-hot-toast"
 import { slugify } from "@/lib/utils"
 import { Plus, Trash2 } from "lucide-react"
 import Image from "next/image"
+import { ExpeditionSlotsManager } from "@/components/dashboard/expedition-slots-manager"
 
 interface ItineraryItem {
   dayNumber: number
@@ -53,6 +54,9 @@ export default function EditExpeditionPage() {
     successRate: "",
     metaTitle: "",
     metaDescription: "",
+    requiredEquipment: "",
+    paymentPolicy: "",
+    refundPolicy: "",
     isActive: true,
     featured: false,
   })
@@ -85,6 +89,9 @@ export default function EditExpeditionPage() {
           successRate: data.successRate?.toString() || "",
           metaTitle: data.metaTitle || "",
           metaDescription: data.metaDescription || "",
+          requiredEquipment: data.requiredEquipment || "",
+          paymentPolicy: data.paymentPolicy || "",
+          refundPolicy: data.refundPolicy || "",
           isActive: data.isActive ?? true,
           featured: data.featured ?? false,
         })
@@ -611,64 +618,49 @@ export default function EditExpeditionPage() {
 
         <Card className="mt-6">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Required Gear</CardTitle>
-              <Button type="button" variant="outline" size="sm" onClick={addRequiredGear}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Gear
-              </Button>
-            </div>
+            <CardTitle>Required Equipment</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {requiredGear.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No required gear. Click &quot;Add Gear&quot; to add items.</p>
-            ) : (
-              requiredGear.map((gear, index) => (
-                <div key={index} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-medium">Gear Item {index + 1}</h4>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeRequiredGear(index)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Gear Name *</Label>
-                      <Input
-                        value={gear.name}
-                        onChange={(e) => updateRequiredGear(index, "name", e.target.value)}
-                        placeholder="e.g., Climbing Rope, Helmet, Crampons"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Quantity *</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={gear.quantity}
-                        onChange={(e) => updateRequiredGear(index, "quantity", parseInt(e.target.value) || 1)}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={gear.required}
-                      onChange={(e) => updateRequiredGear(index, "required", e.target.checked)}
-                      className="rounded"
-                    />
-                    <Label>Required</Label>
-                  </div>
-                </div>
-              ))
-            )}
+          <CardContent>
+            <div className="space-y-2">
+              <Label htmlFor="requiredEquipment" className="text-xs text-muted-foreground">
+                List all required gear and equipment. Each item on a new line.
+              </Label>
+              <Textarea
+                id="requiredEquipment"
+                value={formData.requiredEquipment}
+                onChange={(e) => setFormData({ ...formData, requiredEquipment: e.target.value })}
+                placeholder={"Climbing harness\nHelmet\nCrampons\nIce axe\nDown suit\n..."}
+                rows={8}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Payment &amp; Refund Policies</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="paymentPolicy">Payment Procedure</Label>
+              <Textarea
+                id="paymentPolicy"
+                value={formData.paymentPolicy}
+                onChange={(e) => setFormData({ ...formData, paymentPolicy: e.target.value })}
+                placeholder="e.g. A 30% deposit is required to confirm your booking. The remaining balance is due 60 days before departure..."
+                rows={5}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="refundPolicy">Refund Policy</Label>
+              <Textarea
+                id="refundPolicy"
+                value={formData.refundPolicy}
+                onChange={(e) => setFormData({ ...formData, refundPolicy: e.target.value })}
+                placeholder="e.g. Cancellations more than 90 days before departure receive a full refund minus the deposit. 60–90 days: 50% refund..."
+                rows={5}
+              />
+            </div>
           </CardContent>
         </Card>
 
@@ -685,6 +677,14 @@ export default function EditExpeditionPage() {
           </Button>
         </div>
       </form>
+
+      {/* Slots manager — outside the form so it has its own API interactions */}
+      {id && (
+        <ExpeditionSlotsManager
+          expeditionId={id}
+          basePrice={parseFloat(formData.basePrice) || 0}
+        />
+      )}
     </div>
   )
 }

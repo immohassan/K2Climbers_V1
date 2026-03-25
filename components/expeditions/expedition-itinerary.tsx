@@ -16,7 +16,7 @@ export function ExpeditionItinerary({ itineraries }: { itineraries: Itinerary[] 
 
   return (
     <div className="border border-border p-5 sm:p-6">
-      <p className="text-xs font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-6">Itinerary</p>
+      <p className="text-xs font-semibold tracking-[0.2em] uppercase text-orange-500 mb-6">Itinerary</p>
       <div className="space-y-0">
         {itineraries.map((day, idx) => (
           <div key={day.id} className="border-l border-orange-500/30 pl-5 pb-6 last:pb-0 relative">

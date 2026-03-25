@@ -10,12 +10,10 @@ import { SettingsSiteLogo } from "@/components/dashboard/settings-site-logo"
 
 export default function SettingsPage() {
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold">Settings</h1>
-        <p className="text-sm md:text-base text-muted-foreground">
-          Manage site settings and configuration
-        </p>
+        <p className="text-xs font-semibold tracking-[0.2em] uppercase text-orange-500 mb-2">Admin</p>
+        <h1 className="text-3xl sm:text-4xl font-black tracking-tight">Settings</h1>
       </div>
 
       <div className="space-y-6">
@@ -25,7 +23,7 @@ export default function SettingsPage() {
         <SettingsTestimonials />
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      {/* <div className="grid md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Site Information</CardTitle>
@@ -124,7 +122,7 @@ export default function SettingsPage() {
             <Button variant="summit">Save Changes</Button>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
     </div>
   )
 }

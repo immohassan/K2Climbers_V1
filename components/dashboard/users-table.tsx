@@ -3,14 +3,11 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Edit, Trash2, User } from "lucide-react"
+import { Edit, Trash2, User, Star, Users } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import toast from "react-hot-toast"
 
-interface User {
+interface UserRow {
   id: string
   email: string
   name: string | null
@@ -19,186 +16,156 @@ interface User {
   featured: boolean
   createdAt: Date
   summitCount: number
-  _count?: {
-    summitRecords: number
-    bookings: number
-  }
+  _count?: { summitRecords: number; bookings: number }
+}
+
+const ROLE_STYLE: Record<string, string> = {
+  SUPER_ADMIN: "bg-red-500/10 text-red-500",
+  ADMIN:       "bg-orange-500/10 text-orange-500",
+  GUIDE:       "bg-blue-500/10 text-blue-400",
+  USER:        "bg-muted text-muted-foreground",
 }
 
 export function UsersTable() {
-  const [users, setUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<UserRow[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchUsers()
-  }, [])
+  useEffect(() => { fetchUsers() }, [])
 
   const fetchUsers = async () => {
     try {
       const res = await fetch("/api/users")
-      const data = await res.json()
-      setUsers(data)
-    } catch (error) {
-      console.error("Error fetching users:", error)
-      toast.error("Failed to load users")
-    } finally {
-      setLoading(false)
-    }
+      setUsers(await res.json())
+    } catch { toast.error("Failed to load users") }
+    finally { setLoading(false) }
   }
 
-  const getRoleBadgeVariant = (role: string) => {
-    switch (role) {
-      case "SUPER_ADMIN":
-        return "destructive"
-      case "ADMIN":
-        return "default"
-      case "GUIDE":
-        return "secondary"
-      default:
-        return "outline"
-    }
+  const toggleFeatured = async (user: UserRow) => {
+    try {
+      const res = await fetch(`/api/users/${user.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ featured: !user.featured }),
+      })
+      if (res.ok) {
+        toast.success(user.featured ? "Removed from featured" : "Added to featured")
+        fetchUsers()
+      } else {
+        const err = await res.json()
+        toast.error(err.error || "Failed to update")
+      }
+    } catch { toast.error("Failed to update") }
+  }
+
+  const deleteUser = async (user: UserRow) => {
+    if (!confirm(`Delete ${user.name || user.email}?`)) return
+    try {
+      const res = await fetch(`/api/users/${user.id}`, { method: "DELETE" })
+      if (res.ok) { toast.success("User deleted"); fetchUsers() }
+      else { const e = await res.json(); toast.error(e.error || "Failed to delete") }
+    } catch { toast.error("Failed to delete user") }
   }
 
   if (loading) {
-    return <Card><CardContent className="p-6">Loading...</CardContent></Card>
+    return (
+      <div className="border border-border divide-y divide-border">
+        <div className="px-5 py-4 h-12 animate-pulse bg-muted/20" />
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="px-5 py-4 flex items-center gap-4 animate-pulse">
+            <div className="w-9 h-9 rounded-full bg-muted shrink-0" />
+            <div className="flex-1 space-y-1.5">
+              <div className="h-3.5 bg-muted rounded w-32" />
+              <div className="h-2.5 bg-muted/60 rounded w-44" />
+            </div>
+          </div>
+        ))}
+      </div>
+    )
   }
 
   return (
-    <Card>
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">User</th>
-                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Email</th>
-                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Role</th>
-                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Featured</th>
-                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Summits</th>
-                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Bookings</th>
-                <th className="text-left p-3 md:p-4 font-semibold text-xs md:text-sm">Joined</th>
-                <th className="text-right p-3 md:p-4 font-semibold text-xs md:text-sm">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="p-8 text-center text-muted-foreground">
-                    No users found.
-                  </td>
-                </tr>
-              ) : (
-                users.map((user) => (
-                  <tr key={user.id} className="border-b border-border hover:bg-card">
-                    <td className="p-3 md:p-4">
-                      <div className="flex items-center space-x-2 md:space-x-3">
-                        {user.image ? (
-                          <div className="relative h-8 w-8 md:h-10 md:w-10 rounded-full overflow-hidden flex-shrink-0">
-                            <Image
-                              src={user.image}
-                              alt={user.name || "User"}
-                              fill
-                              className="object-cover"
-                              sizes="40px"
-                            />
-                          </div>
-                        ) : (
-                          <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-card border border-border flex items-center justify-center flex-shrink-0">
-                            <User className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
-                          </div>
-                        )}
-                        <div className="min-w-0">
-                          <div className="font-medium text-xs md:text-sm truncate">{user.name || "No name"}</div>
-                          <div className="text-xs text-muted-foreground hidden sm:block">{user.id.slice(0, 8)}...</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <div className="text-xs md:text-sm truncate max-w-[120px] md:max-w-none">{user.email}</div>
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
-                        {user.role.replace("_", " ")}
-                      </Badge>
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          try {
-                            const res = await fetch(`/api/users/${user.id}`, {
-                              method: "PUT",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ featured: !user.featured }),
-                            })
-                            if (res.ok) {
-                              toast.success(user.featured ? "Removed from featured" : "Added to featured")
-                              fetchUsers()
-                            } else {
-                              const err = await res.json()
-                              toast.error(err.error || "Failed to update")
-                            }
-                          } catch {
-                            toast.error("Failed to update featured")
-                          }
-                        }}
-                        className={`rounded-full px-2 py-1 text-xs font-medium transition-colors ${
-                          user.featured
-                            ? "bg-summit/20 text-summit hover:bg-summit/30"
-                            : "bg-muted text-muted-foreground hover:bg-muted/80"
-                        }`}
-                      >
-                        {user.featured ? "On" : "Off"}
-                      </button>
-                    </td>
-                    <td className="p-3 md:p-4 text-xs md:text-sm">{user.summitCount}</td>
-                    <td className="p-3 md:p-4 text-xs md:text-sm">{user._count?.bookings ?? 0}</td>
-                    <td className="p-3 md:p-4 text-xs text-muted-foreground">
-                      <span className="hidden sm:inline">{formatDate(user.createdAt)}</span>
-                      <span className="sm:hidden">{new Date(user.createdAt).toLocaleDateString()}</span>
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <div className="flex items-center justify-end gap-1 md:gap-2">
-                        <Link href={`/dashboard/users/${user.id}`}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10">
-                            <Edit className="h-3 w-3 md:h-4 md:w-4" />
-                          </Button>
-                        </Link>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 md:h-10 md:w-10"
-                          onClick={async () => {
-                            if (confirm(`Are you sure you want to delete ${user.name || user.email}?`)) {
-                              try {
-                                const res = await fetch(`/api/users/${user.id}`, {
-                                  method: "DELETE",
-                                })
-                                if (res.ok) {
-                                  toast.success("User deleted successfully")
-                                  fetchUsers()
-                                } else {
-                                  const error = await res.json()
-                                  toast.error(error.error || "Failed to delete user")
-                                }
-                              } catch (error) {
-                                console.error("Error deleting user:", error)
-                                toast.error("Failed to delete user")
-                              }
-                            }
-                          }}
-                        >
-                          <Trash2 className="h-3 w-3 md:h-4 md:w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+    <div className="border border-border">
+      {/* Column header */}
+      <div className="px-5 py-3 border-b border-border grid grid-cols-[2fr_1fr_auto_auto_auto_auto] items-center gap-4 bg-muted/30">
+        <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground">User</p>
+        <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground hidden sm:block">Role</p>
+        <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground hidden md:block w-14 text-center">Summits</p>
+        <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground hidden md:block w-16 text-center">Bookings</p>
+        <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground w-14 text-center">Featured</p>
+        <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground w-16 text-right">Actions</p>
+      </div>
+
+      {users.length === 0 ? (
+        <div className="px-5 py-16 flex flex-col items-center gap-3">
+          <Users className="h-10 w-10 text-muted-foreground/30" />
+          <p className="text-sm text-muted-foreground">No users found.</p>
         </div>
-      </CardContent>
-    </Card>
+      ) : (
+        <div className="divide-y divide-border">
+          {users.map((user) => (
+            <div key={user.id} className="px-5 py-3.5 grid grid-cols-[2fr_1fr_auto_auto_auto_auto] items-center gap-4 hover:bg-muted/20 transition-colors group">
+              {/* User info */}
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="relative w-9 h-9 rounded-full overflow-hidden bg-orange-500/10 border border-border shrink-0">
+                  {user.image ? (
+                    <Image src={user.image} alt={user.name || "User"} fill className="object-cover" sizes="36px" />
+                  ) : (
+                    <User className="absolute inset-0 m-auto h-4 w-4 text-orange-500/60" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold truncate group-hover:text-orange-500 transition-colors">
+                    {user.name || "No name"}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+                </div>
+              </div>
+
+              {/* Role */}
+              <span className={`hidden sm:inline-block text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 ${ROLE_STYLE[user.role] ?? ROLE_STYLE.USER}`}>
+                {user.role.replace("_", " ")}
+              </span>
+
+              {/* Summits */}
+              <span className="hidden md:block text-sm font-mono text-center w-14">{user.summitCount}</span>
+
+              {/* Bookings */}
+              <span className="hidden md:block text-sm font-mono text-center w-16">{user._count?.bookings ?? 0}</span>
+
+              {/* Featured toggle */}
+              <button
+                onClick={() => toggleFeatured(user)}
+                className={`w-14 flex items-center justify-center transition-colors ${
+                  user.featured ? "text-orange-500" : "text-muted-foreground hover:text-orange-500/60"
+                }`}
+                title={user.featured ? "Remove from featured" : "Add to featured"}
+              >
+                <Star className={`h-4 w-4 ${user.featured ? "fill-orange-500" : ""}`} />
+              </button>
+
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-0.5 w-16">
+                <Link href={`/dashboard/users/${user.id}`} title="Edit">
+                  <button className="p-1.5 text-muted-foreground hover:text-orange-500 transition-colors">
+                    <Edit className="h-3.5 w-3.5" />
+                  </button>
+                </Link>
+                <button
+                  onClick={() => deleteUser(user)}
+                  className="p-1.5 text-muted-foreground hover:text-red-500 transition-colors"
+                  title="Delete"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="px-5 py-3 border-t border-border bg-muted/10">
+        <p className="text-xs text-muted-foreground">{users.length} user{users.length !== 1 ? "s" : ""}</p>
+      </div>
+    </div>
   )
 }

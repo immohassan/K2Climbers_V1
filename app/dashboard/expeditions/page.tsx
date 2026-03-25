@@ -1,23 +1,21 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { ExpeditionsTable } from "@/components/dashboard/expeditions-table"
 
 export default function ExpeditionsPage() {
   return (
-    <div className="space-y-4 md:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-8">
+      <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Expeditions</h1>
-          <p className="text-sm md:text-base text-muted-foreground">
-            Manage all mountaineering expeditions
-          </p>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-orange-500 mb-2">Admin</p>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight">Expeditions</h1>
         </div>
-        <Link href="/dashboard/expeditions/new">
-          <Button variant="summit" className="w-full sm:w-auto">
-            <Plus className="h-4 w-4 mr-2" />
-            New Expedition
-          </Button>
+        <Link
+          href="/dashboard/expeditions/new"
+          className="flex items-center gap-2 text-sm font-semibold bg-orange-500 hover:bg-orange-400 text-white px-4 py-2.5 transition-colors shrink-0"
+        >
+          <Plus className="h-4 w-4" />
+          New Expedition
         </Link>
       </div>
 

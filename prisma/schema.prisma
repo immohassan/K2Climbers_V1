@@ -110,6 +110,11 @@ model Expedition {
   videoUrl        String?            // YouTube, Vimeo, or direct video URL
   gallery         String[]           // Array of image URLs
   
+  // Policies & Equipment
+  requiredEquipment String?   @db.Text  // free-text list of required gear
+  paymentPolicy     String?   @db.Text
+  refundPolicy      String?   @db.Text
+
   // SEO & Content
   metaTitle       String?
   metaDescription String?
@@ -121,7 +126,8 @@ model Expedition {
   itineraries     Itinerary[]
   summitRecords   SummitRecord[]
   bookings        Booking[]
-  requiredGear   ExpeditionGear[]
+  slots           ExpeditionSlot[]
+  requiredGear    ExpeditionGear[]
   guides          User[]            @relation("ExpeditionGuides")
   
   @@map("expeditions")
@@ -248,22 +254,44 @@ model Rental {
   @@map("rentals")
 }
 
+model ExpeditionSlot {
+  id              String      @id @default(cuid())
+  expeditionId    String
+  startDate       DateTime
+  endDate         DateTime
+  label           String?     // optional label e.g. "Spring Season"
+  maxParticipants Int
+  bookedCount     Int         @default(0)
+  priceOverride   Float?      // if null, use expedition.basePrice
+  isActive        Boolean     @default(true)
+
+  expedition      Expedition  @relation(fields: [expeditionId], references: [id], onDelete: Cascade)
+  bookings        Booking[]
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("expedition_slots")
+}
+
 model Booking {
-  id              String        @id @default(cuid())
+  id              String          @id @default(cuid())
   userId          String
   expeditionId    String
-  numberOfPeople  Int           @default(1)
+  slotId          String?
+  numberOfPeople  Int             @default(1)
   totalAmount     Float
-  status          String        @default("PENDING") // PENDING, CONFIRMED, CANCELLED
-  paymentStatus   String        @default("PENDING") // PENDING, PAID, REFUNDED
-  specialRequests String?       @db.Text
-  
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expedition      Expedition    @relation(fields: [expeditionId], references: [id], onDelete: Cascade)
-  
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  
+  status          String          @default("PENDING") // PENDING, CONFIRMED, CANCELLED
+  paymentStatus   String          @default("PENDING") // PENDING, PAID, REFUNDED
+  specialRequests String?         @db.Text
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expedition      Expedition      @relation(fields: [expeditionId], references: [id], onDelete: Cascade)
+  slot            ExpeditionSlot? @relation(fields: [slotId], references: [id], onDelete: SetNull)
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
   @@map("bookings")
 }
 
