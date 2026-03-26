@@ -84,7 +84,6 @@ export function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            <ThemeToggle />
             {session ? (
               <div className="flex items-center gap-2">
                 <Link
@@ -129,10 +128,6 @@ export function Navbar() {
 
         {mobileMenuOpen && (
           <div className="md:hidden py-4 space-y-4 border-t border-border">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Theme</span>
-              <ThemeToggle />
-            </div>
             <Link href="/about" className="block text-sm">About Us</Link>
             <Link href="/expeditions" className="block text-sm">Expeditions</Link>
             <Link href="/contact" className="block text-sm">Contact Us</Link>
