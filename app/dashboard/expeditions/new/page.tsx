@@ -50,6 +50,7 @@ export default function NewExpeditionPage() {
     successRate: "",
     metaTitle: "",
     metaDescription: "",
+    mountainRange: "",
   })
   const [itineraries, setItineraries] = useState<ItineraryItem[]>([])
   const [requiredGear, setRequiredGear] = useState<RequiredGear[]>([])
@@ -290,6 +291,24 @@ export default function NewExpeditionPage() {
                     <SelectItem value="ADVANCED">Advanced</SelectItem>
                     <SelectItem value="EXPERT">Expert</SelectItem>
                     <SelectItem value="EXTREME">Extreme</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="mountainRange">Mountain Range</Label>
+                <Select
+                  value={formData.mountainRange}
+                  onValueChange={(value) => setFormData({ ...formData, mountainRange: value === "NONE" ? "" : value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select range (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NONE">— None —</SelectItem>
+                    <SelectItem value="KARAKORAM">Karakoram</SelectItem>
+                    <SelectItem value="HIMALAYA">Himalaya</SelectItem>
+                    <SelectItem value="HINDU_KUSH">Hindu Kush</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -70,6 +70,9 @@ export function Navbar() {
             {/* <Link href="/certificates" className="text-sm hover:text-glacier-400 transition">
               Certificates
             </Link> */}
+            {/* <Link href="/climbers" className="text-sm hover:text-glacier-400 transition">
+              Climbers
+            </Link> */}
             <Link href="/expeditions/custom" className="text-sm hover:text-glacier-400 transition">
               Custom Expedition
             </Link>
@@ -133,6 +136,7 @@ export function Navbar() {
             <Link href="/about" className="block text-sm">About Us</Link>
             <Link href="/expeditions" className="block text-sm">Expeditions</Link>
             <Link href="/contact" className="block text-sm">Contact Us</Link>
+            <Link href="/climbers" className="block text-sm">Climbers</Link>
             <Link href="/expeditions/custom" className="block text-sm">Custom Expedition</Link>
             {/* <Link href="/community" className="block text-sm">Community</Link> */}
             {/* <Link href="/certificates" className="block text-sm">Certificates</Link> */}

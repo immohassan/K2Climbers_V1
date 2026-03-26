@@ -7,7 +7,7 @@ interface Expedition {
 export function ExpeditionDetails({ expedition }: { expedition: Expedition }) {
   return (
     <div className="border border-border p-5 sm:p-6">
-      <p className="text-xs font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-4">About This Expedition</p>
+      <p className="text-xs font-semibold tracking-[0.2em] uppercase text-orange-500 mb-4">About This Expedition</p>
       <p className="text-sm sm:text-base leading-relaxed text-muted-foreground whitespace-pre-line">
         {expedition.description}
       </p>

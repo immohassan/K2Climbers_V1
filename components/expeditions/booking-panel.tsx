@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import { formatCurrency } from "@/lib/utils"
 import toast from "react-hot-toast"
 import Link from "next/link"
-import { CalendarDays, Users, ChevronDown } from "lucide-react"
+import { CalendarDays, Users, ChevronDown, MessageCircle } from "lucide-react"
 
 interface Expedition {
   id: string
@@ -107,7 +107,10 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
         {slotsLoading ? (
           <div className="h-10 bg-muted animate-pulse" />
         ) : slots.length === 0 ? (
-          <p className="text-xs text-muted-foreground border border-border px-3 py-2.5">No upcoming slots — contact us for dates</p>
+          <div className="border border-border px-3 py-3 space-y-1">
+            <p className="text-xs font-semibold text-muted-foreground">No upcoming slots available</p>
+            <p className="text-[11px] text-muted-foreground">Contact us to arrange dates or make an inquiry.</p>
+          </div>
         ) : (
           <div className="relative">
             <button
@@ -172,8 +175,8 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
         )}
       </div>
 
-      {/* People */}
-      <div>
+      {/* People — only shown when slots exist */}
+      <div className={!slotsLoading && slots.length === 0 ? "hidden" : ""}>
         <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground mb-2">Number of People</p>
         <div className="flex items-center gap-3">
           <button
@@ -198,8 +201,8 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
         </div>
       </div>
 
-      {/* Price summary */}
-      <div className="border-t border-border pt-4 space-y-2">
+      {/* Price summary — only shown when slots exist */}
+      <div className={`border-t border-border pt-4 space-y-2${!slotsLoading && slots.length === 0 ? " hidden" : ""}`}>
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Per person</span>
           <span className="font-semibold">{formatCurrency(pricePerPerson)}</span>
@@ -217,7 +220,21 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
         </div>
       </div>
 
-      {session ? (
+      {!slotsLoading && slots.length === 0 ? (
+        /* No slots — contact us */
+        <Link href="/contact" className="block">
+          <Button variant="summit" className="w-full rounded-none flex items-center justify-center gap-2">
+            <MessageCircle className="h-4 w-4" />
+            Contact Us to Book
+          </Button>
+        </Link>
+      ) : !slotsLoading && slots.length > 0 && !selectedSlot ? (
+        /* Slots exist but none selected — disabled */
+        <Button variant="summit" className="w-full rounded-none opacity-50 cursor-not-allowed" disabled>
+          Select a Date to Book
+        </Button>
+      ) : session ? (
+        /* Slot selected + signed in — active */
         <Button
           variant="summit"
           className="w-full rounded-none"
@@ -227,6 +244,7 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
           {loading ? "Processing..." : "Book Now"}
         </Button>
       ) : (
+        /* Slot selected but not signed in */
         <Link href="/auth/signin" className="block">
           <Button variant="summit" className="w-full rounded-none">
             Sign In to Book

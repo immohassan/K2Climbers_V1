@@ -57,6 +57,7 @@ export default function EditExpeditionPage() {
     requiredEquipment: "",
     paymentPolicy: "",
     refundPolicy: "",
+    mountainRange: "",
     isActive: true,
     featured: false,
   })
@@ -92,6 +93,7 @@ export default function EditExpeditionPage() {
           requiredEquipment: data.requiredEquipment || "",
           paymentPolicy: data.paymentPolicy || "",
           refundPolicy: data.refundPolicy || "",
+          mountainRange: data.mountainRange || "",
           isActive: data.isActive ?? true,
           featured: data.featured ?? false,
         })
@@ -357,6 +359,24 @@ export default function EditExpeditionPage() {
                     <SelectItem value="ADVANCED">Advanced</SelectItem>
                     <SelectItem value="EXPERT">Expert</SelectItem>
                     <SelectItem value="EXTREME">Extreme</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="mountainRange">Mountain Range</Label>
+                <Select
+                  value={formData.mountainRange}
+                  onValueChange={(value) => setFormData({ ...formData, mountainRange: value === "NONE" ? "" : value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select range (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NONE">— None —</SelectItem>
+                    <SelectItem value="KARAKORAM">Karakoram</SelectItem>
+                    <SelectItem value="HIMALAYA">Himalaya</SelectItem>
+                    <SelectItem value="HINDU_KUSH">Hindu Kush</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

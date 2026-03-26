@@ -36,7 +36,7 @@ export function ExpeditionRequiredGear({
   return (
     <div className="border border-border p-5 sm:p-6">
       <div className="flex items-center gap-2 mb-5">
-        <ShoppingBag className="h-3.5 w-3.5 text-orange-500" />
+        <ShoppingBag className="h-3.5 w-3.5" />
         <p className="text-xs font-semibold tracking-[0.2em] uppercase text-orange-500">Required Gear &amp; Equipment</p>
       </div>
 

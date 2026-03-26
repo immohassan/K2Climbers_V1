@@ -28,6 +28,12 @@ enum ExpeditionCategory {
   CUSTOM
 }
 
+enum MountainRange {
+  KARAKORAM
+  HIMALAYA
+  HINDU_KUSH
+}
+
 enum Difficulty {
   BEGINNER
   INTERMEDIATE
@@ -91,6 +97,7 @@ model Expedition {
   shortDescription String?
   category        ExpeditionCategory
   difficulty      Difficulty
+  mountainRange   MountainRange?
   altitude        Int               // in meters
   duration        Int               // in days
   basePrice       Float

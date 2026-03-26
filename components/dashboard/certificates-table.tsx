@@ -100,13 +100,11 @@ export function CertificatesTable() {
                     <Eye className="h-4 w-4" />
                   </button>
                 </Link>
-                {cert.pdfUrl && (
-                  <a href={cert.pdfUrl} download title="Download PDF">
-                    <button className="p-1.5 text-muted-foreground hover:text-blue-400 transition-colors">
-                      <Download className="h-4 w-4" />
-                    </button>
-                  </a>
-                )}
+                <Link href={`/certificates/${cert.verificationCode}/print`} target="_blank" title="Download PDF">
+                  <button className="p-1.5 text-muted-foreground hover:text-blue-400 transition-colors">
+                    <Download className="h-4 w-4" />
+                  </button>
+                </Link>
               </div>
             </div>
           ))}

@@ -682,13 +682,12 @@ export default function ProfilePage() {
                 </div>
                 <div className="divide-y divide-border">
                   {profile.certificates.map((cert) => (
-                    <Link
-                      key={cert.id}
-                      href={`/certificates/${cert.verificationCode}`}
-                      className="flex items-center gap-4 px-6 py-4 hover:bg-muted/30 transition-colors group"
-                    >
+                    <div key={cert.id} className="flex items-center gap-4 px-6 py-4 hover:bg-muted/30 transition-colors group">
                       <Award className="h-5 w-5 text-yellow-400 shrink-0" />
-                      <div className="flex-1 min-w-0">
+                      <Link
+                        href={`/certificates/${cert.verificationCode}`}
+                        className="flex-1 min-w-0"
+                      >
                         <p className="font-semibold text-sm truncate group-hover:text-orange-500 transition-colors">
                           {cert.peakName}
                         </p>
@@ -696,9 +695,16 @@ export default function ProfilePage() {
                           <span>{cert.altitude.toLocaleString()}m</span>
                           <span>{formatDate(cert.summitDate)}</span>
                         </div>
-                      </div>
-                      <ArrowUpRight className="h-4 w-4 text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 group-hover:text-orange-500 transition-all" />
-                    </Link>
+                      </Link>
+                      <Link
+                        href={`/certificates/${cert.verificationCode}/print`}
+                        target="_blank"
+                        title="Download PDF"
+                        className="shrink-0 p-1.5 text-muted-foreground hover:text-orange-500 transition-colors opacity-0 group-hover:opacity-100"
+                      >
+                        <ArrowUpRight className="h-4 w-4" />
+                      </Link>
+                    </div>
                   ))}
                 </div>
               </div>

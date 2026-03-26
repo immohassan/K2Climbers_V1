@@ -15,6 +15,7 @@ import Image from "next/image"
 import toast from "react-hot-toast"
 import { formatDate } from "@/lib/utils"
 import { ImageEditor } from "@/components/image-editor"
+import { UserCertificatesManager } from "@/components/dashboard/user-certificates-manager"
 
 export default function EditUserPage() {
   const router = useRouter()
@@ -391,6 +392,11 @@ export default function EditUserPage() {
           </Button>
         </div>
       </form>
+
+      {/* Summit Records & Certificate Manager */}
+      {id && (
+        <UserCertificatesManager userId={id} userName={formData.name || formData.email} />
+      )}
 
       {selectedImageFile && (
         <ImageEditor

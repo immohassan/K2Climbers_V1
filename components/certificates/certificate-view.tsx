@@ -1,9 +1,9 @@
-import Image from "next/image"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Mountain, Calendar, CheckCircle, Download, Share2 } from "lucide-react"
-import { formatDate } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+"use client"
+
+import { useState } from "react"
+import Link from "next/link"
+import { Download, Share2, ArrowLeft } from "lucide-react"
+import { CertificateCard } from "./certificate-card"
 
 interface Certificate {
   id: string
@@ -14,97 +14,90 @@ interface Certificate {
   verificationCode: string
   qrCodeUrl: string | null
   pdfUrl: string | null
-  user: {
-    name: string | null
-  }
+  user: { name: string | null; image?: string | null }
 }
 
 export function CertificateView({ certificate }: { certificate: Certificate }) {
+  const [downloading, setDownloading] = useState(false)
+
+  const handleDownload = async () => {
+    setDownloading(true)
+    try {
+      const html2canvas = (await import("html2canvas")).default
+      const jsPDF = (await import("jspdf")).default
+
+      const el = document.getElementById("certificate-card")
+      if (!el) return
+
+      const canvas = await html2canvas(el, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+      })
+
+      const imgData = canvas.toDataURL("image/png")
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" })
+
+      const pageW = pdf.internal.pageSize.getWidth()
+      const pageH = pdf.internal.pageSize.getHeight()
+      const imgRatio = canvas.height / canvas.width
+      const imgW = pageW
+      const imgH = pageW * imgRatio
+
+      // Center vertically on page
+      const yOffset = imgH < pageH ? (pageH - imgH) / 2 : 0
+      pdf.addImage(imgData, "PNG", 0, yOffset, imgW, imgH)
+      pdf.save(`certificate-${certificate.peakName.replace(/\s+/g, "-").toLowerCase()}.pdf`)
+    } catch (e) {
+      console.error("PDF generation failed", e)
+    } finally {
+      setDownloading(false)
+    }
+  }
+
+  const handleShare = async () => {
+    const url = window.location.href
+    if (navigator.share) {
+      await navigator.share({ title: `Summit Certificate — ${certificate.peakName}`, url })
+    } else {
+      await navigator.clipboard.writeText(url)
+      alert("Link copied!")
+    }
+  }
+
   return (
-    <div className="max-w-4xl mx-auto">
-      <Card className="border-2 border-glacier-500/20">
-        <CardContent className="p-12">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="p-4 rounded-full bg-glacier-500/10">
-                <Mountain className="h-16 w-16 text-glacier-400" />
-              </div>
-            </div>
-            <h1 className="text-4xl font-bold mb-2">Summit Certificate</h1>
-            <p className="text-muted-foreground">This certifies that</p>
-          </div>
+    <div className="max-w-3xl mx-auto space-y-6">
+      {/* Back */}
+      <Link
+        href="/profile"
+        className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        Back to Profile
+      </Link>
 
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-glacier-400 mb-4">
-              {certificate.user.name || "Climber"}
-            </h2>
-            <p className="text-xl text-muted-foreground mb-2">
-              has successfully summited
-            </p>
-            <h3 className="text-4xl font-bold mb-6">{certificate.peakName}</h3>
-          </div>
+      {/* Certificate */}
+      <CertificateCard certificate={certificate} />
 
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <div className="text-center p-6 bg-card rounded-lg">
-              <Mountain className="h-8 w-8 mx-auto mb-2 text-glacier-400" />
-              <p className="text-sm text-muted-foreground mb-1">Altitude</p>
-              <p className="text-2xl font-bold">{certificate.altitude}m</p>
-            </div>
-            <div className="text-center p-6 bg-card rounded-lg">
-              <Calendar className="h-8 w-8 mx-auto mb-2 text-summit" />
-              <p className="text-sm text-muted-foreground mb-1">Summit Date</p>
-              <p className="text-2xl font-bold">{formatDate(certificate.summitDate)}</p>
-            </div>
-          </div>
-
-          <div className="text-center mb-8 p-6 bg-card rounded-lg">
-            <p className="text-muted-foreground mb-2">Expedition</p>
-            <p className="text-lg font-semibold">{certificate.expeditionTitle}</p>
-          </div>
-
-          <div className="flex items-center justify-center gap-2 mb-8">
-            <CheckCircle className="h-5 w-5 text-green-400" />
-            <span className="text-sm text-muted-foreground">
-              Verified Certificate
-            </span>
-            <Badge variant="outline" className="ml-2">
-              Code: {certificate.verificationCode.slice(0, 8)}...
-            </Badge>
-          </div>
-
-          {certificate.qrCodeUrl && (
-            <div className="text-center mb-8">
-              <div className="relative w-32 h-32 mx-auto bg-white p-2 rounded-lg">
-                <Image
-                  src={certificate.qrCodeUrl}
-                  alt="QR Code"
-                  fill
-                  className="object-contain"
-                  sizes="128px"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Scan to verify this certificate
-              </p>
-            </div>
-          )}
-
-          <div className="flex justify-center gap-4">
-            {certificate.pdfUrl && (
-              <a href={certificate.pdfUrl} download>
-                <Button variant="outline">
-                  <Download className="h-4 w-4 mr-2" />
-                  Download PDF
-                </Button>
-              </a>
-            )}
-            <Button variant="summit">
-              <Share2 className="h-4 w-4 mr-2" />
-              Share Certificate
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Actions */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={handleDownload}
+          disabled={downloading}
+          className="flex items-center gap-2 text-xs font-semibold px-5 py-2.5 bg-[#1a1a1a] text-white hover:bg-[#333] transition-colors disabled:opacity-60"
+        >
+          <Download className="h-3.5 w-3.5" />
+          {downloading ? "Generating…" : "Download PDF"}
+        </button>
+        <button
+          onClick={handleShare}
+          className="flex items-center gap-2 text-xs font-semibold px-5 py-2.5 border border-border hover:border-orange-500/50 hover:text-orange-500 transition-colors"
+        >
+          <Share2 className="h-3.5 w-3.5" />
+          Share
+        </button>
+      </div>
     </div>
   )
 }

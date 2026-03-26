@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Edit, Trash2, User, Star, Users } from "lucide-react"
+import { Edit, Trash2, User, Star, Users, Search, X } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import toast from "react-hot-toast"
 
@@ -29,6 +29,7 @@ const ROLE_STYLE: Record<string, string> = {
 export function UsersTable() {
   const [users, setUsers] = useState<UserRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState("")
 
   useEffect(() => { fetchUsers() }, [])
 
@@ -83,7 +84,34 @@ export function UsersTable() {
     )
   }
 
+  const filtered = search
+    ? users.filter((u) => {
+        const q = search.toLowerCase()
+        return (
+          u.email.toLowerCase().includes(q) ||
+          (u.name ?? "").toLowerCase().includes(q) ||
+          u.role.toLowerCase().includes(q)
+        )
+      })
+    : users
+
   return (
+    <div className="space-y-4">
+    <div className="relative">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+      <input
+        type="text"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Search by name, email or role…"
+        className="w-full pl-9 pr-8 py-2 text-sm border border-border bg-background focus:outline-none focus:border-orange-500/50 transition-colors"
+      />
+      {search && (
+        <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+          <X className="h-3.5 w-3.5" />
+        </button>
+      )}
+    </div>
     <div className="border border-border">
       {/* Column header */}
       <div className="px-5 py-3 border-b border-border grid grid-cols-[2fr_1fr_auto_auto_auto_auto] items-center gap-4 bg-muted/30">
@@ -95,14 +123,14 @@ export function UsersTable() {
         <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground w-16 text-right">Actions</p>
       </div>
 
-      {users.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="px-5 py-16 flex flex-col items-center gap-3">
           <Users className="h-10 w-10 text-muted-foreground/30" />
-          <p className="text-sm text-muted-foreground">No users found.</p>
+          <p className="text-sm text-muted-foreground">{search ? "No users match your search." : "No users found."}</p>
         </div>
       ) : (
         <div className="divide-y divide-border">
-          {users.map((user) => (
+          {filtered.map((user) => (
             <div key={user.id} className="px-5 py-3.5 grid grid-cols-[2fr_1fr_auto_auto_auto_auto] items-center gap-4 hover:bg-muted/20 transition-colors group">
               {/* User info */}
               <div className="flex items-center gap-3 min-w-0">
@@ -164,8 +192,11 @@ export function UsersTable() {
       )}
 
       <div className="px-5 py-3 border-t border-border bg-muted/10">
-        <p className="text-xs text-muted-foreground">{users.length} user{users.length !== 1 ? "s" : ""}</p>
+        <p className="text-xs text-muted-foreground">
+          {search ? `${filtered.length} of ${users.length}` : users.length} user{users.length !== 1 ? "s" : ""}
+        </p>
       </div>
+    </div>
     </div>
   )
 }
