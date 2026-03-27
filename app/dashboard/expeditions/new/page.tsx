@@ -55,13 +55,19 @@ export default function NewExpeditionPage() {
   const [itineraries, setItineraries] = useState<ItineraryItem[]>([])
   const [requiredGear, setRequiredGear] = useState<RequiredGear[]>([])
   const [uploadingHero, setUploadingHero] = useState(false)
+  const [slugEdited, setSlugEdited] = useState(false)
 
   const handleTitleChange = (value: string) => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       title: value,
-      slug: formData.slug || slugify(value),
-    })
+      slug: slugEdited ? prev.slug : slugify(value),
+    }))
+  }
+
+  const handleSlugChange = (value: string) => {
+    setSlugEdited(true)
+    setFormData(prev => ({ ...prev, slug: value }))
   }
 
   const addItinerary = () => {
@@ -227,7 +233,7 @@ export default function NewExpeditionPage() {
                 <Input
                   id="slug"
                   value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  onChange={(e) => handleSlugChange(e.target.value)}
                   required
                 />
               </div>
@@ -478,7 +484,7 @@ export default function NewExpeditionPage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            {/* <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="metaTitle">SEO Title</Label>
                 <Input
@@ -496,7 +502,7 @@ export default function NewExpeditionPage() {
                   rows={2}
                 />
               </div>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
 

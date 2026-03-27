@@ -43,7 +43,7 @@ export default async function ClimberPage({
 }) {
   const climber = await getClimber(params.id)
 
-  if (!climber || climber.role !== "CLIMBER") {
+  if (!climber) {
     notFound()
   }
 

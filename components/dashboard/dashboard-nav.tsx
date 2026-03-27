@@ -24,7 +24,7 @@ const navItems = [
   { href: "/dashboard/expeditions", label: "Expeditions", icon: Mountain, exact: false },
   { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck, exact: false },
   { href: "/dashboard/users", label: "Users", icon: Users, exact: false },
-  { href: "/dashboard/certificates", label: "Certificates", icon: FileText, exact: false },
+  { href: "/dashboard/certificates", label: "Summit & Certs", icon: FileText, exact: false },
   { href: "/dashboard/settings", label: "Settings", icon: Settings, exact: false },
 ]
 

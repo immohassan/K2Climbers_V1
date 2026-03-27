@@ -546,7 +546,7 @@ export default function EditExpeditionPage() {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            {/* <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="metaTitle">SEO Title</Label>
                 <Input
@@ -564,7 +564,7 @@ export default function EditExpeditionPage() {
                   rows={2}
                 />
               </div>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
 

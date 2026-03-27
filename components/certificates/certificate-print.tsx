@@ -25,7 +25,7 @@ export function CertificatePrint({ certificate }: { certificate: Certificate }) 
       <style>{`
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         html, body {
-          background: #f5f5f5 !important;
+          background: #0a0a0a !important;
           font-family: 'Georgia', serif;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
@@ -34,9 +34,9 @@ export function CertificatePrint({ certificate }: { certificate: Certificate }) 
         .pw {
           width: 100vw; min-height: 100vh;
           display: flex; align-items: center; justify-content: center;
-          padding: 40px 24px; background: #f5f5f5;
+          padding: 24px; background: #0a0a0a;
         }
-        .cw { width: 600px; max-width: 100%; }
+        .cw { width: 560px; max-width: 100%; }
         .btn-print {
           position: fixed; bottom: 28px; right: 28px;
           background: #1a1a1a; color: white; border: none;
@@ -52,8 +52,8 @@ export function CertificatePrint({ certificate }: { certificate: Certificate }) 
           text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
         }
         @media print {
-          html, body { background: #ffffff !important; }
-          .pw { padding: 0 !important; background: #ffffff !important; display: block !important; }
+          html, body { background: #0a0a0a !important; }
+          .pw { padding: 0 !important; background: #0a0a0a !important; display: block !important; }
           .cw { width: 100% !important; max-width: 100% !important; }
           .btn-print, .btn-back { display: none !important; }
         }

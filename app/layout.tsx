@@ -6,6 +6,7 @@ import { Providers } from "@/components/providers/session-provider"
 import { Toaster } from "react-hot-toast"
 import { ProgressBar } from "@/components/progress-bar"
 import { ConditionalNavbar } from "@/components/conditional-navbar"
+import { WhatsAppWidget } from "@/components/whatsapp-widget"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -33,6 +34,7 @@ export default function RootLayout({
             <ProgressBar />
             <ConditionalNavbar />
             {children}
+            <WhatsAppWidget />
             <Toaster position="top-right" />
           </ThemeProvider>
         </Providers>
