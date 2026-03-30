@@ -1,33 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { validate, contactSchema } from "@/lib/validation"
+import { contactLimiter } from "@/lib/rate-limit"
 
 export async function POST(request: NextRequest) {
+  const limited = contactLimiter(request)
+  if (limited) return limited
+
   try {
     const body = await request.json()
-    const { name, email, subject, message } = body
-
-    if (!name?.trim() || !email?.trim() || !message?.trim()) {
-      return NextResponse.json(
-        { error: "Name, email, and message are required" },
-        { status: 400 }
-      )
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email.trim())) {
-      return NextResponse.json(
-        { error: "Please enter a valid email address" },
-        { status: 400 }
-      )
-    }
+    const parsed = validate(contactSchema, body)
+    if (!parsed.ok) return parsed.response
+    const { name, email, subject, message } = parsed.data
 
     await prisma.contactMessage.create({
-      data: {
-        name: name.trim(),
-        email: email.trim(),
-        subject: subject?.trim() || null,
-        message: message.trim(),
-      },
+      data: { name, email, subject: subject || null, message },
     })
 
     return NextResponse.json(

@@ -362,8 +362,88 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <main className="min-h-screen pt-16 bg-background">
-        <div className="container mx-auto px-4 py-20 text-center text-muted-foreground text-sm">
-          Loading...
+        <div className="container mx-auto px-4 sm:px-6 py-12 md:py-16 max-w-6xl">
+          {/* Page header skeleton */}
+          <div className="mb-10 md:mb-12">
+            <div className="h-3 w-16 bg-muted animate-pulse rounded mb-3" />
+            <div className="h-10 w-48 bg-muted animate-pulse rounded" />
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
+            {/* Left column */}
+            <div className="lg:col-span-2 space-y-10">
+              {/* Profile card skeleton */}
+              <div className="border border-border">
+                <div className="flex items-center gap-5 px-6 py-6 border-b border-border">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-muted animate-pulse shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-6 w-40 bg-muted animate-pulse rounded" />
+                    <div className="h-4 w-56 bg-muted animate-pulse rounded" />
+                    <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+                  </div>
+                </div>
+                <div className="px-6 py-6 space-y-3">
+                  <div className="h-4 w-48 bg-muted animate-pulse rounded" />
+                  <div className="h-4 w-36 bg-muted animate-pulse rounded" />
+                  <div className="h-4 w-24 bg-muted animate-pulse rounded mt-4" />
+                </div>
+              </div>
+
+              {/* Stats strip skeleton */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border border border-border">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="bg-background px-4 py-5 flex flex-col items-center gap-2">
+                    <div className="h-5 w-5 bg-muted animate-pulse rounded" />
+                    <div className="h-7 w-10 bg-muted animate-pulse rounded" />
+                    <div className="h-3 w-16 bg-muted animate-pulse rounded" />
+                  </div>
+                ))}
+              </div>
+
+              {/* Summit records skeleton */}
+              <div className="border border-border">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+                  <div className="space-y-1">
+                    <div className="h-3 w-16 bg-muted animate-pulse rounded" />
+                    <div className="h-5 w-32 bg-muted animate-pulse rounded" />
+                  </div>
+                  <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+                </div>
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-4 px-6 py-4 border-b border-border last:border-b-0">
+                    <div className="flex-1 space-y-1.5">
+                      <div className="h-4 w-48 bg-muted animate-pulse rounded" />
+                      <div className="h-3 w-32 bg-muted animate-pulse rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right sidebar skeleton */}
+            <div className="lg:col-span-1 space-y-6">
+              <div className="border border-border">
+                <div className="px-5 py-4 border-b border-border">
+                  <div className="h-3 w-24 bg-muted animate-pulse rounded" />
+                </div>
+                {[...Array(2)].map((_, i) => (
+                  <div key={i} className="flex items-center justify-between px-5 py-4 border-b border-border last:border-b-0">
+                    <div className="h-4 w-32 bg-muted animate-pulse rounded" />
+                    <div className="h-4 w-4 bg-muted animate-pulse rounded" />
+                  </div>
+                ))}
+              </div>
+              <div className="border border-border px-5 py-5 space-y-3">
+                <div className="h-3 w-16 bg-muted animate-pulse rounded mb-4" />
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex justify-between pt-3 border-t border-border first:border-t-0 first:pt-0">
+                    <div className="h-4 w-16 bg-muted animate-pulse rounded" />
+                    <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     )

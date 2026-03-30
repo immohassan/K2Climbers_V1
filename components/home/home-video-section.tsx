@@ -1,24 +1,47 @@
-import { getHomeVideoUrl } from "@/lib/settings"
+"use client"
+
+import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
 import { getEmbedUrl } from "@/lib/video-utils"
 
-export async function HomeVideoSection() {
-  const videoUrl = await getHomeVideoUrl()
-  if (!videoUrl?.trim()) return null
+const EASE = [0.16, 1, 0.3, 1] as const
 
-  const embed = getEmbedUrl(videoUrl)
-  if (!embed) return null
+export function HomeVideoSection() {
+  const [embedData, setEmbedData] = useState<{
+    src: string
+    type: string
+  } | null>(null)
 
-  const embedSrcWithAutoplay =
-    embed.type === "youtube" || embed.type === "vimeo"
-      ? `${embed.src}${embed.src.includes("?") ? "&" : "?"}autoplay=1&mute=1`
-      : embed.src
+  useEffect(() => {
+    fetch("/api/settings/home-video")
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
+        if (!d?.videoUrl?.trim()) return
+        const embed = getEmbedUrl(d.videoUrl)
+        if (!embed) return
+        const src =
+          embed.type === "youtube" || embed.type === "vimeo"
+            ? `${embed.src}${embed.src.includes("?") ? "&" : "?"}autoplay=1&mute=1`
+            : embed.src
+        setEmbedData({ src, type: embed.type })
+      })
+      .catch(() => {})
+  }, [])
+
+  if (!embedData) return null
 
   return (
-    <section className="py-14 md:py-20 bg-background border-b border-border">
+    <section className="py-14 md:py-20 bg-background border-b border-border overflow-hidden">
       <div className="container mx-auto px-4 max-w-4xl">
 
         {/* Label + title */}
-        <div className="flex items-center justify-between mb-8 md:mb-10">
+        <motion.div
+          className="flex items-center justify-between mb-8 md:mb-10"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: EASE }}
+        >
           <div>
             <div className="flex items-center gap-2 mb-1">
               <div className="w-3 h-3 bg-summit" />
@@ -31,14 +54,20 @@ export async function HomeVideoSection() {
           <p className="hidden md:block text-sm text-muted-foreground max-w-[220px] text-right leading-relaxed">
             For every climber who reached the summit — and those who gave everything trying.
           </p>
-        </div>
+        </motion.div>
 
         {/* Video */}
-        <div className="relative overflow-hidden border border-border">
+        <motion.div
+          className="relative overflow-hidden border border-border"
+          initial={{ opacity: 0, y: 30, scale: 0.98 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.75, ease: EASE }}
+        >
           <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
-            {embed.type === "youtube" || embed.type === "vimeo" ? (
+            {embedData.type === "youtube" || embedData.type === "vimeo" ? (
               <iframe
-                src={embedSrcWithAutoplay}
+                src={embedData.src}
                 title="K2 Climbers — tribute video"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
@@ -46,7 +75,7 @@ export async function HomeVideoSection() {
               />
             ) : (
               <video
-                src={embed.src}
+                src={embedData.src}
                 autoPlay
                 muted
                 loop
@@ -59,7 +88,7 @@ export async function HomeVideoSection() {
               </video>
             )}
           </div>
-        </div>
+        </motion.div>
 
       </div>
     </section>

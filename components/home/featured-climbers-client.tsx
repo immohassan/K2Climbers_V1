@@ -14,14 +14,22 @@ interface Climber {
   certificates?: Array<unknown>
 }
 
+const EASE = [0.16, 1, 0.3, 1] as const
+
 export function FeaturedClimbersClient({ climbers }: { climbers: Climber[] }) {
   if (climbers.length === 0) return null
 
   return (
-    <section className="py-14 md:py-20 bg-card/30 border-b border-border">
+    <section className="py-14 md:py-20 bg-card/30 border-b border-border overflow-hidden">
       <div className="container mx-auto px-4">
 
-        <div className="flex items-end justify-between mb-8 md:mb-10">
+        <motion.div
+          className="flex items-end justify-between mb-8 md:mb-10"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: EASE }}
+        >
           <div>
             <div className="flex items-center gap-2 mb-1">
               <div className="w-3 h-3 bg-glacier-400" />
@@ -38,16 +46,16 @@ export function FeaturedClimbersClient({ climbers }: { climbers: Climber[] }) {
             View all
             <ArrowUpRight className="h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </Link>
-        </div>
+        </motion.div>
 
         <div className="grid gap-px bg-border grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {climbers.map((climber, index) => (
             <motion.div
               key={climber.id}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.06, duration: 0.4 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ delay: index * 0.07, duration: 0.5, ease: EASE }}
               className="bg-background"
             >
               <Link href={`/climbers/${climber.id}`}>

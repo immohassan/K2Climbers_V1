@@ -43,6 +43,17 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const isAdmin = session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
     if (!isAdmin) return adminOnly()
 
+    // Block deletion if the slot has active (non-cancelled) bookings
+    const activeBookings = await prisma.booking.count({
+      where: { slotId: params.slotId, status: { not: "CANCELLED" } },
+    })
+    if (activeBookings > 0) {
+      return NextResponse.json(
+        { error: `Cannot delete slot with ${activeBookings} active booking${activeBookings !== 1 ? "s" : ""}` },
+        { status: 409 }
+      )
+    }
+
     await prisma.expeditionSlot.delete({ where: { id: params.slotId } })
 
     return NextResponse.json({ success: true })

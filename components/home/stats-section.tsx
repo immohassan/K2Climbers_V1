@@ -40,11 +40,11 @@ export function StatsSection() {
           {stats.map((stat, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.5 }}
-              className="bg-background px-6 py-8 md:px-10 md:py-10 group"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ delay: i * 0.1, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-background px-6 py-8 md:px-10 md:py-10"
             >
               <div className={`text-4xl md:text-5xl font-black tracking-tight mb-1 tabular-nums ${stat.accent}`}>
                 <CountUp target={stat.value} suffix={stat.suffix} />

@@ -20,6 +20,8 @@ interface Expedition {
   guides: Array<{ name: string | null; image: string | null }>
 }
 
+const EASE = [0.16, 1, 0.3, 1] as const
+
 export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedition[] }) {
   if (expeditions.length === 0) {
     return (
@@ -38,7 +40,13 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
     <section className="py-14 md:py-20 bg-background border-b border-border">
       <div className="container mx-auto px-4">
 
-        <div className="flex items-end justify-between mb-8 md:mb-10">
+        <motion.div
+          className="flex items-end justify-between mb-8 md:mb-10"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: EASE }}
+        >
           <div>
             <SectionLabel />
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none mt-2">
@@ -52,17 +60,17 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
             All expeditions
             <ArrowUpRight className="h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </Link>
-        </div>
+        </motion.div>
 
         {/* Editorial grid: 1 large + 2 stacked */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-px bg-border">
 
           {/* Featured — large left */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.7, ease: EASE }}
             className="md:col-span-3 bg-background"
           >
             <Link href={`/expeditions/${featured.slug}`} className="block group h-full">
@@ -114,10 +122,10 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
             {rest.slice(0, 2).map((expedition, i) => (
               <motion.div
                 key={expedition.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.15 + i * 0.1, duration: 0.6 }}
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ delay: 0.15 + i * 0.12, duration: 0.6, ease: EASE }}
                 className="flex-1 bg-background"
               >
                 <Link href={`/expeditions/${expedition.slug}`} className="block group h-full">
@@ -149,7 +157,6 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
                         <div className="text-white font-bold text-sm">{formatCurrency(expedition.basePrice)}</div>
                       </div>
                     </div>
-                    {/* Hover arrow */}
                     <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="bg-white/10 backdrop-blur-sm p-1.5">
                         <ArrowUpRight className="h-3.5 w-3.5 text-white" />
@@ -163,7 +170,13 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
         </div>
 
         {/* Mobile view-all link */}
-        <div className="mt-6 sm:hidden">
+        <motion.div
+          className="mt-6 sm:hidden"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        >
           <Link
             href="/expeditions"
             className="flex items-center justify-center gap-2 text-sm font-semibold border border-border py-3 text-foreground hover:bg-muted/50 transition-colors"
@@ -171,7 +184,7 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
             View All Expeditions
             <ArrowUpRight className="h-4 w-4" />
           </Link>
-        </div>
+        </motion.div>
       </div>
     </section>
   )

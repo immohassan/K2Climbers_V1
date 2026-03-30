@@ -1,11 +1,24 @@
+import type { Metadata } from "next"
 import { Suspense } from "react"
 import { ExpeditionsList } from "@/components/expeditions/expeditions-list"
 import { ExpeditionsSkeleton } from "@/components/expeditions/expeditions-skeleton"
 import { Footer } from "@/components/footer"
 import { prisma } from "@/lib/prisma"
 
-// Always fetch fresh data so new expeditions show up on deploy (no static cache)
-export const dynamic = "force-dynamic"
+export const revalidate = 1800 // revalidate every 30 minutes
+
+export const metadata: Metadata = {
+  title: "Expeditions & Tours",
+  description:
+    "Browse all K2 Climbers expeditions and trekking tours in Pakistan. Filter by difficulty, category, and mountain range. From K2 summits to beginner treks.",
+  alternates: { canonical: "/expeditions" },
+  openGraph: {
+    title: "Expeditions & Tours | K2 Climbers",
+    description:
+      "Browse all K2 Climbers expeditions and trekking tours in Pakistan. Filter by difficulty, category, and mountain range.",
+    url: "/expeditions",
+  },
+}
 
 async function getExpeditions() {
   try {

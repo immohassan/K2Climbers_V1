@@ -1,8 +1,21 @@
+import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { ContactForm } from "@/components/contact/contact-form"
 
-export const dynamic = "force-dynamic"
+
+export const metadata: Metadata = {
+  title: "Contact Us",
+  description:
+    "Get in touch with K2 Climbers to plan your Pakistan mountain expedition. Call +92 335 5428818 or email info@k2climbers.com. Office in Rawalpindi.",
+  alternates: { canonical: "/contact" },
+  openGraph: {
+    title: "Contact K2 Climbers",
+    description:
+      "Get in touch to plan your Pakistan mountain expedition. Call or email our Rawalpindi office.",
+    url: "/contact",
+  },
+}
 
 export default function ContactPage() {
   return (

@@ -3,6 +3,8 @@ import { Navbar } from "@/components/navbar"
 import { CertificateView } from "@/components/certificates/certificate-view"
 import { prisma } from "@/lib/prisma"
 
+export const dynamic = "force-dynamic"
+
 async function getCertificate(code: string) {
   try {
     const certificate = await prisma.certificate.findUnique({

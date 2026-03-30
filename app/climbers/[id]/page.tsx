@@ -1,8 +1,23 @@
 import { notFound } from "next/navigation"
+import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { ClimberProfile } from "@/components/community/climber-profile"
 import { prisma } from "@/lib/prisma"
 import { recordCountsAsSummit } from "@/lib/summit-utils"
+
+export const revalidate = 1800 // revalidate every 30 minutes
+
+export async function generateStaticParams() {
+  try {
+    const climbers = await prisma.user.findMany({
+      where: { role: "CLIMBER", featured: true },
+      select: { id: true },
+    })
+    return climbers.map((c) => ({ id: c.id }))
+  } catch {
+    return []
+  }
+}
 
 async function getClimber(id: string) {
   try {
@@ -33,6 +48,36 @@ async function getClimber(id: string) {
   } catch (error) {
     console.error("Error fetching climber:", error)
     return null
+  }
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string }
+}): Promise<Metadata> {
+  try {
+    const climber = await prisma.user.findUnique({
+      where: { id: params.id },
+      select: { name: true, bio: true, image: true },
+    })
+    if (!climber) return {}
+    const name = climber.name || "Climber"
+    return {
+      title: name,
+      description:
+        climber.bio ||
+        `${name} is a mountaineer in the K2 Climbers community. Explore their summit records and expedition history.`,
+      openGraph: {
+        title: `${name} | K2 Climbers`,
+        description:
+          climber.bio ||
+          `${name}'s mountaineering profile on K2 Climbers.`,
+        images: climber.image ? [{ url: climber.image }] : [],
+      },
+    }
+  } catch {
+    return {}
   }
 }
 

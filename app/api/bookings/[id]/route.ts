@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { validate, patchBookingSchema } from "@/lib/validation"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -16,9 +17,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         expedition: {
           select: { id: true, title: true, slug: true, heroImage: true, basePrice: true, altitude: true, duration: true, location: true, difficulty: true },
         },
-        user: {
-          select: { id: true, name: true, email: true },
-        },
+        user: { select: { id: true, name: true, email: true } },
         slot: {
           select: { id: true, startDate: true, endDate: true, label: true, maxParticipants: true, bookedCount: true },
         },
@@ -43,28 +42,53 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     if (!isAdmin) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     const body = await request.json()
-    const { status, paymentStatus, specialRequests, numberOfPeople } = body
+    const parsed = validate(patchBookingSchema, body)
+    if (!parsed.ok) return parsed.response
+    const { status, paymentStatus, specialRequests, numberOfPeople } = parsed.data
 
-    const existing = await prisma.booking.findUnique({ where: { id: params.id }, include: { expedition: true } })
+    const existing = await prisma.booking.findUnique({
+      where: { id: params.id },
+      include: { expedition: true, slot: true },
+    })
     if (!existing) return NextResponse.json({ error: "Booking not found" }, { status: 404 })
 
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
     if (status !== undefined) updateData.status = status
     if (paymentStatus !== undefined) updateData.paymentStatus = paymentStatus
     if (specialRequests !== undefined) updateData.specialRequests = specialRequests
     if (numberOfPeople !== undefined) {
       updateData.numberOfPeople = numberOfPeople
-      updateData.totalAmount = existing.expedition.basePrice * numberOfPeople
+      // Use slot price override if set, otherwise expedition base price
+      const pricePerPerson = existing.slot?.priceOverride ?? existing.expedition.basePrice
+      updateData.totalAmount = pricePerPerson * numberOfPeople
     }
 
-    const booking = await prisma.booking.update({
-      where: { id: params.id },
-      data: updateData,
-      include: {
-        expedition: { select: { id: true, title: true, slug: true, heroImage: true, basePrice: true, altitude: true, duration: true, location: true, difficulty: true } },
-        user: { select: { id: true, name: true, email: true } },
-        slot: { select: { id: true, startDate: true, endDate: true, label: true, maxParticipants: true, bookedCount: true } },
-      },
+    // When cancelling a booking that was previously active, free up the slot capacity
+    const wasCancelled = existing.status === "CANCELLED"
+    const becomingCancelled = status === "CANCELLED" && !wasCancelled
+
+    const booking = await prisma.$transaction(async (tx) => {
+      const updated = await tx.booking.update({
+        where: { id: params.id },
+        data: updateData,
+        include: {
+          expedition: { select: { id: true, title: true, slug: true, heroImage: true, basePrice: true, altitude: true, duration: true, location: true, difficulty: true } },
+          user: { select: { id: true, name: true, email: true } },
+          slot: { select: { id: true, startDate: true, endDate: true, label: true, maxParticipants: true, bookedCount: true } },
+        },
+      })
+
+      // Decrement slot capacity when booking transitions to CANCELLED
+      if (becomingCancelled && existing.slotId) {
+        await tx.expeditionSlot.update({
+          where: { id: existing.slotId },
+          data: {
+            bookedCount: { decrement: existing.numberOfPeople },
+          },
+        })
+      }
+
+      return updated
     })
 
     return NextResponse.json(booking)
@@ -82,7 +106,20 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const isAdmin = session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
     if (!isAdmin) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
-    await prisma.booking.delete({ where: { id: params.id } })
+    // Free up slot capacity when deleting a non-cancelled booking
+    const existing = await prisma.booking.findUnique({ where: { id: params.id } })
+    if (!existing) return NextResponse.json({ error: "Booking not found" }, { status: 404 })
+
+    await prisma.$transaction(async (tx) => {
+      await tx.booking.delete({ where: { id: params.id } })
+
+      if (existing.slotId && existing.status !== "CANCELLED") {
+        await tx.expeditionSlot.update({
+          where: { id: existing.slotId },
+          data: { bookedCount: { decrement: existing.numberOfPeople } },
+        })
+      }
+    })
 
     return NextResponse.json({ success: true })
   } catch (error) {

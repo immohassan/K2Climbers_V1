@@ -103,8 +103,8 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
     <div
       id="certificate-card"
       style={{
-        width: "100%",
-        aspectRatio: "210 / 297",
+        width: 620,
+        height: Math.round(620 * 297 / 210),
         background: BG,
         position: "relative",
         overflow: "hidden",

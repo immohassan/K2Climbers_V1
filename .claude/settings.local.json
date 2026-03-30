@@ -3,7 +3,10 @@
     "allow": [
       "Bash(npx prisma:*)",
       "Bash(npm install:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(find /d/K2ClimbersV2/K2Climbers_V1/lib -type f -name *.ts -o -name *.js)",
+      "Bash(grep -l \"parse\\\\|validate\\\\|schema\" /d/K2ClimbersV2/K2Climbers_V1/app/api/*/*/route.ts)",
+      "Bash(node -e \"require\\(''nodemailer''\\); console.log\\(''nodemailer OK''\\)\")"
     ]
   }
 }

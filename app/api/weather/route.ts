@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { validate, weatherQuerySchema } from "@/lib/validation"
 
 const OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 
@@ -7,25 +8,12 @@ export const dynamic = "force-dynamic"
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const lat = searchParams.get("latitude")
-    const long = searchParams.get("longitude")
-
-    if (!lat || !long) {
-      return NextResponse.json(
-        { error: "latitude and longitude are required" },
-        { status: 400 }
-      )
-    }
-
-    const latitude = parseFloat(lat)
-    const longitude = parseFloat(long)
-
-    if (Number.isNaN(latitude) || Number.isNaN(longitude)) {
-      return NextResponse.json(
-        { error: "Invalid latitude or longitude" },
-        { status: 400 }
-      )
-    }
+    const parsed = validate(weatherQuerySchema, {
+      latitude: searchParams.get("latitude"),
+      longitude: searchParams.get("longitude"),
+    })
+    if (!parsed.ok) return parsed.response
+    const { latitude, longitude } = parsed.data
 
     const url = new URL(OPEN_METEO_URL)
     url.searchParams.set("latitude", String(latitude))
@@ -46,9 +34,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data)
   } catch (error) {
     console.error("Error fetching weather:", error)
-    return NextResponse.json(
-      { error: "Failed to fetch weather" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to fetch weather" }, { status: 500 })
   }
 }

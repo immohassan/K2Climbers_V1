@@ -1,8 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import Link from "next/link"
-import { Download, Share2, ArrowLeft } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { Download, Share2 } from "lucide-react"
 import { CertificateCard } from "./certificate-card"
 
 interface Certificate {
@@ -17,8 +16,26 @@ interface Certificate {
   user: { name: string | null; image?: string | null }
 }
 
+// Certificate renders at this fixed width. Aspect ratio is portrait A4 (210:297).
+const CERT_W = 620
+const CERT_H = Math.round(CERT_W * 297 / 210)
+
 export function CertificateView({ certificate }: { certificate: Certificate }) {
   const [downloading, setDownloading] = useState(false)
+  const outerRef = useRef<HTMLDivElement>(null)
+  const [scale, setScale] = useState(1)
+
+  // Compute scale so the fixed-width cert fits the container
+  useEffect(() => {
+    function measure() {
+      if (!outerRef.current) return
+      const available = outerRef.current.clientWidth
+      setScale(available < CERT_W ? available / CERT_W : 1)
+    }
+    measure()
+    window.addEventListener("resize", measure)
+    return () => window.removeEventListener("resize", measure)
+  }, [])
 
   const handleDownload = async () => {
     setDownloading(true)
@@ -29,9 +46,8 @@ export function CertificateView({ certificate }: { certificate: Certificate }) {
       const el = document.getElementById("certificate-card")
       if (!el) return
 
-      // Copy canvas pixel data into cloned document so html2canvas captures mountains
       const canvas = await html2canvas(el, {
-        scale: 3,
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#0a0a0a",
@@ -51,14 +67,11 @@ export function CertificateView({ certificate }: { certificate: Certificate }) {
 
       const imgData = canvas.toDataURL("image/png")
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" })
-
       const pageW = pdf.internal.pageSize.getWidth()
       const pageH = pdf.internal.pageSize.getHeight()
       const imgRatio = canvas.height / canvas.width
       const imgW = pageW
       const imgH = pageW * imgRatio
-
-      // Center vertically on page
       const yOffset = imgH < pageH ? (pageH - imgH) / 2 : 0
       pdf.addImage(imgData, "PNG", 0, yOffset, imgW, imgH)
       pdf.save(`certificate-${certificate.peakName.replace(/\s+/g, "-").toLowerCase()}.pdf`)
@@ -80,18 +93,31 @@ export function CertificateView({ certificate }: { certificate: Certificate }) {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      {/* Back */}
-      {/* <Link
-        href="/certificates"
-        className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+    <div className="w-full space-y-6">
+      {/*
+        Outer div measures available width.
+        Height is explicitly set to scaled CERT_H so the page flow is correct
+        even though the inner div is position:absolute.
+      */}
+      <div
+        ref={outerRef}
+        style={{ width: "100%", height: CERT_H * scale, position: "relative" }}
       >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        Back to Certificates
-      </Link> */}
-
-      {/* Certificate */}
-      <CertificateCard certificate={certificate} />
+        {/* Inner div: always CERT_W wide, scaled down to fit */}
+        <div
+          style={{
+            width: CERT_W,
+            height: CERT_H,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+            position: "absolute",
+            top: 0,
+            left: 0,
+          }}
+        >
+          <CertificateCard certificate={certificate} />
+        </div>
+      </div>
 
       {/* Actions */}
       <div className="flex items-center gap-3">

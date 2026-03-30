@@ -81,6 +81,15 @@ function SignInForm() {
             </div>
           </div>
 
+          <div className="flex items-center justify-end">
+            <Link
+              href="/auth/forgot-password"
+              className="text-xs text-muted-foreground hover:text-orange-500 transition-colors"
+            >
+              Forgot password?
+            </Link>
+          </div>
+
           <button
             type="submit"
             disabled={loading}

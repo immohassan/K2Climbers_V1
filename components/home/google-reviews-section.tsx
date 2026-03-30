@@ -3,6 +3,8 @@
 import { motion } from "framer-motion"
 import { Star, ExternalLink } from "lucide-react"
 
+const EASE = [0.16, 1, 0.3, 1] as const
+
 const REVIEWS = [
   {
     name: "Farah Zafar",
@@ -42,10 +44,16 @@ function StarRow({ count }: { count: number }) {
 
 export function GoogleReviewsSection() {
   return (
-    <section className="py-14 md:py-20 bg-background border-b border-border">
+    <section className="py-14 md:py-20 bg-background border-b border-border overflow-hidden">
       <div className="container mx-auto px-4">
 
-        <div className="flex items-end justify-between mb-8 md:mb-10">
+        <motion.div
+          className="flex items-end justify-between mb-8 md:mb-10"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: EASE }}
+        >
           <div>
             <div className="flex items-center gap-2 mb-1">
               <div className="w-3 h-3 bg-orange-500" />
@@ -59,7 +67,6 @@ export function GoogleReviewsSection() {
           {/* Google rating summary */}
           <div className="hidden sm:flex flex-col items-end gap-1">
             <div className="flex items-center gap-2">
-              {/* Google G icon */}
               <svg viewBox="0 0 24 24" className="h-5 w-5" aria-label="Google">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -71,17 +78,17 @@ export function GoogleReviewsSection() {
             </div>
             <span className="text-xs text-muted-foreground">Based on Google Reviews</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Review cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border">
           {REVIEWS.map((review, i) => (
             <motion.div
               key={review.name}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ delay: i * 0.12, duration: 0.6, ease: EASE }}
               className="bg-background p-6 sm:p-7 flex flex-col gap-4"
             >
               <div className="flex items-center justify-between">
@@ -105,7 +112,13 @@ export function GoogleReviewsSection() {
         </div>
 
         {/* See all on Google Maps button */}
-        <div className="mt-6 flex justify-center">
+        <motion.div
+          className="mt-6 flex justify-center"
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4, duration: 0.5, ease: EASE }}
+        >
           <a
             href="https://www.google.com/maps/search/K2Climbers"
             target="_blank"
@@ -121,7 +134,7 @@ export function GoogleReviewsSection() {
             See all reviews on Google Maps
             <ExternalLink className="h-3.5 w-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </a>
-        </div>
+        </motion.div>
 
       </div>
     </section>

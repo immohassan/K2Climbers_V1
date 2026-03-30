@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import bcrypt from "bcryptjs"
 import { recordCountsAsSummit } from "@/lib/summit-utils"
+import { validate, updateUserSchema } from "@/lib/validation"
 
 export async function GET(
   request: NextRequest,
@@ -11,50 +12,25 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const { id } = await params
     const user = await prisma.user.findUnique({
       where: { id },
       select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        image: true,
-        bio: true,
-        phone: true,
-        featured: true,
-        createdAt: true,
-        _count: {
-          select: {
-            summitRecords: true,
-            bookings: true,
-            certificates: true,
-            rentals: true,
-          },
-        },
+        id: true, email: true, name: true, role: true, image: true,
+        bio: true, phone: true, featured: true, createdAt: true,
+        _count: { select: { summitRecords: true, bookings: true, certificates: true, rentals: true } },
         summitRecords: {
           where: { status: "SUCCESSFUL" },
-          include: {
-            expedition: { select: { category: true } },
-          },
+          include: { expedition: { select: { category: true } } },
         },
       },
     })
 
-    if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      )
-    }
+    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 })
 
     const { summitRecords, ...rest } = user
     const summitCount = summitRecords.filter((r) =>
@@ -64,10 +40,7 @@ export async function GET(
     return NextResponse.json({ ...rest, summitCount })
   } catch (error) {
     console.error("Error fetching user:", error)
-    return NextResponse.json(
-      { error: "Failed to fetch user" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 })
   }
 }
 
@@ -77,33 +50,21 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const { id } = await params
+
+    const existingUser = await prisma.user.findUnique({ where: { id } })
+    if (!existingUser) return NextResponse.json({ error: "User not found" }, { status: 404 })
+
     const body = await request.json()
-    const { email, name, role, bio, phone, image, password, featured } = body
+    const parsed = validate(updateUserSchema, body)
+    if (!parsed.ok) return parsed.response
+    const { email, name, role, bio, phone, image, featured, password } = parsed.data
 
-    // Check if user exists
-    const existingUser = await prisma.user.findUnique({
-      where: { id },
-    })
-
-    if (!existingUser) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      )
-    }
-
-    // Prepare update data
-    const updateData: any = {}
-    
+    const updateData: Record<string, unknown> = {}
     if (email !== undefined) updateData.email = email
     if (name !== undefined) updateData.name = name
     if (role !== undefined) updateData.role = role
@@ -111,33 +72,21 @@ export async function PUT(
     if (phone !== undefined) updateData.phone = phone
     if (image !== undefined) updateData.image = image
     if (featured !== undefined) updateData.featured = Boolean(featured)
-    if (password) {
-      updateData.password = await bcrypt.hash(password, 10)
-    }
+    if (password) updateData.password = await bcrypt.hash(password, 10)
 
     const user = await prisma.user.update({
       where: { id },
       data: updateData,
       select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        image: true,
-        bio: true,
-        phone: true,
-        featured: true,
-        createdAt: true,
+        id: true, email: true, name: true, role: true,
+        image: true, bio: true, phone: true, featured: true, createdAt: true,
       },
     })
 
     return NextResponse.json(user)
   } catch (error) {
     console.error("Error updating user:", error)
-    return NextResponse.json(
-      { error: "Failed to update user" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to update user" }, { status: 500 })
   }
 }
 
@@ -147,7 +96,6 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
     if (!session || session.user.role !== "SUPER_ADMIN") {
       return NextResponse.json(
         { error: "Unauthorized. Only super admins can delete users." },
@@ -157,24 +105,15 @@ export async function DELETE(
 
     const { id } = await params
 
-    // Prevent deleting yourself
     if (id === session.user.id) {
-      return NextResponse.json(
-        { error: "Cannot delete your own account" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Cannot delete your own account" }, { status: 400 })
     }
 
-    await prisma.user.delete({
-      where: { id },
-    })
+    await prisma.user.delete({ where: { id } })
 
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error deleting user:", error)
-    return NextResponse.json(
-      { error: "Failed to delete user" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to delete user" }, { status: 500 })
   }
 }

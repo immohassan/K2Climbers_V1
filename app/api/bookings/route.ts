@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { validate, createBookingSchema } from "@/lib/validation"
+import { bookingLimiter } from "@/lib/rate-limit"
+import { sendBookingConfirmationEmail } from "@/lib/email"
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +15,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const slotId = searchParams.get("slotId")
 
-    const where: any = isAdmin ? {} : { userId: session.user.id }
+    const where: Record<string, unknown> = isAdmin ? {} : { userId: session.user.id }
     if (slotId) where.slotId = slotId
 
     const bookings = await prisma.booking.findMany({
@@ -39,57 +42,102 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = bookingLimiter(request)
+  if (limited) return limited
+
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const body = await request.json()
-    const { expeditionId, slotId, numberOfPeople, specialRequests } = body
+    const parsed = validate(createBookingSchema, body)
+    if (!parsed.ok) return parsed.response
+    const { expeditionId, slotId, numberOfPeople, specialRequests } = parsed.data
 
     const expedition = await prisma.expedition.findUnique({ where: { id: expeditionId } })
     if (!expedition) return NextResponse.json({ error: "Expedition not found" }, { status: 404 })
 
-    // Validate slot if provided
+    // Validate slot exists and is active before entering the transaction
     if (slotId) {
       const slot = await prisma.expeditionSlot.findUnique({ where: { id: slotId } })
-      if (!slot || !slot.isActive) return NextResponse.json({ error: "Slot not found or inactive" }, { status: 404 })
-      const available = slot.maxParticipants - slot.bookedCount
-      if (numberOfPeople > available) {
-        return NextResponse.json({ error: `Only ${available} spot${available !== 1 ? "s" : ""} remaining in this slot` }, { status: 400 })
-      }
+      if (!slot || !slot.isActive)
+        return NextResponse.json({ error: "Slot not found or inactive" }, { status: 404 })
     }
 
-    // Determine price (slot override takes precedence)
-    let pricePerPerson = expedition.basePrice
-    if (slotId) {
-      const slot = await prisma.expeditionSlot.findUnique({ where: { id: slotId } })
-      if (slot?.priceOverride) pricePerPerson = slot.priceOverride
-    }
+    // Use a serializable transaction so the capacity check + increment + booking creation
+    // are atomic. This prevents two simultaneous requests from both passing the check.
+    const booking = await prisma.$transaction(
+      async (tx) => {
+        let pricePerPerson = expedition.basePrice
 
-    const totalAmount = pricePerPerson * numberOfPeople
+        if (slotId) {
+          // Re-read the slot inside the transaction with a row-level lock (via SELECT FOR UPDATE
+          // semantics Prisma applies in serializable isolation). This is the canonical way to
+          // prevent double-booking without raw SQL.
+          const slot = await tx.expeditionSlot.findUnique({ where: { id: slotId } })
+          if (!slot || !slot.isActive) throw new Error("Slot not found or inactive")
 
-    const booking = await prisma.booking.create({
-      data: {
-        userId: session.user.id,
-        expeditionId,
-        slotId: slotId || null,
-        numberOfPeople,
-        totalAmount,
-        specialRequests,
+          const available = slot.maxParticipants - slot.bookedCount
+          if (numberOfPeople > available) {
+            throw new Error(
+              available <= 0
+                ? "This slot is fully booked"
+                : `Only ${available} spot${available !== 1 ? "s" : ""} remaining in this slot`
+            )
+          }
+
+          await tx.expeditionSlot.update({
+            where: { id: slotId },
+            data: { bookedCount: { increment: numberOfPeople } },
+          })
+
+          if (slot.priceOverride) pricePerPerson = slot.priceOverride
+        }
+
+        const totalAmount = pricePerPerson * numberOfPeople
+
+        return tx.booking.create({
+          data: {
+            userId: session.user.id,
+            expeditionId,
+            slotId: slotId || null,
+            numberOfPeople,
+            totalAmount,
+            specialRequests: specialRequests || null,
+          },
+          include: {
+            expedition: { select: { title: true, slug: true } },
+            slot: { select: { startDate: true, endDate: true, label: true } },
+          },
+        })
       },
-      include: { expedition: true },
-    })
+      { isolationLevel: "Serializable" }
+    )
 
-    // Increment bookedCount on the slot
-    if (slotId) {
-      await prisma.expeditionSlot.update({
-        where: { id: slotId },
-        data: { bookedCount: { increment: numberOfPeople } },
-      })
-    }
+    // Send confirmation email — fire and forget
+    sendBookingConfirmationEmail({
+      to: session.user.email!,
+      name: session.user.name ?? "",
+      bookingId: booking.id,
+      expeditionTitle: booking.expedition.title,
+      expeditionSlug: booking.expedition.slug,
+      numberOfPeople: booking.numberOfPeople,
+      totalAmount: booking.totalAmount,
+      slotStartDate: booking.slot?.startDate?.toISOString(),
+      slotEndDate: booking.slot?.endDate?.toISOString(),
+      slotLabel: booking.slot?.label ?? undefined,
+    }).catch((err) => console.error("Failed to send booking email:", err))
 
     return NextResponse.json(booking, { status: 201 })
   } catch (error) {
+    // Surface capacity / slot errors as 400 rather than 500
+    if (error instanceof Error && (
+      error.message.includes("fully booked") ||
+      error.message.includes("spot") ||
+      error.message.includes("Slot not found")
+    )) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
     console.error("Error creating booking:", error)
     return NextResponse.json({ error: "Failed to create booking" }, { status: 500 })
   }

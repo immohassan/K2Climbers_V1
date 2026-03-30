@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { validate, updateExpeditionSchema } from "@/lib/validation"
 
 export async function GET(
   request: NextRequest,
@@ -12,56 +13,24 @@ export async function GET(
     const expedition = await prisma.expedition.findUnique({
       where: { id },
       include: {
-        guides: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            bio: true,
-          },
-        },
-        itineraries: {
-          orderBy: { dayNumber: "asc" },
-        },
-        requiredGear: {
-          include: {
-            product: true,
-          },
-        },
+        guides: { select: { id: true, name: true, image: true, bio: true } },
+        itineraries: { orderBy: { dayNumber: "asc" } },
+        requiredGear: { include: { product: true } },
         summitRecords: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                image: true,
-              },
-            },
-          },
+          include: { user: { select: { id: true, name: true, image: true } } },
         },
-        _count: {
-          select: {
-            bookings: true,
-            summitRecords: true,
-          },
-        },
+        _count: { select: { bookings: true, summitRecords: true } },
       },
     })
 
     if (!expedition) {
-      return NextResponse.json(
-        { error: "Expedition not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Expedition not found" }, { status: 404 })
     }
 
     return NextResponse.json(expedition)
   } catch (error) {
     console.error("Error fetching expedition:", error)
-    return NextResponse.json(
-      { error: "Failed to fetch expedition" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to fetch expedition" }, { status: 500 })
   }
 }
 
@@ -71,127 +40,82 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const { id } = await params
     const body = await request.json()
-    const {
-      itineraries,
-      requiredGear,
-      ...expeditionData
-    } = body
+    const parsed = validate(updateExpeditionSchema, body)
+    if (!parsed.ok) return parsed.response
 
-    const updateData: Record<string, unknown> = {
-      ...expeditionData,
-      successRate: expeditionData.successRate ? parseFloat(expeditionData.successRate) : null,
+    const { itineraries, requiredGear, ...expeditionData } = parsed.data
+
+    const updateData: Record<string, unknown> = { ...expeditionData }
+    if (expeditionData.successRate !== undefined) {
+      updateData.successRate = expeditionData.successRate ?? null
     }
     if (expeditionData.latitude !== undefined) {
-      updateData.latitude = expeditionData.latitude === "" || expeditionData.latitude == null ? null : parseFloat(expeditionData.latitude)
+      updateData.latitude = expeditionData.latitude ?? null
     }
     if (expeditionData.longitude !== undefined) {
-      updateData.longitude = expeditionData.longitude === "" || expeditionData.longitude == null ? null : parseFloat(expeditionData.longitude)
+      updateData.longitude = expeditionData.longitude ?? null
     }
     if (expeditionData.videoUrl !== undefined) {
-      updateData.videoUrl = expeditionData.videoUrl === "" ? null : expeditionData.videoUrl
+      updateData.videoUrl = expeditionData.videoUrl ?? null
     }
 
-    // Update expedition basic data
-    const expedition = await prisma.expedition.update({
-      where: { id },
-      data: updateData,
-    })
+    await prisma.expedition.update({ where: { id }, data: updateData })
 
-    // Update itineraries if provided
     if (itineraries !== undefined) {
-      // Delete existing itineraries
-      await prisma.itinerary.deleteMany({
-        where: { expeditionId: id },
-      })
-      // Create new itineraries
+      await prisma.itinerary.deleteMany({ where: { expeditionId: id } })
       if (itineraries.length > 0) {
         await prisma.itinerary.createMany({
-          data: itineraries.map((it: any) => ({
+          data: itineraries.map((it) => ({
             expeditionId: id,
-            dayNumber: it.dayNumber,
-            title: it.title,
-            description: it.description,
-            altitude: it.altitude,
-            activities: it.activities || [],
-            order: it.dayNumber,
+            dayNumber: it.dayNumber, title: it.title, description: it.description,
+            altitude: it.altitude ?? null, activities: it.activities ?? [], order: it.dayNumber,
           })),
         })
       }
     }
 
-    // Update required gear if provided
     if (requiredGear !== undefined) {
-      // Delete existing required gear
-      await prisma.expeditionGear.deleteMany({
-        where: { expeditionId: id },
-      })
-      // Create new required gear
+      await prisma.expeditionGear.deleteMany({ where: { expeditionId: id } })
       if (requiredGear.length > 0) {
         const gearData = await Promise.all(
-          requiredGear.map(async (rg: any) => {
-            // If gear has a name instead of productId, create or find the product
-            let productId = rg.productId
+          requiredGear.map(async (rg) => {
+            let productId = rg.productId ?? null
             if (rg.name && !productId) {
-              const slug = rg.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-              // Check if product exists
-              let product = await prisma.product.findUnique({
-                where: { slug },
-              })
-              // Create product if it doesn't exist
+              const gearSlug = rg.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+              let product = await prisma.product.findUnique({ where: { slug: gearSlug } })
               if (!product) {
                 product = await prisma.product.create({
                   data: {
-                    name: rg.name,
-                    slug,
-                    description: `Required gear for expedition`,
-                    category: "OTHER",
-                    price: 0,
-                    inStock: true,
+                    name: rg.name, slug: gearSlug,
+                    description: "Required gear for expedition",
+                    category: "OTHER", price: 0, inStock: true,
                   },
                 })
               }
               productId = product.id
             }
-            return {
-              expeditionId: id,
-              productId,
-              quantity: rg.quantity || 1,
-              required: rg.required !== false,
-            }
+            return { expeditionId: id, productId: productId!, quantity: rg.quantity ?? 1, required: rg.required !== false }
           })
         )
-        await prisma.expeditionGear.createMany({
-          data: gearData,
-        })
+        await prisma.expeditionGear.createMany({ data: gearData })
       }
     }
 
-    // Fetch updated expedition with relations
     const updatedExpedition = await prisma.expedition.findUnique({
       where: { id },
-      include: {
-        itineraries: true,
-        requiredGear: true,
-      },
+      include: { itineraries: true, requiredGear: true },
     })
 
     return NextResponse.json(updatedExpedition)
   } catch (error) {
     console.error("Error updating expedition:", error)
-    return NextResponse.json(
-      { error: "Failed to update expedition" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to update expedition" }, { status: 500 })
   }
 }
 
@@ -201,25 +125,16 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const { id } = await params
-    await prisma.expedition.delete({
-      where: { id },
-    })
+    await prisma.expedition.delete({ where: { id } })
 
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error deleting expedition:", error)
-    return NextResponse.json(
-      { error: "Failed to delete expedition" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to delete expedition" }, { status: 500 })
   }
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Cloud, Wind, Thermometer, Loader2, MapPin, Droplets, Sun, CloudRain, CloudLightning, CloudDrizzle, CloudFog } from "lucide-react"
+import { Cloud, Wind, Thermometer, MapPin, Droplets, Sun, CloudRain, CloudLightning, CloudDrizzle, CloudFog } from "lucide-react"
 
 // Custom snowflake icon — clearly distinct from rain
 function SnowIcon({ className }: { className?: string }) {
@@ -134,14 +134,46 @@ export function ExpeditionWeather({
   if (loading) {
     return (
       <Card className="overflow-hidden border-glacier-500/20 bg-gradient-to-br from-snow-50 to-glacier-50 dark:from-glacier-900/20 dark:to-glacier-950/30">
-        <CardHeader>
+        <CardHeader className="p-4 pb-2 sm:p-6">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Cloud className="h-5 w-5 text-glacier-500" />
             7-Day Forecast
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-glacier-500" />
+        <CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
+          {/* Day strip skeleton */}
+          <div className="flex gap-1 overflow-hidden">
+            {[...Array(7)].map((_, i) => (
+              <div key={i} className="flex min-w-[4.5rem] flex-col items-center gap-1.5 rounded-lg border border-border/60 bg-card/60 px-2 py-2">
+                <div className="h-3 w-10 bg-muted animate-pulse rounded" />
+                <div className="h-3 w-8 bg-muted animate-pulse rounded" />
+                <div className="h-4 w-4 bg-muted animate-pulse rounded my-1" />
+                <div className="h-4 w-8 bg-muted animate-pulse rounded" />
+                <div className="h-3 w-6 bg-muted animate-pulse rounded" />
+              </div>
+            ))}
+          </div>
+          {/* Detail panel skeleton */}
+          <div className="rounded-xl border border-glacier-500/20 bg-card/80 p-4">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="space-y-1.5">
+                <div className="h-4 w-16 bg-muted animate-pulse rounded" />
+                <div className="h-3 w-12 bg-muted animate-pulse rounded" />
+              </div>
+              <div className="h-8 w-28 bg-muted animate-pulse rounded-full" />
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div className="h-10 w-10 bg-muted animate-pulse rounded-lg shrink-0" />
+                  <div className="space-y-1.5">
+                    <div className="h-3 w-14 bg-muted animate-pulse rounded" />
+                    <div className="h-4 w-12 bg-muted animate-pulse rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </CardContent>
       </Card>
     )

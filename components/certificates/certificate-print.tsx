@@ -36,7 +36,7 @@ export function CertificatePrint({ certificate }: { certificate: Certificate }) 
           display: flex; align-items: center; justify-content: center;
           padding: 24px; background: #0a0a0a;
         }
-        .cw { width: 560px; max-width: 100%; }
+        .cw { width: 620px; max-width: 100%; }
         .btn-print {
           position: fixed; bottom: 28px; right: 28px;
           background: #1a1a1a; color: white; border: none;

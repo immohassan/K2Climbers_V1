@@ -2,25 +2,27 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { validate, createTestimonialSchema } from "@/lib/validation"
+import { generalWriteLimiter } from "@/lib/rate-limit"
 
-/** Public: list testimonials for About page */
 export async function GET() {
   try {
     const testimonials = await prisma.testimonial.findMany({
       orderBy: { order: "asc" },
     })
-    return NextResponse.json(testimonials)
+    return NextResponse.json(testimonials, {
+      headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
+    })
   } catch (error) {
     console.error("Error fetching testimonials:", error)
-    return NextResponse.json(
-      { error: "Failed to fetch testimonials" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to fetch testimonials" }, { status: 500 })
   }
 }
 
-/** Admin only: create testimonial */
 export async function POST(request: NextRequest) {
+  const limited = generalWriteLimiter(request)
+  if (limited) return limited
+
   try {
     const session = await getServerSession(authOptions)
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
@@ -28,30 +30,22 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, role, content, imageUrl, order } = body
-
-    if (!name?.trim() || !content?.trim()) {
-      return NextResponse.json(
-        { error: "Name and content are required" },
-        { status: 400 }
-      )
-    }
+    const parsed = validate(createTestimonialSchema, body)
+    if (!parsed.ok) return parsed.response
+    const { name, role, content, imageUrl, order } = parsed.data
 
     const testimonial = await prisma.testimonial.create({
       data: {
-        name: name.trim(),
-        role: role?.trim() || null,
-        content: content.trim(),
-        imageUrl: imageUrl?.trim() || null,
-        order: typeof order === "number" ? order : 0,
+        name,
+        role: role || null,
+        content,
+        imageUrl: imageUrl || null,
+        order: order ?? 0,
       },
     })
     return NextResponse.json(testimonial, { status: 201 })
   } catch (error) {
     console.error("Error creating testimonial:", error)
-    return NextResponse.json(
-      { error: "Failed to create testimonial" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to create testimonial" }, { status: 500 })
   }
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidateTag } from "next/cache"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
@@ -12,7 +13,9 @@ export async function GET() {
       where: { key: HOME_VIDEO_KEY },
     })
     const videoUrl = row?.value?.trim() || null
-    return NextResponse.json({ videoUrl })
+    return NextResponse.json({ videoUrl }, {
+      headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=604800" },
+    })
   } catch (error) {
     console.error("Error fetching home video:", error)
     return NextResponse.json(
@@ -39,6 +42,7 @@ export async function PUT(request: NextRequest) {
       update: { value: videoUrl ?? "" },
     })
 
+    revalidateTag("home-video")
     return NextResponse.json({ videoUrl })
   } catch (error) {
     console.error("Error updating home video:", error)

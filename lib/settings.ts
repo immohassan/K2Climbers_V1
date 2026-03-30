@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache"
 import { prisma } from "./prisma"
 
 const ABOUT_KEYS = [
@@ -28,70 +29,82 @@ export type AboutUsData = {
   founder3Name: string
 }
 
-export async function getAboutUsData(): Promise<AboutUsData> {
-  try {
-    const rows = await prisma.siteSettings.findMany({
-      where: { key: { in: [...ABOUT_KEYS] } },
-    })
-    const get = (key: string) => rows.find((r) => r.key === key)?.value ?? ""
-    const text = get("about_us_text")?.trim() || DEFAULT_ABOUT_TEXT
-    const mission = get("about_us_mission")?.trim() || DEFAULT_MISSION_TEXT
-    const founder1Image = get("about_us_founder_1_image") || null
-    const founder2Image = get("about_us_founder_2_image") || null
-    const founder3Image = get("about_us_founder_3_image") || null
-    return {
-      text,
-      mission,
-      founder1Image: founder1Image || null,
-      founder2Image: founder2Image || null,
-      founder3Image: founder3Image || null,
-      founder1Name: get("about_us_founder_1_name") || "",
-      founder2Name: get("about_us_founder_2_name") || "",
-      founder3Name: get("about_us_founder_3_name") || "",
+export const getAboutUsData = unstable_cache(
+  async (): Promise<AboutUsData> => {
+    try {
+      const rows = await prisma.siteSettings.findMany({
+        where: { key: { in: [...ABOUT_KEYS] } },
+      })
+      const get = (key: string) => rows.find((r) => r.key === key)?.value ?? ""
+      const text = get("about_us_text")?.trim() || DEFAULT_ABOUT_TEXT
+      const mission = get("about_us_mission")?.trim() || DEFAULT_MISSION_TEXT
+      const founder1Image = get("about_us_founder_1_image") || null
+      const founder2Image = get("about_us_founder_2_image") || null
+      const founder3Image = get("about_us_founder_3_image") || null
+      return {
+        text,
+        mission,
+        founder1Image: founder1Image || null,
+        founder2Image: founder2Image || null,
+        founder3Image: founder3Image || null,
+        founder1Name: get("about_us_founder_1_name") || "",
+        founder2Name: get("about_us_founder_2_name") || "",
+        founder3Name: get("about_us_founder_3_name") || "",
+      }
+    } catch (error) {
+      console.error("Error fetching about-us settings:", error)
+      return {
+        text: DEFAULT_ABOUT_TEXT,
+        mission: DEFAULT_MISSION_TEXT,
+        founder1Image: null,
+        founder2Image: null,
+        founder3Image: null,
+        founder1Name: "",
+        founder2Name: "",
+        founder3Name: "",
+      }
     }
-  } catch (error) {
-    console.error("Error fetching about-us settings:", error)
-    return {
-      text: DEFAULT_ABOUT_TEXT,
-      mission: DEFAULT_MISSION_TEXT,
-      founder1Image: null,
-      founder2Image: null,
-      founder3Image: null,
-      founder1Name: "",
-      founder2Name: "",
-      founder3Name: "",
-    }
-  }
-}
+  },
+  ["about-us"],
+  { revalidate: 86400, tags: ["about-us"] }
+)
 
 const HOME_VIDEO_KEY = "home_video_url"
 const SITE_LOGO_KEY = "site_logo"
 
-export async function getSiteLogoUrl(): Promise<string | null> {
-  try {
-    const row = await prisma.siteSettings.findUnique({
-      where: { key: SITE_LOGO_KEY },
-    })
-    const url = row?.value?.trim() || null
-    return url || null
-  } catch (error) {
-    console.error("Error fetching site logo:", error)
-    return null
-  }
-}
+export const getSiteLogoUrl = unstable_cache(
+  async (): Promise<string | null> => {
+    try {
+      const row = await prisma.siteSettings.findUnique({
+        where: { key: SITE_LOGO_KEY },
+      })
+      const url = row?.value?.trim() || null
+      return url || null
+    } catch (error) {
+      console.error("Error fetching site logo:", error)
+      return null
+    }
+  },
+  ["site-logo"],
+  { revalidate: 86400, tags: ["site-logo"] }
+)
 
-export async function getHomeVideoUrl(): Promise<string | null> {
-  try {
-    const row = await prisma.siteSettings.findUnique({
-      where: { key: HOME_VIDEO_KEY },
-    })
-    const url = row?.value?.trim() || null
-    return url || null
-  } catch (error) {
-    console.error("Error fetching home video URL:", error)
-    return null
-  }
-}
+export const getHomeVideoUrl = unstable_cache(
+  async (): Promise<string | null> => {
+    try {
+      const row = await prisma.siteSettings.findUnique({
+        where: { key: HOME_VIDEO_KEY },
+      })
+      const url = row?.value?.trim() || null
+      return url || null
+    } catch (error) {
+      console.error("Error fetching home video URL:", error)
+      return null
+    }
+  },
+  ["home-video"],
+  { revalidate: 86400, tags: ["home-video"] }
+)
 
 export type TestimonialData = {
   id: string
@@ -102,14 +115,18 @@ export type TestimonialData = {
   order: number
 }
 
-export async function getTestimonials(): Promise<TestimonialData[]> {
-  try {
-    const list = await prisma.testimonial.findMany({
-      orderBy: { order: "asc" },
-    })
-    return list
-  } catch (error) {
-    console.error("Error fetching testimonials:", error)
-    return []
-  }
-}
+export const getTestimonials = unstable_cache(
+  async (): Promise<TestimonialData[]> => {
+    try {
+      const list = await prisma.testimonial.findMany({
+        orderBy: { order: "asc" },
+      })
+      return list
+    } catch (error) {
+      console.error("Error fetching testimonials:", error)
+      return []
+    }
+  },
+  ["testimonials"],
+  { revalidate: 3600, tags: ["testimonials"] }
+)

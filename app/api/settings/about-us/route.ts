@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidateTag } from "next/cache"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { validate, aboutUsSchema } from "@/lib/validation"
 
 const ABOUT_KEYS = [
   "about_us_text",
@@ -33,7 +35,6 @@ async function getAboutUsValues(): Promise<Record<string, string>> {
   return map
 }
 
-/** Public: get about-us content for the home page */
 export async function GET() {
   try {
     const values = await getAboutUsValues()
@@ -46,17 +47,15 @@ export async function GET() {
       founder1Name: values.about_us_founder_1_name || "",
       founder2Name: values.about_us_founder_2_name || "",
       founder3Name: values.about_us_founder_3_name || "",
+    }, {
+      headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=604800" },
     })
   } catch (error) {
     console.error("Error fetching about-us settings:", error)
-    return NextResponse.json(
-      { error: "Failed to fetch about-us settings" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to fetch about-us settings" }, { status: 500 })
   }
 }
 
-/** Admin only: update about-us content */
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -65,20 +64,16 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
+    const parsed = validate(aboutUsSchema, body)
+    if (!parsed.ok) return parsed.response
     const {
-      text,
-      mission,
-      founder1Image,
-      founder2Image,
-      founder3Image,
-      founder1Name,
-      founder2Name,
-      founder3Name,
-    } = body
+      text, mission, founder1Image, founder2Image, founder3Image,
+      founder1Name, founder2Name, founder3Name,
+    } = parsed.data
 
     const updates: { key: string; value: string }[] = [
-      { key: "about_us_text", value: typeof text === "string" ? text : "" },
-      { key: "about_us_mission", value: typeof mission === "string" ? mission : "" },
+      { key: "about_us_text", value: text ?? "" },
+      { key: "about_us_mission", value: mission ?? "" },
       { key: "about_us_founder_1_image", value: founder1Image ?? "" },
       { key: "about_us_founder_2_image", value: founder2Image ?? "" },
       { key: "about_us_founder_3_image", value: founder3Image ?? "" },
@@ -95,6 +90,7 @@ export async function PUT(request: NextRequest) {
       })
     }
 
+    revalidateTag("about-us")
     const values = await getAboutUsValues()
     return NextResponse.json({
       text: values.about_us_text,
@@ -108,9 +104,6 @@ export async function PUT(request: NextRequest) {
     })
   } catch (error) {
     console.error("Error updating about-us settings:", error)
-    return NextResponse.json(
-      { error: "Failed to update about-us settings" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to update about-us settings" }, { status: 500 })
   }
 }

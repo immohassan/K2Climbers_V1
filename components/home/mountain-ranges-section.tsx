@@ -4,6 +4,8 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowUpRight, Mountain } from "lucide-react"
 
+const EASE = [0.16, 1, 0.3, 1] as const
+
 const RANGES = [
   {
     key: "KARAKORAM",
@@ -45,14 +47,15 @@ const RANGES = [
 
 export function MountainRangesSection() {
   return (
-    <section className="py-16 md:py-24 border-t border-border">
+    <section className="py-16 md:py-24 border-t border-border overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
+
         {/* Heading */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: EASE }}
           className="mb-12 md:mb-16"
         >
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-orange-500 mb-3">Explore by Range</p>
@@ -69,10 +72,10 @@ export function MountainRangesSection() {
           {RANGES.map((range, i) => (
             <motion.div
               key={range.key}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 32 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.6, delay: i * 0.12, ease: EASE }}
             >
               <Link
                 href={`/expeditions?range=${range.key}`}

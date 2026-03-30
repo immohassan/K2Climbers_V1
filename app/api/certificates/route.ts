@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { randomBytes } from "crypto"
+import { sendCertificateEmail } from "@/lib/email"
 
 export async function GET(request: NextRequest) {
   try {
@@ -59,18 +60,38 @@ export async function POST(request: NextRequest) {
     // Generate unique verification code
     const verificationCode = randomBytes(16).toString("hex")
 
-    const certificate = await prisma.certificate.create({
-      data: {
-        userId,
-        expeditionId,
-        summitRecordId,
+    const [certificate, user] = await Promise.all([
+      prisma.certificate.create({
+        data: {
+          userId,
+          expeditionId,
+          summitRecordId,
+          expeditionTitle,
+          peakName,
+          altitude,
+          summitDate: new Date(summitDate),
+          verificationCode,
+        },
+      }),
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, name: true },
+      }),
+    ])
+
+    // Send certificate email — fire and forget
+    if (user?.email) {
+      sendCertificateEmail({
+        to: user.email,
+        name: user.name ?? "",
+        certificateId: certificate.id,
+        verificationCode,
         expeditionTitle,
         peakName,
         altitude,
-        summitDate: new Date(summitDate),
-        verificationCode,
-      },
-    })
+        summitDate,
+      }).catch((err) => console.error("Failed to send certificate email:", err))
+    }
 
     return NextResponse.json(certificate, { status: 201 })
   } catch (error) {

@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { Suspense } from "react"
 import { prisma } from "@/lib/prisma"
 import { Navbar } from "@/components/navbar"
@@ -5,7 +6,20 @@ import { Footer } from "@/components/footer"
 import { ClimbersList } from "@/components/community/climbers-list"
 import { recordCountsAsSummit } from "@/lib/summit-utils"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 3600 // revalidate every hour
+
+export const metadata: Metadata = {
+  title: "Our Climbers",
+  description:
+    "Meet the mountaineers who have summited Pakistan's greatest peaks with K2 Climbers. A community of passionate climbers conquering the Karakoram and Himalaya.",
+  alternates: { canonical: "/climbers" },
+  openGraph: {
+    title: "Our Climbers | K2 Climbers",
+    description:
+      "Meet the mountaineers who have summited Pakistan's greatest peaks with K2 Climbers.",
+    url: "/climbers",
+  },
+}
 
 async function getAllClimbers() {
   try {

@@ -1,32 +1,21 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
+import { validate, signupSchema } from "@/lib/validation"
+import { signupLimiter } from "@/lib/rate-limit"
+import { sendWelcomeEmail } from "@/lib/email"
 
 export async function POST(request: NextRequest) {
+  const limited = signupLimiter(request)
+  if (limited) return limited
+
   try {
     const body = await request.json()
-    const { email, password, name } = body
+    const parsed = validate(signupSchema, body)
+    if (!parsed.ok) return parsed.response
+    const { email, password, name } = parsed.data
 
-    // Validation
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email and password are required" },
-        { status: 400 }
-      )
-    }
-
-    if (password.length < 6) {
-      return NextResponse.json(
-        { error: "Password must be at least 6 characters long" },
-        { status: 400 }
-      )
-    }
-
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    })
-
+    const existingUser = await prisma.user.findUnique({ where: { email } })
     if (existingUser) {
       return NextResponse.json(
         { error: "User with this email already exists" },
@@ -34,34 +23,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    // Create user with CLIMBER role by default
     const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name: name || null,
-        role: "CLIMBER",
-      },
+      data: { email, password: hashedPassword, name: name || null, role: "CLIMBER" },
     })
 
-    // Don't return password
     const { password: _, ...userWithoutPassword } = user
 
+    // Send welcome email — fire and forget
+    sendWelcomeEmail(user.email, user.name ?? "").catch((err) =>
+      console.error("Failed to send welcome email:", err)
+    )
+
     return NextResponse.json(
-      { 
-        message: "User created successfully",
-        user: userWithoutPassword 
-      },
+      { message: "User created successfully", user: userWithoutPassword },
       { status: 201 }
     )
   } catch (error) {
     console.error("Error creating user:", error)
-    return NextResponse.json(
-      { error: "Failed to create user" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to create user" }, { status: 500 })
   }
 }

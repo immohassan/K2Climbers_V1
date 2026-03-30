@@ -1,9 +1,23 @@
+import type { Metadata } from "next"
 import Image from "next/image"
 import { Footer } from "@/components/footer"
 import { getAboutUsData, getTestimonials } from "@/lib/settings"
 import { Quote, Mountain } from "lucide-react"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 86400 // revalidate every 24 hours
+
+export const metadata: Metadata = {
+  title: "About Us",
+  description:
+    "Learn about K2 Climbers — Pakistan's premier mountaineering and adventure travel company. Expert guides, safe expeditions, and a passion for Pakistan's greatest peaks.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About K2 Climbers",
+    description:
+      "Pakistan's premier mountaineering and adventure travel company. Expert guides, safe expeditions, and a passion for Pakistan's greatest peaks.",
+    url: "/about",
+  },
+}
 
 export default async function AboutPage() {
   const [data, testimonials] = await Promise.all([

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import type { Metadata } from "next"
 import { prisma } from "@/lib/prisma"
 import { ExpeditionHeader } from "@/components/expeditions/expedition-header"
 import { ExpeditionDetails } from "@/components/expeditions/expedition-details"
@@ -9,6 +10,20 @@ import { ExpeditionRequiredGear } from "@/components/expeditions/expedition-requ
 import { ExpeditionPolicies } from "@/components/expeditions/expedition-policies"
 import { BookingPanel } from "@/components/expeditions/booking-panel"
 import { Navbar } from "@/components/navbar"
+
+export const revalidate = 3600 // revalidate every hour
+
+export async function generateStaticParams() {
+  try {
+    const expeditions = await prisma.expedition.findMany({
+      where: { isActive: true },
+      select: { slug: true },
+    })
+    return expeditions.map((e) => ({ slug: e.slug }))
+  } catch {
+    return []
+  }
+}
 
 async function getExpedition(slug: string) {
   try {
@@ -43,6 +58,38 @@ async function getExpedition(slug: string) {
   }
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string }
+}): Promise<Metadata> {
+  const expedition = await getExpedition(params.slug)
+  if (!expedition) return {}
+
+  const title = expedition.metaTitle || `${expedition.title} | K2 Climbers`
+  const description =
+    expedition.metaDescription ||
+    expedition.shortDescription ||
+    `Join K2 Climbers on the ${expedition.title} expedition. ${expedition.altitude}m altitude, ${expedition.duration} days. Book your adventure in Pakistan's mountains.`
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: expedition.heroImage ? [{ url: expedition.heroImage }] : [],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: expedition.heroImage ? [expedition.heroImage] : [],
+    },
+  }
+}
+
 export default async function ExpeditionPage({
   params,
 }: {
@@ -59,8 +106,38 @@ export default async function ExpeditionPage({
   ).length
   const successRate = expedition.successRate ? expedition.successRate : 85;
 
+  const expeditionSchema = {
+    "@context": "https://schema.org",
+    "@type": "TouristTrip",
+    name: expedition.title,
+    description: expedition.shortDescription || expedition.description,
+    url: `https://www.k2climbers.com/expeditions/${expedition.slug}`,
+    image: expedition.heroImage || undefined,
+    touristType: "Adventure Tourism",
+    itinerary: {
+      "@type": "ItemList",
+      numberOfItems: expedition.duration,
+    },
+    offers: {
+      "@type": "Offer",
+      price: expedition.basePrice,
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+      url: `https://www.k2climbers.com/expeditions/${expedition.slug}`,
+    },
+    provider: {
+      "@type": "Organization",
+      name: "K2 Climbers",
+      url: "https://www.k2climbers.com",
+    },
+  }
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(expeditionSchema) }}
+      />
       <Navbar />
       <main className="min-h-screen pt-14 sm:pt-16 overflow-x-hidden">
         <ExpeditionHeader expedition={expedition} successRate={successRate} />
