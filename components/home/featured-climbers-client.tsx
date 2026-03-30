@@ -1,6 +1,5 @@
 "use client"
 
-import { motion } from "framer-motion"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Mountain, Award, ArrowUpRight } from "lucide-react"
@@ -14,8 +13,6 @@ interface Climber {
   certificates?: Array<unknown>
 }
 
-const EASE = [0.16, 1, 0.3, 1] as const
-
 export function FeaturedClimbersClient({ climbers }: { climbers: Climber[] }) {
   if (climbers.length === 0) return null
 
@@ -23,13 +20,7 @@ export function FeaturedClimbersClient({ climbers }: { climbers: Climber[] }) {
     <section className="py-14 md:py-20 bg-card/30 border-b border-border overflow-hidden">
       <div className="container mx-auto px-4">
 
-        <motion.div
-          className="flex items-end justify-between mb-8 md:mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6, ease: EASE }}
-        >
+        <div className="flex items-end justify-between mb-8 md:mb-10">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <div className="w-3 h-3 bg-glacier-400" />
@@ -46,21 +37,13 @@ export function FeaturedClimbersClient({ climbers }: { climbers: Climber[] }) {
             View all
             <ArrowUpRight className="h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </Link>
-        </motion.div>
+        </div>
 
         <div className="grid gap-px bg-border grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {climbers.map((climber, index) => (
-            <motion.div
-              key={climber.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ delay: index * 0.07, duration: 0.5, ease: EASE }}
-              className="bg-background"
-            >
+            <div key={climber.id} className="bg-background">
               <Link href={`/climbers/${climber.id}`}>
                 <div className="flex items-center gap-4 px-5 py-4 group hover:bg-card/60 transition-colors cursor-pointer">
-                  {/* Index */}
                   <span className="text-xs font-black text-border w-4 shrink-0 select-none">
                     {String(index + 1).padStart(2, "0")}
                   </span>
@@ -93,7 +76,7 @@ export function FeaturedClimbersClient({ climbers }: { climbers: Climber[] }) {
                   <ArrowUpRight className="h-4 w-4 text-border group-hover:text-summit group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" />
                 </div>
               </Link>
-            </motion.div>
+            </div>
           ))}
         </div>
 

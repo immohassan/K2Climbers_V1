@@ -1,22 +1,8 @@
-"use client"
-
 import Image from "next/image"
-import { motion } from "framer-motion"
-import { useEffect, useState } from "react"
+import { getAboutUsData } from "@/lib/settings"
 
-interface AboutData {
-  text: string
-  founder1Image: string | null
-  founder2Image: string | null
-  founder3Image: string | null
-  founder1Name: string
-  founder2Name: string
-  founder3Name: string
-}
-
-const EASE = [0.16, 1, 0.3, 1] as const
-
-function AboutUsSectionInner({ data }: { data: AboutData }) {
+export async function AboutUsSection() {
+  const data = await getAboutUsData()
   const founderImages = [data.founder1Image, data.founder2Image, data.founder3Image]
   const founderNames = [data.founder1Name, data.founder2Name, data.founder3Name]
   const hasFounderImages = founderImages.some(Boolean)
@@ -25,28 +11,15 @@ function AboutUsSectionInner({ data }: { data: AboutData }) {
     <section className="py-14 md:py-20 bg-background border-b border-border overflow-hidden">
       <div className="container mx-auto px-4">
 
-        {/* Section label */}
-        <motion.div
-          className="flex items-center gap-2 mb-8 md:mb-12"
-          initial={{ opacity: 0, x: -16 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.5, ease: EASE }}
-        >
+        <div className="flex items-center gap-2 mb-8 md:mb-12">
           <div className="w-3 h-3 bg-orange-500" />
           <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground">Our Story</span>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border">
 
           {/* Text column */}
-          <motion.div
-            className="bg-background pr-0 md:pr-12 lg:pr-20 py-0 pb-8 md:pb-0"
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.7, ease: EASE }}
-          >
+          <div className="bg-background pr-0 md:pr-12 lg:pr-20 py-0 pb-8 md:pb-0">
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[0.9] mb-6 md:mb-8">
               Born from<br />
               <span className="text-muted-foreground/40">the</span><br />
@@ -55,7 +28,7 @@ function AboutUsSectionInner({ data }: { data: AboutData }) {
             <p className="text-muted-foreground leading-relaxed text-sm sm:text-base whitespace-pre-line max-w-prose">
               {data.text}
             </p>
-          </motion.div>
+          </div>
 
           {/* Founders column */}
           {hasFounderImages ? (
@@ -71,14 +44,7 @@ function AboutUsSectionInner({ data }: { data: AboutData }) {
                     />
                   )
                   return (
-                    <motion.div
-                      key={i}
-                      className="relative group"
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-60px" }}
-                      transition={{ delay: i * 0.12, duration: 0.65, ease: EASE }}
-                    >
+                    <div key={i} className="relative group">
                       <div className="aspect-[2/3] relative overflow-hidden bg-muted">
                         <Image
                           src={src}
@@ -86,6 +52,7 @@ function AboutUsSectionInner({ data }: { data: AboutData }) {
                           fill
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
                           sizes="(max-width: 768px) 33vw, 180px"
+                          loading="lazy"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                         {name && (
@@ -94,19 +61,13 @@ function AboutUsSectionInner({ data }: { data: AboutData }) {
                           </p>
                         )}
                       </div>
-                    </motion.div>
+                    </div>
                   )
                 })}
               </div>
             </div>
           ) : (
-            <motion.div
-              className="bg-background pl-0 md:pl-12 lg:pl-20 pt-8 md:pt-0 flex items-center"
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.7, ease: EASE }}
-            >
+            <div className="bg-background pl-0 md:pl-12 lg:pl-20 pt-8 md:pt-0 flex items-center">
               <blockquote className="border-l-2 border-summit pl-5">
                 <p className="text-xl sm:text-2xl font-black leading-tight text-foreground/80 italic">
                   &quot;The mountains are calling and I must go.&quot;
@@ -115,50 +76,11 @@ function AboutUsSectionInner({ data }: { data: AboutData }) {
                   — John Muir
                 </cite>
               </blockquote>
-            </motion.div>
+            </div>
           )}
         </div>
 
       </div>
     </section>
   )
-}
-
-export function AboutUsSection() {
-  const [data, setData] = useState<AboutData | null>(null)
-
-  useEffect(() => {
-    fetch("/api/settings/about-us")
-      .then((r) => r.ok ? r.json() : null)
-      .then((d) => d && setData(d))
-      .catch(() => {})
-  }, [])
-
-  if (!data) {
-    return (
-      <section className="py-14 md:py-20 bg-background border-b border-border">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-2 mb-8 md:mb-12">
-            <div className="w-3 h-3 bg-orange-500" />
-            <div className="h-3 w-20 bg-muted animate-pulse rounded" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <div className="h-12 w-48 bg-muted animate-pulse rounded" />
-              <div className="h-4 w-full bg-muted animate-pulse rounded" />
-              <div className="h-4 w-5/6 bg-muted animate-pulse rounded" />
-              <div className="h-4 w-4/6 bg-muted animate-pulse rounded" />
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="aspect-[2/3] bg-muted animate-pulse rounded" />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  return <AboutUsSectionInner data={data} />
 }

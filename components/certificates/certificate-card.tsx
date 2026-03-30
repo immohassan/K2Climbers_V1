@@ -13,6 +13,7 @@ interface CertificateCardProps {
     qrCodeUrl: string | null
     user: { name: string | null }
   }
+  idOverride?: string
 }
 
 function formatDateLong(date: Date | string) {
@@ -89,7 +90,7 @@ function MountainCanvas({ style }: { style: React.CSSProperties }) {
   return <canvas ref={ref} style={style} />
 }
 
-export function CertificateCard({ certificate }: CertificateCardProps) {
+export function CertificateCard({ certificate, idOverride }: CertificateCardProps) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
 
   useEffect(() => {
@@ -101,7 +102,7 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
 
   return (
     <div
-      id="certificate-card"
+      id={idOverride ?? "certificate-card"}
       style={{
         width: 620,
         height: Math.round(620 * 297 / 210),

@@ -1,9 +1,4 @@
-"use client"
-
-import { motion } from "framer-motion"
 import { Star, ExternalLink } from "lucide-react"
-
-const EASE = [0.16, 1, 0.3, 1] as const
 
 const REVIEWS = [
   {
@@ -47,13 +42,7 @@ export function GoogleReviewsSection() {
     <section className="py-14 md:py-20 bg-background border-b border-border overflow-hidden">
       <div className="container mx-auto px-4">
 
-        <motion.div
-          className="flex items-end justify-between mb-8 md:mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6, ease: EASE }}
-        >
+        <div className="flex items-end justify-between mb-8 md:mb-10">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <div className="w-3 h-3 bg-orange-500" />
@@ -64,7 +53,6 @@ export function GoogleReviewsSection() {
             </h2>
           </div>
 
-          {/* Google rating summary */}
           <div className="hidden sm:flex flex-col items-end gap-1">
             <div className="flex items-center gap-2">
               <svg viewBox="0 0 24 24" className="h-5 w-5" aria-label="Google">
@@ -78,17 +66,12 @@ export function GoogleReviewsSection() {
             </div>
             <span className="text-xs text-muted-foreground">Based on Google Reviews</span>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Review cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border">
-          {REVIEWS.map((review, i) => (
-            <motion.div
+          {REVIEWS.map((review) => (
+            <div
               key={review.name}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ delay: i * 0.12, duration: 0.6, ease: EASE }}
               className="bg-background p-6 sm:p-7 flex flex-col gap-4"
             >
               <div className="flex items-center justify-between">
@@ -107,18 +90,11 @@ export function GoogleReviewsSection() {
                   <p className="text-[10px] text-muted-foreground">Google Review</p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
-        {/* See all on Google Maps button */}
-        <motion.div
-          className="mt-6 flex justify-center"
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4, duration: 0.5, ease: EASE }}
-        >
+        <div className="mt-6 flex justify-center">
           <a
             href="https://www.google.com/maps/search/K2Climbers"
             target="_blank"
@@ -134,7 +110,7 @@ export function GoogleReviewsSection() {
             See all reviews on Google Maps
             <ExternalLink className="h-3.5 w-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </a>
-        </motion.div>
+        </div>
 
       </div>
     </section>

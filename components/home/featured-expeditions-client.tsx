@@ -1,7 +1,7 @@
 "use client"
 
-import { motion } from "framer-motion"
 import Link from "next/link"
+import Image from "next/image"
 import { Mountain, MapPin, Clock, ArrowUpRight } from "lucide-react"
 import { formatCurrency } from "@/lib/utils"
 
@@ -19,8 +19,6 @@ interface Expedition {
   successRate: number | null
   guides: Array<{ name: string | null; image: string | null }>
 }
-
-const EASE = [0.16, 1, 0.3, 1] as const
 
 export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedition[] }) {
   if (expeditions.length === 0) {
@@ -40,13 +38,7 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
     <section className="py-14 md:py-20 bg-background border-b border-border">
       <div className="container mx-auto px-4">
 
-        <motion.div
-          className="flex items-end justify-between mb-8 md:mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6, ease: EASE }}
-        >
+        <div className="flex items-end justify-between mb-8 md:mb-10">
           <div>
             <SectionLabel />
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none mt-2">
@@ -60,25 +52,23 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
             All expeditions
             <ArrowUpRight className="h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </Link>
-        </motion.div>
+        </div>
 
         {/* Editorial grid: 1 large + 2 stacked */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-px bg-border">
 
           {/* Featured — large left */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.7, ease: EASE }}
-            className="md:col-span-3 bg-background"
-          >
+          <div className="md:col-span-3 bg-background">
             <Link href={`/expeditions/${featured.slug}`} className="block group h-full">
               <div className="relative overflow-hidden bg-muted" style={{ aspectRatio: "4/3" }}>
                 {featured.heroImage ? (
-                  <div
-                    className="absolute inset-0 bg-cover bg-center group-hover:scale-[1.03] transition-transform duration-700"
-                    style={{ backgroundImage: `url(${featured.heroImage})` }}
+                  <Image
+                    src={featured.heroImage}
+                    alt={featured.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 60vw"
+                    className="object-cover object-center group-hover:scale-[1.03] transition-transform duration-700"
+                    loading="lazy"
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center bg-card">
@@ -115,25 +105,22 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
                 </div>
               </div>
             </Link>
-          </motion.div>
+          </div>
 
           {/* Right column — stacked small cards */}
           <div className="md:col-span-2 flex flex-col gap-px bg-border">
-            {rest.slice(0, 2).map((expedition, i) => (
-              <motion.div
-                key={expedition.id}
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ delay: 0.15 + i * 0.12, duration: 0.6, ease: EASE }}
-                className="flex-1 bg-background"
-              >
+            {rest.slice(0, 2).map((expedition) => (
+              <div key={expedition.id} className="flex-1 bg-background">
                 <Link href={`/expeditions/${expedition.slug}`} className="block group h-full">
                   <div className="relative overflow-hidden bg-muted h-full min-h-[200px]">
                     {expedition.heroImage ? (
-                      <div
-                        className="absolute inset-0 bg-cover bg-center group-hover:scale-[1.04] transition-transform duration-700"
-                        style={{ backgroundImage: `url(${expedition.heroImage})` }}
+                      <Image
+                        src={expedition.heroImage}
+                        alt={expedition.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 40vw"
+                        className="object-cover object-center group-hover:scale-[1.04] transition-transform duration-700"
+                        loading="lazy"
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center bg-card">
@@ -164,19 +151,13 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
                     </div>
                   </div>
                 </Link>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
 
         {/* Mobile view-all link */}
-        <motion.div
-          className="mt-6 sm:hidden"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-        >
+        <div className="mt-6 sm:hidden">
           <Link
             href="/expeditions"
             className="flex items-center justify-center gap-2 text-sm font-semibold border border-border py-3 text-foreground hover:bg-muted/50 transition-colors"
@@ -184,7 +165,7 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
             View All Expeditions
             <ArrowUpRight className="h-4 w-4" />
           </Link>
-        </motion.div>
+        </div>
       </div>
     </section>
   )

@@ -1,10 +1,5 @@
-"use client"
-
 import Link from "next/link"
-import { motion } from "framer-motion"
 import { ArrowUpRight, Mountain } from "lucide-react"
-
-const EASE = [0.16, 1, 0.3, 1] as const
 
 const RANGES = [
   {
@@ -50,14 +45,7 @@ export function MountainRangesSection() {
     <section className="py-16 md:py-24 border-t border-border overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
 
-        {/* Heading */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6, ease: EASE }}
-          className="mb-12 md:mb-16"
-        >
+        <div className="mb-12 md:mb-16">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-orange-500 mb-3">Explore by Range</p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
             Mountain Ranges
@@ -65,27 +53,18 @@ export function MountainRangesSection() {
           <p className="text-muted-foreground mt-3 max-w-xl text-sm sm:text-base">
             Pakistan is home to three of the world&apos;s greatest mountain ranges. Choose your arena.
           </p>
-        </motion.div>
+        </div>
 
-        {/* Cards */}
         <div className="grid md:grid-cols-3 gap-px bg-border">
-          {RANGES.map((range, i) => (
-            <motion.div
-              key={range.key}
-              initial={{ opacity: 0, y: 32 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6, delay: i * 0.12, ease: EASE }}
-            >
+          {RANGES.map((range) => (
+            <div key={range.key}>
               <Link
                 href={`/expeditions?range=${range.key}`}
                 className={`group flex flex-col h-full bg-background border-0 transition-colors ${range.border} relative overflow-hidden`}
               >
-                {/* Gradient accent */}
                 <div className={`absolute inset-x-0 top-0 h-32 bg-gradient-to-b ${range.accent} pointer-events-none`} />
 
                 <div className="relative p-6 sm:p-7 flex flex-col h-full">
-                  {/* Range name */}
                   <div className="mb-5">
                     <p className={`text-[10px] font-bold tracking-[0.2em] uppercase mb-2 ${range.label}`}>
                       {range.stat}
@@ -96,12 +75,10 @@ export function MountainRangesSection() {
                     <p className="text-sm text-muted-foreground mt-0.5">{range.subtitle}</p>
                   </div>
 
-                  {/* Description */}
                   <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">
                     {range.description}
                   </p>
 
-                  {/* Notable peaks */}
                   <div className="space-y-1.5 mb-6">
                     <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground mb-2">
                       Notable Peaks
@@ -114,14 +91,13 @@ export function MountainRangesSection() {
                     ))}
                   </div>
 
-                  {/* CTA */}
                   <div className={`flex items-center gap-2 text-xs font-bold ${range.label} group-hover:gap-3 transition-all`}>
                     View Expeditions
                     <ArrowUpRight className="h-3.5 w-3.5" />
                   </div>
                 </div>
               </Link>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

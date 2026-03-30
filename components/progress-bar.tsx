@@ -1,57 +1,59 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
-import NProgress from "nprogress"
-import "nprogress/nprogress.css"
 
+// Lightweight CSS-only progress bar — no external CSS import, no third-party bundle
 export function ProgressBar() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const barRef = useRef<HTMLDivElement>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    // Configure NProgress on mount
-    NProgress.configure({
-      showSpinner: false,
-      trickleSpeed: 200,
-      minimum: 0.08,
-      easing: 'ease',
-      speed: 500,
+    const bar = barRef.current
+    if (!bar) return
+
+    // Start: slide bar to 80% quickly
+    bar.style.transition = "none"
+    bar.style.width = "0%"
+    bar.style.opacity = "1"
+    // Force reflow in a rAF to avoid batching with the reset
+    requestAnimationFrame(() => {
+      bar.style.transition = "width 300ms ease"
+      bar.style.width = "80%"
     })
-  }, [])
 
-  useEffect(() => {
-    // Start progress bar when route changes
-    NProgress.start()
-
-    // Complete progress bar after navigation
-    const timer = setTimeout(() => {
-      NProgress.done()
-    }, 200)
+    // Complete: fill to 100% then fade out
+    timerRef.current = setTimeout(() => {
+      bar.style.transition = "width 200ms ease"
+      bar.style.width = "100%"
+      setTimeout(() => {
+        bar.style.transition = "opacity 300ms ease"
+        bar.style.opacity = "0"
+      }, 200)
+    }, 250)
 
     return () => {
-      clearTimeout(timer)
-      NProgress.done()
+      if (timerRef.current) clearTimeout(timerRef.current)
     }
   }, [pathname, searchParams])
 
-  // Handle Link clicks
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement
-      const link = target.closest('a')
-      
-      if (link && link.href && !link.target && link.href.startsWith(window.location.origin)) {
-        const url = new URL(link.href)
-        if (url.pathname !== pathname) {
-          NProgress.start()
-        }
-      }
-    }
-
-    document.addEventListener('click', handleClick)
-    return () => document.removeEventListener('click', handleClick)
-  }, [pathname])
-
-  return null
+  return (
+    <div
+      ref={barRef}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        height: "2px",
+        width: "0%",
+        opacity: "0",
+        background: "#f97316",
+        zIndex: 9999,
+        pointerEvents: "none",
+        boxShadow: "0 0 8px #f97316",
+      }}
+    />
+  )
 }

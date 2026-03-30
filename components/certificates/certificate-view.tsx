@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Download, Share2 } from "lucide-react"
 import { CertificateCard } from "./certificate-card"
+import toast from "react-hot-toast"
 
 interface Certificate {
   id: string
@@ -23,6 +24,7 @@ const CERT_H = Math.round(CERT_W * 297 / 210)
 export function CertificateView({ certificate }: { certificate: Certificate }) {
   const [downloading, setDownloading] = useState(false)
   const outerRef = useRef<HTMLDivElement>(null)
+  const offscreenRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
 
   // Compute scale so the fixed-width cert fits the container
@@ -39,12 +41,18 @@ export function CertificateView({ certificate }: { certificate: Certificate }) {
 
   const handleDownload = async () => {
     setDownloading(true)
+    const toastId = toast.loading("Generating PDF…")
     try {
       const html2canvas = (await import("html2canvas")).default
       const jsPDF = (await import("jspdf")).default
 
-      const el = document.getElementById("certificate-card")
-      if (!el) return
+      // Use the off-screen full-size element (no CSS scale transform)
+      // so html2canvas gets accurate pixel dimensions on all devices
+      const el = offscreenRef.current?.querySelector("#certificate-card-offscreen") as HTMLElement | null
+      if (!el) throw new Error("Certificate element not found")
+
+      // Give canvases inside time to paint before capture
+      await new Promise((r) => setTimeout(r, 200))
 
       const canvas = await html2canvas(el, {
         scale: 2,
@@ -52,7 +60,10 @@ export function CertificateView({ certificate }: { certificate: Certificate }) {
         allowTaint: true,
         backgroundColor: "#0a0a0a",
         logging: false,
+        width: CERT_W,
+        height: CERT_H,
         onclone: (_doc, clonedEl) => {
+          // Copy canvas pixel data into the clone (html2canvas can't read canvas contents directly)
           const srcCanvases = el.querySelectorAll("canvas")
           const dstCanvases = clonedEl.querySelectorAll("canvas")
           srcCanvases.forEach((src, i) => {
@@ -75,8 +86,10 @@ export function CertificateView({ certificate }: { certificate: Certificate }) {
       const yOffset = imgH < pageH ? (pageH - imgH) / 2 : 0
       pdf.addImage(imgData, "PNG", 0, yOffset, imgW, imgH)
       pdf.save(`certificate-${certificate.peakName.replace(/\s+/g, "-").toLowerCase()}.pdf`)
+      toast.success("PDF downloaded!", { id: toastId })
     } catch (e) {
       console.error("PDF generation failed", e)
+      toast.error("Could not generate PDF. Please try again.", { id: toastId })
     } finally {
       setDownloading(false)
     }
@@ -117,6 +130,23 @@ export function CertificateView({ certificate }: { certificate: Certificate }) {
         >
           <CertificateCard certificate={certificate} />
         </div>
+      </div>
+
+      {/* Off-screen full-size clone for html2canvas — no CSS scale transform applied */}
+      <div
+        ref={offscreenRef}
+        aria-hidden="true"
+        style={{
+          position: "fixed",
+          left: "-9999px",
+          top: 0,
+          width: CERT_W,
+          height: CERT_H,
+          pointerEvents: "none",
+          zIndex: -1,
+        }}
+      >
+        <CertificateCard certificate={certificate} idOverride="certificate-card-offscreen" />
       </div>
 
       {/* Actions */}
