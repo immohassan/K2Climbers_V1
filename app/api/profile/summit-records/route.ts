@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       data: {
         userId: session.user.id,
         expeditionId: expedition.id,
-        status,
+        status: status ?? "SUCCESSFUL",
         summitDate: summitDate ? new Date(summitDate) : null,
         altitude: expedition.altitude,
         notes: notes ?? null,

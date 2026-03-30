@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
         latitude: latitude ?? null, longitude: longitude ?? null,
         heroImage: heroImage || null, videoUrl: videoUrl || null,
         gallery: gallery || [],
-        maxGroupSize: maxGroupSize ?? null, minGroupSize: minGroupSize ?? 1,
+        maxGroupSize: maxGroupSize ?? 0, minGroupSize: minGroupSize ?? 1,
         successRate: successRate ?? null,
         metaTitle: metaTitle || null, metaDescription: metaDescription || null,
         itineraries: itineraries

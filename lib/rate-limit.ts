@@ -12,7 +12,7 @@ const store = new Map<string, RateLimitStore>()
 // Prune expired entries every 5 minutes to prevent unbounded memory growth
 setInterval(() => {
   const now = Date.now()
-  for (const [key, entry] of store) {
+  for (const [key, entry] of Array.from(store)) {
     if (entry.resetAt < now) store.delete(key)
   }
 }, 5 * 60 * 1000)
