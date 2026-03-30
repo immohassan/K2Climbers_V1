@@ -8,7 +8,8 @@
       "Bash(grep -l \"parse\\\\|validate\\\\|schema\" /d/K2ClimbersV2/K2Climbers_V1/app/api/*/*/route.ts)",
       "Bash(node -e \"require\\(''nodemailer''\\); console.log\\(''nodemailer OK''\\)\")",
       "Bash(head -50 d:/K2ClimbersV2/K2Climbers_V1/app/api/bookings/[id]/route.ts)",
-      "Bash(wc -l d:/K2ClimbersV2/K2Climbers_V1/app/api/auth/[...nextauth]/route.ts d:/K2ClimbersV2/K2Climbers_V1/prisma/schema.prisma d:/K2ClimbersV2/K2Climbers_V1/lib/validation.ts)"
+      "Bash(wc -l d:/K2ClimbersV2/K2Climbers_V1/app/api/auth/[...nextauth]/route.ts d:/K2ClimbersV2/K2Climbers_V1/prisma/schema.prisma d:/K2ClimbersV2/K2Climbers_V1/lib/validation.ts)",
+      "Bash(node -e \"require\\(''''./node_modules/critters''''\\)\")"
     ]
   }
 }

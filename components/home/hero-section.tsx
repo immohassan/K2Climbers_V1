@@ -1,39 +1,64 @@
 "use client"
 
-import { motion, useScroll, useTransform } from "framer-motion"
+import { motion } from "framer-motion"
 import { ArrowRight, Mountain, Wind, Thermometer } from "lucide-react"
 import Link from "next/link"
-import { useRef } from "react"
+import Image from "next/image"
+import { useEffect, useRef } from "react"
 
-const HERO_IMAGE = "https://images.unsplash.com/photo-1551632811-561732d1e306?w=1920&q=90"
+const HERO_IMAGE = "https://images.unsplash.com/photo-1551632811-561732d1e306?w=1920&q=85&auto=format&fit=crop"
 
 export function HeroSection() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] })
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"])
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+  const bgRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  // CSS-based parallax using requestAnimationFrame — avoids forced reflow
+  useEffect(() => {
+    let raf = 0
+    const onScroll = () => {
+      raf = requestAnimationFrame(() => {
+        const y = window.scrollY
+        if (bgRef.current) {
+          bgRef.current.style.transform = `translateY(${y * 0.2}px)`
+        }
+        if (contentRef.current) {
+          const progress = Math.min(y / (window.innerHeight * 0.8), 1)
+          contentRef.current.style.opacity = String(1 - progress)
+        }
+      })
+    }
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => {
+      window.removeEventListener("scroll", onScroll)
+      cancelAnimationFrame(raf)
+    }
+  }, [])
 
   return (
-    // h-[calc(100dvh-4rem)] → exactly fills viewport minus the 64px fixed navbar
     <section
-      ref={containerRef}
       className="relative overflow-hidden"
       style={{ height: "calc(100vh - 4rem)", minHeight: 480, maxHeight: 800 }}
     >
-      {/* Parallax background */}
-      <motion.div className="absolute inset-0" style={{ y: bgY }}>
-        <div
-          className="absolute inset-0 w-full h-[115%] -top-[5%] bg-cover bg-center"
-          style={{ backgroundImage: `url('${HERO_IMAGE}')` }}
+      {/* Parallax background — next/image with priority for LCP */}
+      <div ref={bgRef} className="absolute inset-0 will-change-transform" style={{ top: "-5%", height: "115%" }}>
+        <Image
+          src={HERO_IMAGE}
+          alt="K2 mountain landscape — Pakistan mountaineering expeditions"
+          fill
+          priority
+          fetchPriority="high"
+          quality={85}
+          sizes="100vw"
+          className="object-cover object-center"
         />
         {/* Left-heavy cinematic overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-black/10" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
-      </motion.div>
+      </div>
 
-      {/* Main content — top info strip + bottom text, space-between */}
-      <motion.div style={{ opacity }} className="relative z-10 h-full flex flex-col justify-between">
-        {/* Info strip at very top of section */}
+      {/* Main content */}
+      <div ref={contentRef} className="relative z-10 h-full flex flex-col justify-between will-change-[opacity]">
+        {/* Info strip */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -124,9 +149,9 @@ export function HeroSection() {
             ))}
           </motion.div>
         </div>
-      </motion.div>
+      </div>
 
-      {/* Bottom page fade — tall enough to fully bleed into bg */}
+      {/* Bottom page fade */}
       <div
         className="absolute bottom-0 left-0 right-0 h-20 z-20 pointer-events-none"
         style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background)) 100%)" }}

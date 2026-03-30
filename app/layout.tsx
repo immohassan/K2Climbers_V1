@@ -81,6 +81,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning className="scroll-smooth">
+      <head>
+        {/* Preload hero LCP image — tells browser to fetch it at highest priority */}
+        <link
+          rel="preload"
+          as="image"
+          href="https://images.unsplash.com/photo-1551632811-561732d1e306?w=1920&q=85&auto=format&fit=crop"
+          fetchPriority="high"
+        />
+        {/* DNS prefetch for external image CDNs */}
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="preconnect" href="https://images.unsplash.com" />
+      </head>
       <body className={inter.className}>
         <Providers>
           <ThemeProvider
