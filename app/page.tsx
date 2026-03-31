@@ -9,7 +9,7 @@ import { GoogleReviewsSection } from "@/components/home/google-reviews-section"
 import { MountainRangesSection } from "@/components/home/mountain-ranges-section"
 import { Footer } from "@/components/footer"
 
-export const revalidate = 3600 // revalidate every hour
+export const revalidate = 300 // revalidate every 5 minutes as a fallback
 
 export const metadata: Metadata = {
   title: "K2 Climbers — Pakistan Mountain Expeditions & Trekking",

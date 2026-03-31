@@ -7,6 +7,7 @@ import { CheckCircle2, Mountain, Clock, MapPin, Users, ArrowRight, Calendar } fr
 import Link from "next/link"
 import { Footer } from "@/components/footer"
 import { Navbar } from "@/components/navbar"
+import { CancelBookingButton } from "./cancel-button"
 
 async function getBooking(id: string, userId: string) {
   try {
@@ -163,6 +164,13 @@ export default async function BookingConfirmationPage({ params }: { params: { id
               My Profile &amp; Bookings <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
+
+          {/* Cancel — only available while PENDING */}
+          {booking.status === "PENDING" && (
+            <div className="flex mt-3">
+              <CancelBookingButton bookingId={booking.id} />
+            </div>
+          )}
         </div>
       </main>
       <Footer />

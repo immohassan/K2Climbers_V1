@@ -24,7 +24,13 @@ export function validate<T>(schema: z.ZodSchema<T>, input: unknown):
 
 const id = z.string().cuid()
 const email = z.string().email().max(254).transform((v) => v.trim().toLowerCase())
-const password = z.string().min(6).max(128)
+const password = z
+  .string()
+  .min(8, "Password must be at least 8 characters")
+  .max(128, "Password must be at most 128 characters")
+  .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+  .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+  .regex(/[0-9]/, "Password must contain at least one number")
 const shortText = (max = 255) => z.string().min(1).max(max).transform((v) => v.trim())
 const optionalText = (max = 255) => z.string().max(max).transform((v) => v.trim()).optional().nullable()
 const slug = z
@@ -32,7 +38,18 @@ const slug = z
   .min(1)
   .max(100)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase letters, numbers and hyphens only")
-const url = z.string().url().max(2048).optional().nullable()
+const url = z
+  .string()
+  .max(2048)
+  .refine(
+    (v) => {
+      try { new URL(v); return true } catch { /* relative path */ }
+      return v.startsWith("/api/images/")
+    },
+    { message: "Must be a valid URL or an uploaded image path" }
+  )
+  .optional()
+  .nullable()
 const positiveInt = z.number().int().positive()
 const nonNegativeInt = z.number().int().min(0)
 const positiveFloat = z.number().positive()
@@ -106,7 +123,7 @@ export const updateProfileSchema = z.object({
     .optional()
     .nullable(),
   image: url,
-  password: z.string().min(6).max(128).optional(),
+  password: password.optional(),
 })
 
 // ─── Summit Records ────────────────────────────────────────────────────────────
@@ -200,7 +217,7 @@ export const updateUserSchema = z.object({
     .nullable(),
   image: url,
   featured: z.boolean().optional(),
-  password: z.string().min(6).max(128).optional(),
+  password: password.optional(),
 })
 
 // ─── Testimonials ──────────────────────────────────────────────────────────────

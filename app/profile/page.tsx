@@ -215,9 +215,11 @@ export default function ProfilePage() {
       toast.error("Passwords do not match")
       return
     }
-    if (formData.password && formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters")
-      return
+    if (formData.password) {
+      if (formData.password.length < 8) { toast.error("Password must be at least 8 characters"); return }
+      if (!/[A-Z]/.test(formData.password)) { toast.error("Password must contain at least one uppercase letter"); return }
+      if (!/[a-z]/.test(formData.password)) { toast.error("Password must contain at least one lowercase letter"); return }
+      if (!/[0-9]/.test(formData.password)) { toast.error("Password must contain at least one number"); return }
     }
     setSaving(true)
     try {
@@ -649,18 +651,9 @@ export default function ProfilePage() {
 
             {/* ─── Summit Records ─── */}
             <div className="border border-border">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-                <div>
-                  <p className="text-xs font-semibold tracking-[0.2em] uppercase text-orange-500 mb-0.5">Climbing</p>
-                  <h2 className="text-lg font-black">Summit Records</h2>
-                </div>
-                <button
-                  onClick={openAddSummit}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-orange-500 hover:text-orange-400 transition-colors"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Add Record
-                </button>
+              <div className="px-6 py-4 border-b border-border">
+                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-orange-500 mb-0.5">Climbing</p>
+                <h2 className="text-lg font-black">Summit Records</h2>
               </div>
 
               {profile.summitRecords.length === 0 ? (

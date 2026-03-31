@@ -24,8 +24,20 @@ function SignUpForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters")
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters")
+      return
+    }
+    if (!/[A-Z]/.test(password)) {
+      toast.error("Password must contain at least one uppercase letter")
+      return
+    }
+    if (!/[a-z]/.test(password)) {
+      toast.error("Password must contain at least one lowercase letter")
+      return
+    }
+    if (!/[0-9]/.test(password)) {
+      toast.error("Password must contain at least one number")
       return
     }
     if (password !== confirmPassword) {
@@ -102,11 +114,11 @@ function SignUpForm() {
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="At least 6 characters"
+                placeholder="Min 8 chars, uppercase, lowercase, number"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={6}
+                minLength={8}
                 className="pr-10"
               />
               <button
@@ -117,6 +129,22 @@ function SignUpForm() {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+            {password && (
+              <ul className="text-[11px] mt-1 space-y-0.5">
+                <li className={password.length >= 8 ? "text-green-500" : "text-muted-foreground"}>
+                  {password.length >= 8 ? "✓" : "○"} At least 8 characters
+                </li>
+                <li className={/[A-Z]/.test(password) ? "text-green-500" : "text-muted-foreground"}>
+                  {/[A-Z]/.test(password) ? "✓" : "○"} One uppercase letter
+                </li>
+                <li className={/[a-z]/.test(password) ? "text-green-500" : "text-muted-foreground"}>
+                  {/[a-z]/.test(password) ? "✓" : "○"} One lowercase letter
+                </li>
+                <li className={/[0-9]/.test(password) ? "text-green-500" : "text-muted-foreground"}>
+                  {/[0-9]/.test(password) ? "✓" : "○"} One number
+                </li>
+              </ul>
+            )}
           </div>
 
           <div className="space-y-1.5">
@@ -128,7 +156,7 @@ function SignUpForm() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              minLength={6}
+              minLength={8}
             />
             {confirmPassword && (
               <p className={`text-xs mt-1 ${password === confirmPassword ? "text-green-500" : "text-red-500"}`}>

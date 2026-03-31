@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import { formatCurrency } from "@/lib/utils"
 import toast from "react-hot-toast"
 import Link from "next/link"
-import { CalendarDays, Users, ChevronDown, MessageCircle } from "lucide-react"
+import { CalendarDays, Users, ChevronDown, MessageCircle, AlertTriangle, X } from "lucide-react"
 
 interface Expedition {
   id: string
@@ -40,6 +40,7 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
   const [slotsLoading, setSlotsLoading] = useState(true)
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null)
   const [showSlots, setShowSlots] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   useEffect(() => {
     fetch(`/api/expeditions/${expedition.id}/slots`)
@@ -59,17 +60,13 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
     ? Math.min(expedition.maxGroupSize, selectedSlot.maxParticipants - selectedSlot.bookedCount)
     : expedition.maxGroupSize
 
-  const handleBooking = async () => {
-    if (!session) {
-      router.push("/auth/signin")
-      return
-    }
+  const openConfirm = () => {
+    if (!session) { router.push("/auth/signin"); return }
+    if (slots.length > 0 && !selectedSlot) { toast.error("Please select an expedition slot"); return }
+    setConfirmOpen(true)
+  }
 
-    if (slots.length > 0 && !selectedSlot) {
-      toast.error("Please select an expedition slot")
-      return
-    }
-
+  const confirmBooking = async () => {
     setLoading(true)
     try {
       const res = await fetch("/api/bookings", {
@@ -84,6 +81,7 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
 
       if (res.ok) {
         const booking = await res.json()
+        setConfirmOpen(false)
         toast.success("Booking created successfully!")
         router.push(`/bookings/${booking.id}`)
       } else {
@@ -238,10 +236,10 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
         <Button
           variant="summit"
           className="w-full rounded-none"
-          onClick={handleBooking}
+          onClick={openConfirm}
           disabled={loading}
         >
-          {loading ? "Processing..." : "Book Now"}
+          Book Now
         </Button>
       ) : (
         /* Slot selected but not signed in */
@@ -250,6 +248,92 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
             Sign In to Book
           </Button>
         </Link>
+      )}
+      {/* ── Confirmation Modal ── */}
+      {confirmOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={(e) => { if (e.target === e.currentTarget) setConfirmOpen(false) }}
+        >
+          <div className="w-full max-w-md bg-background border border-border shadow-2xl">
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+              <div>
+                <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-orange-500">Confirm Booking</p>
+                <h2 className="text-lg font-black leading-tight mt-0.5">{expedition.title}</h2>
+              </div>
+              <button
+                onClick={() => setConfirmOpen(false)}
+                className="text-muted-foreground hover:text-foreground transition-colors ml-4 shrink-0"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Summary */}
+            <div className="px-5 py-4 space-y-2.5 border-b border-border">
+              {selectedSlot && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />Dates</span>
+                  <span className="font-semibold text-right">
+                    {selectedSlot.label && <span className="text-orange-500 mr-1">{selectedSlot.label} · </span>}
+                    {formatSlotDate(selectedSlot.startDate)} – {formatSlotDate(selectedSlot.endDate)}
+                  </span>
+                </div>
+              )}
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground flex items-center gap-1.5"><Users className="h-3.5 w-3.5" />Participants</span>
+                <span className="font-semibold">{numberOfPeople} {numberOfPeople === 1 ? "person" : "people"}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Price per person</span>
+                <span className="font-semibold">{formatCurrency(pricePerPerson)}</span>
+              </div>
+              <div className="flex justify-between text-base font-black border-t border-border pt-2.5 mt-1">
+                <span>Total</span>
+                <span className="text-orange-500">{formatCurrency(totalAmount)}</span>
+              </div>
+            </div>
+
+            {/* Certificate notice — shown when >1 person */}
+            {numberOfPeople > 1 && (
+              <div className="px-5 py-4 border-b border-border bg-orange-500/5">
+                <div className="flex gap-3">
+                  <AlertTriangle className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    <span className="font-semibold text-foreground">Certificate notice:</span> When booking for multiple people, the summit certificate will only be issued to <span className="font-semibold text-foreground">your profile</span> upon a successful summit. We recommend that every climber creates their own account so each person receives their individual certificate.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Note */}
+            <div className="px-5 py-3 border-b border-border">
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Your booking will be marked as <span className="font-semibold text-foreground">Pending</span> until our team reviews and confirms it. We will contact you within 24 hours.
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="px-5 py-4 flex gap-3">
+              <button
+                onClick={() => setConfirmOpen(false)}
+                className="flex-1 border border-border py-2.5 text-sm font-semibold hover:border-orange-500/50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmBooking}
+                disabled={loading}
+                className="flex-1 bg-orange-500 hover:bg-orange-400 disabled:opacity-60 text-white py-2.5 text-sm font-semibold transition-colors"
+              >
+                {loading ? "Processing…" : "Confirm Booking"}
+              </button>
+            </div>
+
+          </div>
+        </div>
       )}
     </div>
   )

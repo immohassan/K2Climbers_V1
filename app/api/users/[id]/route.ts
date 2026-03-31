@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth"
 import bcrypt from "bcryptjs"
 import { recordCountsAsSummit } from "@/lib/summit-utils"
 import { validate, updateUserSchema } from "@/lib/validation"
+import { revalidatePath } from "next/cache"
 
 export async function GET(
   request: NextRequest,
@@ -83,6 +84,9 @@ export async function PUT(
       },
     })
 
+    // Bust the home page cache whenever featured status changes
+    if (featured !== undefined) revalidatePath("/")
+
     return NextResponse.json(user)
   } catch (error) {
     console.error("Error updating user:", error)
@@ -111,6 +115,7 @@ export async function DELETE(
 
     await prisma.user.delete({ where: { id } })
 
+    revalidatePath("/")
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error deleting user:", error)

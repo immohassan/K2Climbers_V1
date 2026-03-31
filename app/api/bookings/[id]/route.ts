@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { validate, patchBookingSchema } from "@/lib/validation"
+import { sendBookingConfirmedEmail, sendBookingCancelledEmail } from "@/lib/email"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -39,7 +40,55 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const isAdmin = session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
-    if (!isAdmin) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+
+    // Allow users to cancel their own PENDING bookings
+    if (!isAdmin) {
+      const body = await request.json()
+      if (body.status !== "CANCELLED") return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+
+      const booking = await prisma.booking.findFirst({
+        where: { id: params.id, userId: session.user.id },
+      })
+      if (!booking) return NextResponse.json({ error: "Booking not found" }, { status: 404 })
+      if (booking.status !== "PENDING") {
+        return NextResponse.json({ error: "Only pending bookings can be cancelled" }, { status: 400 })
+      }
+
+      const bookingWithDetails = await prisma.booking.findUnique({
+        where: { id: params.id },
+        include: {
+          expedition: { select: { title: true, slug: true } },
+          user: { select: { name: true, email: true } },
+          slot: { select: { startDate: true, endDate: true, label: true } },
+        },
+      })
+
+      const updated = await prisma.$transaction(async (tx) => {
+        const result = await tx.booking.update({
+          where: { id: params.id },
+          data: { status: "CANCELLED" },
+        })
+        if (booking.slotId) {
+          await tx.expeditionSlot.update({
+            where: { id: booking.slotId },
+            data: { bookedCount: { decrement: booking.numberOfPeople } },
+          })
+        }
+        return result
+      })
+
+      if (bookingWithDetails?.user?.email) {
+        sendBookingCancelledEmail({
+          to: bookingWithDetails.user.email,
+          name: bookingWithDetails.user.name ?? "",
+          bookingId: params.id,
+          expeditionTitle: bookingWithDetails.expedition.title,
+          cancelledBy: "user",
+        }).catch((err) => console.error("Failed to send cancellation email:", err))
+      }
+
+      return NextResponse.json(updated)
+    }
 
     const body = await request.json()
     const parsed = validate(patchBookingSchema, body)
@@ -90,6 +139,32 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
       return updated
     })
+
+    // Send status-change emails (fire and forget)
+    if (booking.user?.email) {
+      if (status === "CONFIRMED" && existing.status !== "CONFIRMED") {
+        sendBookingConfirmedEmail({
+          to: booking.user.email,
+          name: booking.user.name ?? "",
+          bookingId: booking.id,
+          expeditionTitle: booking.expedition.title,
+          expeditionSlug: booking.expedition.slug,
+          numberOfPeople: booking.numberOfPeople,
+          totalAmount: booking.totalAmount,
+          slotStartDate: booking.slot?.startDate?.toISOString(),
+          slotEndDate: booking.slot?.endDate?.toISOString(),
+          slotLabel: booking.slot?.label ?? undefined,
+        }).catch((err) => console.error("Failed to send booking confirmed email:", err))
+      } else if (becomingCancelled) {
+        sendBookingCancelledEmail({
+          to: booking.user.email,
+          name: booking.user.name ?? "",
+          bookingId: booking.id,
+          expeditionTitle: booking.expedition.title,
+          cancelledBy: "admin",
+        }).catch((err) => console.error("Failed to send cancellation email:", err))
+      }
+    }
 
     return NextResponse.json(booking)
   } catch (error) {
