@@ -45,7 +45,7 @@ export const metadata: Metadata = {
       "Guided mountaineering expeditions and treks across Pakistan's greatest mountain ranges. Karakoram, Himalaya, Hindu Kush.",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/opengraph-image",
         width: 1200,
         height: 630,
         alt: "K2 Climbers — Pakistan Mountain Expeditions",
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     title: "K2 Climbers — Pakistan Mountain Expeditions & Trekking",
     description:
       "Guided mountaineering expeditions and treks across Pakistan's greatest mountain ranges.",
-    images: ["/og-image.jpg"],
+    images: ["/opengraph-image"],
   },
   robots: {
     index: true,
@@ -83,6 +83,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="scroll-smooth">
       <head>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="shortcut icon" href="/favicon.svg" />
         <SpeedInsights/>
         {/* Preload hero LCP image — tells browser to fetch it at highest priority */}
         <link

@@ -73,7 +73,8 @@ export async function generateMetadata({
         description:
           climber.bio ||
           `${name}'s mountaineering profile on K2 Climbers.`,
-        images: climber.image ? [{ url: climber.image }] : [],
+        // Only use absolute URLs for OG images — relative /api/images paths won't work
+        images: climber.image && !climber.image.startsWith("/api/") ? [{ url: climber.image }] : [],
       },
     }
   } catch {

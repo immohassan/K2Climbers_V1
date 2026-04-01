@@ -75,6 +75,7 @@ export function ClimberProfile({
                 fill
                 className="object-cover"
                 sizes="128px"
+                unoptimized={climber.image.startsWith("/api/")}
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center text-3xl font-black text-muted-foreground/40">
@@ -176,6 +177,7 @@ export function ClimberProfile({
                         fill
                         className="object-cover"
                         sizes="80px"
+                        unoptimized={record.expedition.heroImage.startsWith("/api/")}
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">

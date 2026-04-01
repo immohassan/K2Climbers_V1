@@ -9,6 +9,7 @@ import { ExpeditionItinerary } from "@/components/expeditions/expedition-itinera
 import { ExpeditionRequiredGear } from "@/components/expeditions/expedition-required-gear"
 import { ExpeditionPolicies } from "@/components/expeditions/expedition-policies"
 import { BookingPanel } from "@/components/expeditions/booking-panel"
+import { ExpeditionMap } from "@/components/expeditions/expedition-map"
 import { Navbar } from "@/components/navbar"
 
 export const revalidate = 3600 // revalidate every hour
@@ -151,6 +152,15 @@ export default async function ExpeditionPage({
                 longitude={(expedition as { longitude?: number | null }).longitude ?? null}
                 locationName={expedition.location}
               />
+              {(expedition as { latitude?: number | null }).latitude != null &&
+               (expedition as { longitude?: number | null }).longitude != null && (
+                <ExpeditionMap
+                  latitude={(expedition as { latitude: number }).latitude}
+                  longitude={(expedition as { longitude: number }).longitude}
+                  locationName={expedition.location}
+                  peakName={expedition.title}
+                />
+              )}
               <ExpeditionItinerary itineraries={expedition.itineraries} />
               <ExpeditionRequiredGear
                 requiredGear={expedition.requiredGear}
