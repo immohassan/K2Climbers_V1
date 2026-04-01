@@ -114,7 +114,7 @@ export async function PUT(
     })
 
     revalidatePath("/expeditions")
-    revalidatePath(`/expeditions/${updatedExpedition.slug}`)
+    if (updatedExpedition) revalidatePath(`/expeditions/${updatedExpedition.slug}`)
     revalidatePath("/")
 
     return NextResponse.json(updatedExpedition)
