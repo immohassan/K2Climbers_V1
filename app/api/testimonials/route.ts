@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { validate, createTestimonialSchema } from "@/lib/validation"
 import { generalWriteLimiter } from "@/lib/rate-limit"
+import { revalidatePath } from "next/cache"
 
 export async function GET() {
   try {
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
         order: order ?? 0,
       },
     })
+    revalidatePath("/")
     return NextResponse.json(testimonial, { status: 201 })
   } catch (error) {
     console.error("Error creating testimonial:", error)

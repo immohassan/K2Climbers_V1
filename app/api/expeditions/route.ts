@@ -3,15 +3,20 @@ import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { validate, createExpeditionSchema } from "@/lib/validation"
+import { revalidatePath } from "next/cache"
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUPER_ADMIN"
+
     const { searchParams } = new URL(request.url)
     const category = searchParams.get("category")
     const difficulty = searchParams.get("difficulty")
     const featured = searchParams.get("featured") === "true"
 
-    const where: Record<string, unknown> = { isActive: true }
+    // Admins see all expeditions regardless of isActive; public only sees active ones
+    const where: Record<string, unknown> = isAdmin ? {} : { isActive: true }
     if (category) where.category = category
     if (difficulty) where.difficulty = difficulty
     if (featured) where.featured = true
@@ -26,9 +31,12 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: "desc" },
     })
 
-    return NextResponse.json(expeditions, {
-      headers: { "Cache-Control": "public, s-maxage=1800, stale-while-revalidate=86400" },
-    })
+    // Admins always get fresh data; public response can be cached
+    const headers = isAdmin
+      ? { "Cache-Control": "no-store" }
+      : { "Cache-Control": "public, s-maxage=1800, stale-while-revalidate=86400" }
+
+    return NextResponse.json(expeditions, { headers })
   } catch (error) {
     console.error("Error fetching expeditions:", error)
     return NextResponse.json({ error: "Failed to fetch expeditions" }, { status: 500 })
@@ -49,7 +57,9 @@ export async function POST(request: NextRequest) {
       title, slug, description, shortDescription, category, difficulty,
       altitude, duration, basePrice, location, latitude, longitude,
       heroImage, videoUrl, gallery, maxGroupSize, minGroupSize, successRate,
-      metaTitle, metaDescription, itineraries, requiredGear,
+      metaTitle, metaDescription, isActive, featured, mountainRange,
+      requiredEquipment, paymentPolicy, refundPolicy,
+      itineraries, requiredGear,
     } = parsed.data
 
     let gearData: { productId: string; quantity: number; required: boolean }[] = []
@@ -96,6 +106,11 @@ export async function POST(request: NextRequest) {
         maxGroupSize: maxGroupSize ?? 0, minGroupSize: minGroupSize ?? 1,
         successRate: successRate ?? null,
         metaTitle: metaTitle || null, metaDescription: metaDescription || null,
+        isActive: isActive ?? true, featured: featured ?? false,
+        mountainRange: mountainRange ?? null,
+        requiredEquipment: requiredEquipment || null,
+        paymentPolicy: paymentPolicy || null,
+        refundPolicy: refundPolicy || null,
         itineraries: itineraries
           ? {
               create: itineraries.map((it) => ({
@@ -108,6 +123,9 @@ export async function POST(request: NextRequest) {
       },
       include: { itineraries: true, requiredGear: true },
     })
+
+    revalidatePath("/expeditions")
+    revalidatePath("/")
 
     return NextResponse.json(expedition, { status: 201 })
   } catch (error) {

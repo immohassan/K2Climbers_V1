@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { sendCertificateRevokedEmail } from "@/lib/email"
+import { revalidatePath } from "next/cache"
 
 export async function DELETE(
   request: NextRequest,
@@ -21,6 +22,9 @@ export async function DELETE(
     if (!cert) return NextResponse.json({ error: "Certificate not found" }, { status: 404 })
 
     await prisma.certificate.delete({ where: { id: params.id } })
+
+    revalidatePath("/dashboard/certificates")
+    revalidatePath("/profile")
 
     if (cert.user?.email) {
       sendCertificateRevokedEmail({

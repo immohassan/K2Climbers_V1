@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { revalidatePath } from "next/cache"
 
 function adminOnly() {
   return NextResponse.json({ error: "Forbidden" }, { status: 403 })
@@ -29,6 +30,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       },
     })
 
+    const expedition = await prisma.expedition.findUnique({ where: { id: params.id }, select: { slug: true } })
+    if (expedition) revalidatePath(`/expeditions/${expedition.slug}`)
+    revalidatePath("/expeditions")
+
     return NextResponse.json(slot)
   } catch (error) {
     console.error("Error updating slot:", error)
@@ -55,6 +60,10 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     await prisma.expeditionSlot.delete({ where: { id: params.slotId } })
+
+    const expedition = await prisma.expedition.findUnique({ where: { id: params.id }, select: { slug: true } })
+    if (expedition) revalidatePath(`/expeditions/${expedition.slug}`)
+    revalidatePath("/expeditions")
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { validate, adminSummitRecordSchema } from "@/lib/validation"
+import { revalidatePath } from "next/cache"
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions)
@@ -46,6 +47,10 @@ export async function POST(request: NextRequest) {
       select: { id: true, status: true, summitDate: true, altitude: true },
     })
   }
+
+  revalidatePath("/climbers")
+  revalidatePath(`/climbers/${userId}`)
+  revalidatePath("/dashboard/users")
 
   return NextResponse.json(record)
 }

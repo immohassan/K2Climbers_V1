@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { validate, updateSummitRecordSchema } from "@/lib/validation"
+import { revalidatePath } from "next/cache"
 
 export async function GET(
   request: NextRequest,
@@ -78,6 +79,10 @@ export async function PUT(
       },
     })
 
+    revalidatePath("/profile")
+    revalidatePath("/climbers")
+    revalidatePath(`/climbers/${session.user.id}`)
+
     return NextResponse.json(record)
   } catch (error) {
     console.error("Error updating summit record:", error)
@@ -100,6 +105,10 @@ export async function DELETE(
     if (!existing) return NextResponse.json({ error: "Summit record not found" }, { status: 404 })
 
     await prisma.summitRecord.delete({ where: { id } })
+
+    revalidatePath("/profile")
+    revalidatePath("/climbers")
+    revalidatePath(`/climbers/${session.user.id}`)
 
     return NextResponse.json({ success: true })
   } catch (error) {

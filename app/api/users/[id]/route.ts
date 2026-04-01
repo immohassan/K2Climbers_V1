@@ -84,8 +84,11 @@ export async function PUT(
       },
     })
 
-    // Bust the home page cache whenever featured status changes
-    if (featured !== undefined) revalidatePath("/")
+    // Bust caches whenever featured status or role changes
+    if (featured !== undefined) {
+      revalidatePath("/")
+      revalidatePath("/climbers")
+    }
 
     return NextResponse.json(user)
   } catch (error) {
@@ -116,6 +119,7 @@ export async function DELETE(
     await prisma.user.delete({ where: { id } })
 
     revalidatePath("/")
+    revalidatePath("/climbers")
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error deleting user:", error)

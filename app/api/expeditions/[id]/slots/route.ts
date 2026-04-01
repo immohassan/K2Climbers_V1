@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { revalidatePath } from "next/cache"
 
 // GET all slots for an expedition (public)
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -42,6 +43,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         priceOverride: priceOverride ? parseFloat(priceOverride) : null,
       },
     })
+
+    const expedition = await prisma.expedition.findUnique({ where: { id: params.id }, select: { slug: true } })
+    if (expedition) revalidatePath(`/expeditions/${expedition.slug}`)
+    revalidatePath("/expeditions")
 
     return NextResponse.json(slot, { status: 201 })
   } catch (error) {

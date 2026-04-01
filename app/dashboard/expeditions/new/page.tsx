@@ -51,6 +51,11 @@ export default function NewExpeditionPage() {
     metaTitle: "",
     metaDescription: "",
     mountainRange: "",
+    isActive: true,
+    featured: false,
+    requiredEquipment: "",
+    paymentPolicy: "",
+    refundPolicy: "",
   })
   const [itineraries, setItineraries] = useState<ItineraryItem[]>([])
   const [requiredGear, setRequiredGear] = useState<RequiredGear[]>([])
@@ -182,6 +187,7 @@ export default function NewExpeditionPage() {
           latitude: formData.latitude ? parseFloat(formData.latitude) : null,
           longitude: formData.longitude ? parseFloat(formData.longitude) : null,
           videoUrl: formData.videoUrl?.trim() || null,
+          mountainRange: formData.mountainRange || null,
           itineraries,
           requiredGear,
         }),
@@ -484,6 +490,29 @@ export default function NewExpeditionPage() {
               </p>
             </div>
 
+            <div className="flex gap-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  className="rounded"
+                />
+                <Label htmlFor="isActive">Active</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="featured"
+                  checked={formData.featured}
+                  onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                  className="rounded"
+                />
+                <Label htmlFor="featured">Featured</Label>
+              </div>
+            </div>
+
             {/* <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="metaTitle">SEO Title</Label>
@@ -634,6 +663,54 @@ export default function NewExpeditionPage() {
                 </div>
               ))
             )}
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Required Equipment</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Label htmlFor="requiredEquipment" className="text-xs text-muted-foreground">
+                List all required gear and equipment. Each item on a new line.
+              </Label>
+              <Textarea
+                id="requiredEquipment"
+                value={formData.requiredEquipment}
+                onChange={(e) => setFormData({ ...formData, requiredEquipment: e.target.value })}
+                placeholder={"Climbing harness\nHelmet\nCrampons\nIce axe\nDown suit\n..."}
+                rows={8}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Payment &amp; Refund Policies</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="paymentPolicy">Payment Procedure</Label>
+              <Textarea
+                id="paymentPolicy"
+                value={formData.paymentPolicy}
+                onChange={(e) => setFormData({ ...formData, paymentPolicy: e.target.value })}
+                placeholder="e.g. A 30% deposit is required to confirm your booking. The remaining balance is due 60 days before departure..."
+                rows={5}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="refundPolicy">Refund Policy</Label>
+              <Textarea
+                id="refundPolicy"
+                value={formData.refundPolicy}
+                onChange={(e) => setFormData({ ...formData, refundPolicy: e.target.value })}
+                placeholder="e.g. Cancellations more than 90 days before departure receive a full refund minus the deposit. 60–90 days: 50% refund..."
+                rows={5}
+              />
+            </div>
           </CardContent>
         </Card>
 

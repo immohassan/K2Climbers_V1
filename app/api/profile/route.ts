@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth"
 import bcrypt from "bcryptjs"
 import { validate, updateProfileSchema } from "@/lib/validation"
 import { passwordLimiter } from "@/lib/rate-limit"
+import { revalidatePath } from "next/cache"
 
 export async function GET() {
   try {
@@ -81,6 +82,10 @@ export async function PUT(request: NextRequest) {
         image: true, bio: true, phone: true, createdAt: true,
       },
     })
+
+    revalidatePath("/profile")
+    revalidatePath("/climbers")
+    revalidatePath(`/climbers/${session.user.id}`)
 
     return NextResponse.json(user)
   } catch (error) {

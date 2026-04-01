@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth"
 import { validate, createBookingSchema } from "@/lib/validation"
 import { bookingLimiter } from "@/lib/rate-limit"
 import { sendBookingConfirmationEmail } from "@/lib/email"
+import { revalidatePath } from "next/cache"
 
 export async function GET(request: NextRequest) {
   try {
@@ -127,6 +128,10 @@ export async function POST(request: NextRequest) {
       slotEndDate: booking.slot?.endDate?.toISOString(),
       slotLabel: booking.slot?.label ?? undefined,
     }).catch((err) => console.error("Failed to send booking email:", err))
+
+    revalidatePath("/bookings")
+    revalidatePath(`/bookings/${booking.id}`)
+    revalidatePath("/dashboard/bookings")
 
     return NextResponse.json(booking, { status: 201 })
   } catch (error) {

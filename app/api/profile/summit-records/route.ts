@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { validate, createSummitRecordSchema } from "@/lib/validation"
 import { generalWriteLimiter } from "@/lib/rate-limit"
+import { revalidatePath } from "next/cache"
 
 export async function GET() {
   try {
@@ -61,6 +62,10 @@ export async function POST(request: NextRequest) {
         },
       },
     })
+
+    revalidatePath("/profile")
+    revalidatePath("/climbers")
+    revalidatePath(`/climbers/${session.user.id}`)
 
     return NextResponse.json(record)
   } catch (error) {

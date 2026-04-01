@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { randomBytes } from "crypto"
 import { sendCertificateEmail } from "@/lib/email"
+import { revalidatePath } from "next/cache"
 
 export async function GET(request: NextRequest) {
   try {
@@ -92,6 +93,9 @@ export async function POST(request: NextRequest) {
         summitDate,
       }).catch((err) => console.error("Failed to send certificate email:", err))
     }
+
+    revalidatePath("/dashboard/certificates")
+    revalidatePath("/profile")
 
     return NextResponse.json(certificate, { status: 201 })
   } catch (error) {

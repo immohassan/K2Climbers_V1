@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { validate, patchBookingSchema } from "@/lib/validation"
 import { sendBookingConfirmedEmail, sendBookingCancelledEmail } from "@/lib/email"
+import { revalidatePath } from "next/cache"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -87,6 +88,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         }).catch((err) => console.error("Failed to send cancellation email:", err))
       }
 
+      revalidatePath("/bookings")
+      revalidatePath(`/bookings/${params.id}`)
+      revalidatePath("/dashboard/bookings")
+
       return NextResponse.json(updated)
     }
 
@@ -166,6 +171,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       }
     }
 
+    revalidatePath("/bookings")
+    revalidatePath(`/bookings/${params.id}`)
+    revalidatePath("/dashboard/bookings")
+
     return NextResponse.json(booking)
   } catch (error) {
     console.error("Error updating booking:", error)
@@ -195,6 +204,9 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         })
       }
     })
+
+    revalidatePath("/bookings")
+    revalidatePath("/dashboard/bookings")
 
     return NextResponse.json({ success: true })
   } catch (error) {

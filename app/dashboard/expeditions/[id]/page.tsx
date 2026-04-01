@@ -237,6 +237,7 @@ export default function EditExpeditionPage() {
           latitude: formData.latitude ? parseFloat(formData.latitude) : null,
           longitude: formData.longitude ? parseFloat(formData.longitude) : null,
           videoUrl: formData.videoUrl?.trim() || null,
+          mountainRange: formData.mountainRange || null,
           itineraries,
           requiredGear,
         }),

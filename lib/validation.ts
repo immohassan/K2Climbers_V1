@@ -60,6 +60,7 @@ const VALID_BOOKING_STATUS = ["PENDING", "CONFIRMED", "CANCELLED"] as const
 const VALID_PAYMENT_STATUS = ["PENDING", "PAID", "REFUNDED"] as const
 const VALID_CATEGORIES = ["SMALL_PEAKS", "TREKKING_PEAKS", "MOUNTAINEERING", "ROAD_TRIPS", "CUSTOM"] as const
 const VALID_DIFFICULTIES = ["BEGINNER", "INTERMEDIATE", "ADVANCED", "EXPERT", "EXTREME"] as const
+const VALID_MOUNTAIN_RANGES = ["KARAKORAM", "HIMALAYA", "HINDU_KUSH"] as const
 const VALID_GEAR_CATEGORIES = [
   "CLOTHING", "FOOTWEAR", "CAMPING", "CLIMBING_EQUIPMENT",
   "NAVIGATION", "SAFETY", "NUTRITION", "OTHER",
@@ -188,6 +189,12 @@ export const createExpeditionSchema = z.object({
   successRate: z.number().min(0).max(100).optional().nullable(),
   metaTitle: optionalText(200),
   metaDescription: optionalText(400),
+  isActive: z.boolean().optional(),
+  featured: z.boolean().optional(),
+  mountainRange: z.enum(VALID_MOUNTAIN_RANGES).optional().nullable(),
+  requiredEquipment: z.string().max(10000).transform((v) => v.trim()).optional().nullable(),
+  paymentPolicy: z.string().max(10000).transform((v) => v.trim()).optional().nullable(),
+  refundPolicy: z.string().max(10000).transform((v) => v.trim()).optional().nullable(),
   itineraries: z.array(itinerarySchema).max(365).optional(),
   requiredGear: z.array(gearItemSchema).max(100).optional(),
 })
