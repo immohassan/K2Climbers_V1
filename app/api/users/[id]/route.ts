@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth"
 import bcrypt from "bcryptjs"
 import { recordCountsAsSummit } from "@/lib/summit-utils"
 import { validate, updateUserSchema } from "@/lib/validation"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 
 export async function GET(
   request: NextRequest,
@@ -84,9 +84,9 @@ export async function PUT(
       },
     })
 
-    // Bust caches whenever featured status or role changes
+    // Bust caches whenever featured status changes
     if (featured !== undefined) {
-      revalidatePath("/")
+      revalidateTag("featured-climbers")
       revalidatePath("/climbers")
     }
 
@@ -118,7 +118,7 @@ export async function DELETE(
 
     await prisma.user.delete({ where: { id } })
 
-    revalidatePath("/")
+    revalidateTag("featured-climbers")
     revalidatePath("/climbers")
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { formatCurrency, formatDate } from "@/lib/utils"
-import { CheckCircle2, Mountain, Clock, MapPin, Users, ArrowRight, Calendar } from "lucide-react"
+import { CheckCircle2, Mountain, Clock, MapPin, Users, ArrowRight, Calendar, Tag } from "lucide-react"
 import Link from "next/link"
 import { Footer } from "@/components/footer"
 import { Navbar } from "@/components/navbar"
@@ -27,6 +27,9 @@ async function getBooking(id: string, userId: string) {
         },
         slot: {
           select: { startDate: true, endDate: true, label: true },
+        },
+        coupon: {
+          select: { code: true, discountType: true, discountValue: true },
         },
       },
     })
@@ -106,6 +109,20 @@ export default async function BookingConfirmationPage({ params }: { params: { id
                 </div>
               ))}
             </div>
+
+            {/* Discount row — only shown when a coupon was applied */}
+            {booking.discountAmount > 0 && booking.coupon && (
+              <div className="px-6 py-3 border-b border-border flex items-center justify-between text-sm">
+                <span className="flex items-center gap-2 text-green-600">
+                  <Tag className="h-3.5 w-3.5" />
+                  Coupon <span className="font-mono font-bold">{booking.coupon.code}</span>
+                  {booking.coupon.discountType === "PERCENTAGE" && (
+                    <span className="text-xs text-muted-foreground">({booking.coupon.discountValue}% off)</span>
+                  )}
+                </span>
+                <span className="font-semibold text-green-600">−{formatCurrency(booking.discountAmount)}</span>
+              </div>
+            )}
 
             {/* Slot dates */}
             {booking.slot && (

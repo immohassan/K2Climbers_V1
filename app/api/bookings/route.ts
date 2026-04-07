@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const parsed = validate(createBookingSchema, body)
     if (!parsed.ok) return parsed.response
-    const { expeditionId, slotId, numberOfPeople, specialRequests } = parsed.data
+    const { expeditionId, slotId, numberOfPeople, specialRequests, couponCode } = parsed.data
 
     const expedition = await prisma.expedition.findUnique({ where: { id: expeditionId } })
     if (!expedition) return NextResponse.json({ error: "Expedition not found" }, { status: 404 })
@@ -65,8 +65,40 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Slot not found or inactive" }, { status: 404 })
     }
 
-    // Use a serializable transaction so the capacity check + increment + booking creation
-    // are atomic. This prevents two simultaneous requests from both passing the check.
+    // Validate coupon before entering the transaction
+    let couponRecord: { id: string; discountType: string; discountValue: number } | null = null
+    if (couponCode) {
+      const coupon = await prisma.coupon.findUnique({ where: { code: couponCode } })
+
+      if (!coupon || !coupon.isActive) {
+        return NextResponse.json({ error: "Invalid or inactive coupon code" }, { status: 400 })
+      }
+      if (coupon.expiresAt && coupon.expiresAt < new Date()) {
+        return NextResponse.json({ error: "This coupon has expired" }, { status: 400 })
+      }
+      if (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses) {
+        return NextResponse.json({ error: "This coupon has reached its usage limit" }, { status: 400 })
+      }
+      if (coupon.allowedUserIds.length > 0 && !coupon.allowedUserIds.includes(session.user.id)) {
+        return NextResponse.json({ error: "This coupon is not valid for your account" }, { status: 400 })
+      }
+      const alreadyUsed = await prisma.couponUsage.findUnique({
+        where: { couponId_userId: { couponId: coupon.id, userId: session.user.id } },
+      })
+      if (alreadyUsed) {
+        return NextResponse.json({ error: "You have already used this coupon" }, { status: 400 })
+      }
+
+      couponRecord = { id: coupon.id, discountType: coupon.discountType, discountValue: coupon.discountValue }
+    }
+
+    // discountAmount is calculated inside the tx once the slot price override is known
+    let discountAmount = 0
+
+    // Use a serializable transaction scoped only to the slot capacity check + booking creation.
+    // Keeping the transaction as short as possible avoids pgBouncer connection recycling on the
+    // Supabase transaction pooler (port 6543), which caused "Transaction not found" errors when
+    // coupon writes were included inside the same tx.
     const booking = await prisma.$transaction(
       async (tx) => {
         let pricePerPerson = expedition.basePrice
@@ -95,7 +127,18 @@ export async function POST(request: NextRequest) {
           if (slot.priceOverride) pricePerPerson = slot.priceOverride
         }
 
-        const totalAmount = pricePerPerson * numberOfPeople
+        const subtotal = pricePerPerson * numberOfPeople
+
+        // Final discount calculation using the resolved price per person
+        if (couponRecord) {
+          discountAmount =
+            couponRecord.discountType === "PERCENTAGE"
+              ? (subtotal * couponRecord.discountValue) / 100
+              : Math.min(couponRecord.discountValue, subtotal)
+          discountAmount = Math.round(discountAmount * 100) / 100
+        }
+
+        const totalAmount = subtotal - discountAmount
 
         return tx.booking.create({
           data: {
@@ -104,6 +147,8 @@ export async function POST(request: NextRequest) {
             slotId: slotId || null,
             numberOfPeople,
             totalAmount,
+            discountAmount,
+            couponId: couponRecord?.id ?? null,
             specialRequests: specialRequests || null,
           },
           include: {
@@ -114,6 +159,22 @@ export async function POST(request: NextRequest) {
       },
       { isolationLevel: "Serializable" }
     )
+
+    // Record coupon usage AFTER the booking transaction completes.
+    // The @@unique([couponId, userId]) constraint on CouponUsage prevents any race-condition
+    // double-use — a concurrent request will get a unique-constraint violation before it can
+    // create a second usage record for the same user+coupon pair.
+    if (couponRecord) {
+      await prisma.$transaction([
+        prisma.couponUsage.create({
+          data: { couponId: couponRecord.id, userId: session.user.id, bookingId: booking.id },
+        }),
+        prisma.coupon.update({
+          where: { id: couponRecord.id },
+          data: { usedCount: { increment: 1 } },
+        }),
+      ])
+    }
 
     // Send confirmation email — fire and forget
     sendBookingConfirmationEmail({
@@ -135,11 +196,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(booking, { status: 201 })
   } catch (error) {
-    // Surface capacity / slot errors as 400 rather than 500
+    // Surface capacity / slot / coupon errors as 400 rather than 500
     if (error instanceof Error && (
       error.message.includes("fully booked") ||
       error.message.includes("spot") ||
-      error.message.includes("Slot not found")
+      error.message.includes("Slot not found") ||
+      error.message.includes("coupon")
     )) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }

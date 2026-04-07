@@ -16,6 +16,7 @@ import {
   ExternalLink,
   ChevronRight,
   CalendarCheck,
+  Tag,
 } from "lucide-react"
 import { signOut } from "next-auth/react"
 
@@ -25,6 +26,7 @@ const navItems = [
   { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck, exact: false },
   { href: "/dashboard/users", label: "Users", icon: Users, exact: false },
   { href: "/dashboard/certificates", label: "Summit & Certs", icon: FileText, exact: false },
+  { href: "/dashboard/coupons", label: "Coupons", icon: Tag, exact: false },
   { href: "/dashboard/settings", label: "Settings", icon: Settings, exact: false },
 ]
 

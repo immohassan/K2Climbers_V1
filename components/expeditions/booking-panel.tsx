@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { formatCurrency } from "@/lib/utils"
 import toast from "react-hot-toast"
 import Link from "next/link"
-import { CalendarDays, Users, ChevronDown, MessageCircle, AlertTriangle, X } from "lucide-react"
+import { CalendarDays, Users, ChevronDown, MessageCircle, AlertTriangle, X, Tag, CheckCircle2, XCircle } from "lucide-react"
 
 interface Expedition {
   id: string
@@ -41,6 +41,11 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null)
   const [showSlots, setShowSlots] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [couponInput, setCouponInput] = useState("")
+  const [couponStatus, setCouponStatus] = useState<"idle" | "loading" | "valid" | "invalid">("idle")
+  const [couponData, setCouponData] = useState<{ discountType: "PERCENTAGE" | "FIXED"; discountValue: number; description?: string | null } | null>(null)
+  const [couponError, setCouponError] = useState("")
+  const couponDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     fetch(`/api/expeditions/${expedition.id}/slots`)
@@ -54,11 +59,58 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
   }, [expedition.id])
 
   const pricePerPerson = selectedSlot?.priceOverride ?? expedition.basePrice
-  const totalAmount = pricePerPerson * numberOfPeople
+  const subtotal = pricePerPerson * numberOfPeople
+  const discountAmount = couponData
+    ? couponData.discountType === "PERCENTAGE"
+      ? Math.round((subtotal * couponData.discountValue) / 100 * 100) / 100
+      : Math.min(couponData.discountValue, subtotal)
+    : 0
+  const totalAmount = subtotal - discountAmount
 
   const maxAllowed = selectedSlot
     ? Math.min(expedition.maxGroupSize, selectedSlot.maxParticipants - selectedSlot.bookedCount)
     : expedition.maxGroupSize
+
+  const applyCoupon = async (code: string) => {
+    const trimmed = code.trim().toUpperCase()
+    if (!trimmed) { setCouponStatus("idle"); setCouponData(null); setCouponError(""); return }
+    setCouponStatus("loading")
+    try {
+      const res = await fetch(`/api/coupons/validate?code=${encodeURIComponent(trimmed)}`)
+      const data = await res.json()
+      if (data.valid) {
+        setCouponStatus("valid")
+        setCouponData({ discountType: data.discountType, discountValue: data.discountValue, description: data.description })
+        setCouponError("")
+      } else {
+        setCouponStatus("invalid")
+        setCouponData(null)
+        setCouponError(data.error || "Invalid coupon")
+      }
+    } catch {
+      setCouponStatus("invalid")
+      setCouponData(null)
+      setCouponError("Failed to validate coupon")
+    }
+  }
+
+  const handleCouponChange = (value: string) => {
+    setCouponInput(value)
+    setCouponStatus("idle")
+    setCouponData(null)
+    setCouponError("")
+    if (couponDebounce.current) clearTimeout(couponDebounce.current)
+    if (value.trim()) {
+      couponDebounce.current = setTimeout(() => applyCoupon(value), 600)
+    }
+  }
+
+  const removeCoupon = () => {
+    setCouponInput("")
+    setCouponStatus("idle")
+    setCouponData(null)
+    setCouponError("")
+  }
 
   const openConfirm = () => {
     if (!session) { router.push("/auth/signin"); return }
@@ -76,6 +128,7 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
           expeditionId: expedition.id,
           slotId: selectedSlot?.id ?? null,
           numberOfPeople,
+          couponCode: couponStatus === "valid" ? couponInput.trim().toUpperCase() : null,
         }),
       })
 
@@ -199,6 +252,46 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
         </div>
       </div>
 
+      {/* Coupon code — only shown when slots exist */}
+      <div className={!slotsLoading && slots.length === 0 ? "hidden" : ""}>
+        <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground mb-2">Coupon Code</p>
+        {couponStatus === "valid" && couponData ? (
+          <div className="flex items-center justify-between border border-green-500/50 bg-green-500/5 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+              <div>
+                <p className="text-xs font-bold text-green-600">{couponInput.toUpperCase()}</p>
+                {couponData.description && <p className="text-[11px] text-muted-foreground">{couponData.description}</p>}
+              </div>
+            </div>
+            <button onClick={removeCoupon} className="text-muted-foreground hover:text-foreground transition-colors ml-2">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <div className="relative">
+            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <input
+              type="text"
+              value={couponInput}
+              onChange={(e) => handleCouponChange(e.target.value)}
+              placeholder="Enter coupon code"
+              className="w-full border border-border pl-8 pr-3 py-2 text-sm bg-background focus:outline-none focus:border-orange-500/50 uppercase placeholder:normal-case placeholder:tracking-normal tracking-widest font-mono"
+              maxLength={50}
+            />
+            {couponStatus === "loading" && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+            )}
+            {couponStatus === "invalid" && (
+              <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500" />
+            )}
+          </div>
+        )}
+        {couponStatus === "invalid" && couponError && (
+          <p className="text-[11px] text-red-500 mt-1">{couponError}</p>
+        )}
+      </div>
+
       {/* Price summary — only shown when slots exist */}
       <div className={`border-t border-border pt-4 space-y-2${!slotsLoading && slots.length === 0 ? " hidden" : ""}`}>
         <div className="flex justify-between text-sm">
@@ -210,6 +303,16 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
             <span>
               {formatSlotDate(selectedSlot.startDate)} – {formatSlotDate(selectedSlot.endDate)}
             </span>
+          </div>
+        )}
+        {discountAmount > 0 && (
+          <div className="flex justify-between text-sm text-green-600">
+            <span className="flex items-center gap-1">
+              <Tag className="h-3 w-3" />
+              Discount
+              {couponData?.discountType === "PERCENTAGE" && ` (${couponData.discountValue}%)`}
+            </span>
+            <span className="font-semibold">−{formatCurrency(discountAmount)}</span>
           </div>
         )}
         <div className="flex justify-between">
@@ -290,6 +393,16 @@ export function BookingPanel({ expedition }: { expedition: Expedition }) {
                 <span className="text-muted-foreground">Price per person</span>
                 <span className="font-semibold">{formatCurrency(pricePerPerson)}</span>
               </div>
+              {discountAmount > 0 && couponData && (
+                <div className="flex justify-between text-sm text-green-600">
+                  <span className="flex items-center gap-1.5">
+                    <Tag className="h-3.5 w-3.5" />
+                    Coupon ({couponInput.toUpperCase()})
+                    {couponData.discountType === "PERCENTAGE" && ` −${couponData.discountValue}%`}
+                  </span>
+                  <span className="font-semibold">−{formatCurrency(discountAmount)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-base font-black border-t border-border pt-2.5 mt-1">
                 <span>Total</span>
                 <span className="text-orange-500">{formatCurrency(totalAmount)}</span>

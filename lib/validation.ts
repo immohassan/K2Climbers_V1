@@ -102,6 +102,7 @@ export const createBookingSchema = z.object({
   slotId: z.string().cuid().optional().nullable(),
   numberOfPeople: z.number().int().min(1).max(200),
   specialRequests: optionalText(2000),
+  couponCode: z.string().max(50).transform((v) => v.trim().toUpperCase()).optional().nullable(),
 })
 
 export const patchBookingSchema = z.object({
@@ -256,3 +257,25 @@ export const weatherQuerySchema = z.object({
   latitude: z.coerce.number().min(-90).max(90),
   longitude: z.coerce.number().min(-180).max(180),
 })
+
+// ─── Coupons ───────────────────────────────────────────────────────────────────
+
+const VALID_DISCOUNT_TYPES = ["PERCENTAGE", "FIXED"] as const
+
+export const createCouponSchema = z.object({
+  code: z
+    .string()
+    .min(3)
+    .max(50)
+    .regex(/^[A-Z0-9_-]+$/, "Code must be uppercase letters, numbers, hyphens or underscores")
+    .transform((v) => v.trim().toUpperCase()),
+  description: optionalText(500),
+  discountType: z.enum(VALID_DISCOUNT_TYPES),
+  discountValue: z.number().positive().max(100, "Percentage discount cannot exceed 100"),
+  maxUses: z.number().int().positive().optional().nullable(),
+  expiresAt: z.string().datetime({ offset: true }).optional().nullable(),
+  isActive: z.boolean().optional(),
+  allowedUserIds: z.array(z.string().cuid()).max(500).optional(),
+})
+
+export const updateCouponSchema = createCouponSchema.partial()
