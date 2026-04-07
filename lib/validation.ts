@@ -197,7 +197,8 @@ export const createExpeditionSchema = z.object({
   paymentPolicy: z.string().max(10000).transform((v) => v.trim()).optional().nullable(),
   refundPolicy: z.string().max(10000).transform((v) => v.trim()).optional().nullable(),
   itineraries: z.array(itinerarySchema).max(365).optional(),
-  requiredGear: z.array(gearItemSchema).max(100).optional(),
+  requiredGear: z.array(gearItemSchema).max(100).optional()
+    .transform((items) => items?.filter((item) => item.name || item.productId) ?? []),
 })
 
 export const updateExpeditionSchema = createExpeditionSchema.partial()

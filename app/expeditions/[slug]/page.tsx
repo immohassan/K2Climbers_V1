@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { prisma } from "@/lib/prisma"
+import { unstable_cache } from "next/cache"
 import { ExpeditionHeader } from "@/components/expeditions/expedition-header"
 import { ExpeditionDetails } from "@/components/expeditions/expedition-details"
 import { ExpeditionVideo } from "@/components/expeditions/expedition-video"
@@ -26,37 +27,43 @@ export async function generateStaticParams() {
   }
 }
 
-async function getExpedition(slug: string) {
-  try {
-    const expedition = await prisma.expedition.findUnique({
-      where: { slug },
-      include: {
-        itineraries: {
-          orderBy: { dayNumber: "asc" },
-        },
-        requiredGear: {
+function getExpedition(slug: string) {
+  return unstable_cache(
+    async () => {
+      try {
+        const expedition = await prisma.expedition.findUnique({
+          where: { slug },
           include: {
-            product: true,
-          },
-        },
-        summitRecords: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                image: true,
+            itineraries: {
+              orderBy: { dayNumber: "asc" },
+            },
+            requiredGear: {
+              include: {
+                product: true,
+              },
+            },
+            summitRecords: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                  },
+                },
               },
             },
           },
-        },
-      },
-    })
-    return expedition
-  } catch (error) {
-    console.error("Error fetching expedition:", error)
-    return null
-  }
+        })
+        return expedition
+      } catch (error) {
+        console.error("Error fetching expedition:", error)
+        return null
+      }
+    },
+    ["expedition", slug],
+    { tags: ["expeditions", `expedition-${slug}`], revalidate: 3600 }
+  )()
 }
 
 export async function generateMetadata({

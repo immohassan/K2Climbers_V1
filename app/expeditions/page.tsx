@@ -4,8 +4,9 @@ import { ExpeditionsList } from "@/components/expeditions/expeditions-list"
 import { ExpeditionsSkeleton } from "@/components/expeditions/expeditions-skeleton"
 import { Footer } from "@/components/footer"
 import { prisma } from "@/lib/prisma"
+import { unstable_cache } from "next/cache"
 
-export const revalidate = 1800 // revalidate every 30 minutes
+export const revalidate = 1800 // fallback revalidation
 
 export const metadata: Metadata = {
   title: "Expeditions & Tours",
@@ -20,26 +21,30 @@ export const metadata: Metadata = {
   },
 }
 
-async function getExpeditions() {
-  try {
-    const expeditions = await prisma.expedition.findMany({
-      where: { isActive: true },
-      include: {
-        _count: {
-          select: {
-            bookings: true,
-            summitRecords: true,
+const getExpeditions = unstable_cache(
+  async () => {
+    try {
+      const expeditions = await prisma.expedition.findMany({
+        where: { isActive: true },
+        include: {
+          _count: {
+            select: {
+              bookings: true,
+              summitRecords: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    })
-    return expeditions
-  } catch (error) {
-    console.error("Error fetching expeditions:", error)
-    return []
-  }
-}
+        orderBy: { createdAt: "desc" },
+      })
+      return expeditions
+    } catch (error) {
+      console.error("Error fetching expeditions:", error)
+      return []
+    }
+  },
+  ["expeditions-list"],
+  { tags: ["expeditions"], revalidate: 1800 }
+)
 
 async function ExpeditionsContent() {
   const expeditions = await getExpeditions()

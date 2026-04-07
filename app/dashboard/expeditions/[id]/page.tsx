@@ -239,7 +239,6 @@ export default function EditExpeditionPage() {
           videoUrl: formData.videoUrl?.trim() || null,
           mountainRange: formData.mountainRange || null,
           itineraries,
-          requiredGear,
         }),
       })
 

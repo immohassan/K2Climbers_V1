@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { validate, updateExpeditionSchema } from "@/lib/validation"
-import { revalidatePath } from "next/cache"
+import { revalidateTag } from "next/cache"
 
 export async function GET(
   request: NextRequest,
@@ -113,9 +113,8 @@ export async function PUT(
       include: { itineraries: true, requiredGear: true },
     })
 
-    revalidatePath("/expeditions")
-    if (updatedExpedition) revalidatePath(`/expeditions/${updatedExpedition.slug}`)
-    revalidatePath("/")
+    revalidateTag("expeditions")
+    if (updatedExpedition) revalidateTag(`expedition-${updatedExpedition.slug}`)
 
     return NextResponse.json(updatedExpedition)
   } catch (error) {
@@ -135,10 +134,11 @@ export async function DELETE(
     }
 
     const { id } = await params
+    const existing = await prisma.expedition.findUnique({ where: { id }, select: { slug: true } })
     await prisma.expedition.delete({ where: { id } })
 
-    revalidatePath("/expeditions")
-    revalidatePath("/")
+    revalidateTag("expeditions")
+    if (existing) revalidateTag(`expedition-${existing.slug}`)
 
     return NextResponse.json({ success: true })
   } catch (error) {
