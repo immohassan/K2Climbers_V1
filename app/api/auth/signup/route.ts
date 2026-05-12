@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { validate, signupSchema } from "@/lib/validation"
@@ -28,6 +29,10 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.create({
       data: { email, password: hashedPassword, name: name || null, role: "CLIMBER" },
     })
+
+    revalidatePath("/dashboard/users")
+    revalidatePath("/climbers")
+    revalidateTag("featured-climbers")
 
     const { password: _, ...userWithoutPassword } = user
 

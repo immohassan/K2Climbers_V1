@@ -48,7 +48,7 @@ export async function GET() {
       founder2Name: values.about_us_founder_2_name || "",
       founder3Name: values.about_us_founder_3_name || "",
     }, {
-      headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=604800" },
+      headers: { "Cache-Control": "no-store" },
     })
   } catch (error) {
     console.error("Error fetching about-us settings:", error)

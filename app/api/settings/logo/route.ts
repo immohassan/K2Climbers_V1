@@ -14,7 +14,7 @@ export async function GET() {
     })
     const logoUrl = row?.value?.trim() || null
     return NextResponse.json({ logoUrl }, {
-      headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=604800" },
+      headers: { "Cache-Control": "no-store" },
     })
   } catch (error) {
     console.error("Error fetching logo:", error)

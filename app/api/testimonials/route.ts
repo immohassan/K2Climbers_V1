@@ -12,7 +12,7 @@ export async function GET() {
       orderBy: { order: "asc" },
     })
     return NextResponse.json(testimonials, {
-      headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
+      headers: { "Cache-Control": "no-store" },
     })
   } catch (error) {
     console.error("Error fetching testimonials:", error)

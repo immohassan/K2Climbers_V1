@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,6 +11,7 @@ import { Loader2 } from "lucide-react"
 import Image from "next/image"
 
 export function SettingsSiteLogo() {
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -55,7 +57,8 @@ export function SettingsSiteLogo() {
         body: JSON.stringify({ logoUrl: logoUrl.trim() || null }),
       })
       if (!res.ok) throw new Error("Failed to save")
-      toast.success("Logo saved. Refresh the site to see it.")
+      toast.success("Logo saved")
+      router.refresh()
     } catch {
       toast.error("Failed to save logo")
     } finally {

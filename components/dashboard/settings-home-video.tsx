@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,6 +10,7 @@ import toast from "react-hot-toast"
 import { Loader2 } from "lucide-react"
 
 export function SettingsHomeVideo() {
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [videoUrl, setVideoUrl] = useState("")
@@ -31,6 +33,7 @@ export function SettingsHomeVideo() {
       })
       if (!res.ok) throw new Error("Failed to save")
       toast.success("Home page video saved")
+      router.refresh()
     } catch {
       toast.error("Failed to save home video")
     } finally {

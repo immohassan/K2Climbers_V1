@@ -4,7 +4,7 @@ import { Footer } from "@/components/footer"
 import { getAboutUsData, getTestimonials } from "@/lib/settings"
 import { Quote, Mountain } from "lucide-react"
 
-export const revalidate = 86400 // revalidate every 24 hours
+export const revalidate = 3600 // 1h ISR safety net; tag revalidation handles real updates
 
 export const metadata: Metadata = {
   title: "About Us",

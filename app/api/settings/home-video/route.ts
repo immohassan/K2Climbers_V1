@@ -14,7 +14,7 @@ export async function GET() {
     })
     const videoUrl = row?.value?.trim() || null
     return NextResponse.json({ videoUrl }, {
-      headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=604800" },
+      headers: { "Cache-Control": "no-store" },
     })
   } catch (error) {
     console.error("Error fetching home video:", error)

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,6 +18,7 @@ const DEFAULT_MISSION =
   "We Want to create an enabling environment for Pakistan's tourism industry by providing facilities that commensurate with our rich cultural heritage, rare archaeological treasures and exquisite environmental beauty.\n\nWe want to Project Pakistan as a tourist friendly destination."
 
 export function SettingsAboutUs() {
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState<number | null>(null)
@@ -95,6 +97,7 @@ export function SettingsAboutUs() {
       })
       if (!res.ok) throw new Error("Failed to save")
       toast.success("About Us saved")
+      router.refresh()
     } catch {
       toast.error("Failed to save About Us")
     } finally {

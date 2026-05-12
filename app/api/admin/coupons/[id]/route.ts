@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
@@ -85,6 +86,9 @@ export async function PUT(
 
     const coupon = await prisma.coupon.update({ where: { id }, data: updateData })
 
+    revalidatePath("/dashboard/coupons")
+    revalidatePath(`/dashboard/coupons/${id}`)
+
     return NextResponse.json(coupon)
   } catch (error) {
     console.error("Error updating coupon:", error)
@@ -107,6 +111,8 @@ export async function DELETE(
     if (!existing) return NextResponse.json({ error: "Coupon not found" }, { status: 404 })
 
     await prisma.coupon.delete({ where: { id } })
+
+    revalidatePath("/dashboard/coupons")
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -31,12 +31,9 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: "desc" },
     })
 
-    // Admins always get fresh data; public response can be cached
-    const headers = isAdmin
-      ? { "Cache-Control": "no-store" }
-      : { "Cache-Control": "public, s-maxage=1800, stale-while-revalidate=86400" }
-
-    return NextResponse.json(expeditions, { headers })
+    return NextResponse.json(expeditions, {
+      headers: { "Cache-Control": "no-store" },
+    })
   } catch (error) {
     console.error("Error fetching expeditions:", error)
     return NextResponse.json({ error: "Failed to fetch expeditions" }, { status: 500 })
