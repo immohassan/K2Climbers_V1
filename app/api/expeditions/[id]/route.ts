@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { validate, updateExpeditionSchema } from "@/lib/validation"
-import { revalidateTag } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 
 export async function GET(
   request: NextRequest,
@@ -49,6 +49,11 @@ export async function PUT(
     const body = await request.json()
     const parsed = validate(updateExpeditionSchema, body)
     if (!parsed.ok) return parsed.response
+
+    const previous = await prisma.expedition.findUnique({
+      where: { id },
+      select: { slug: true },
+    })
 
     const { itineraries, requiredGear, ...expeditionData } = parsed.data
 
@@ -114,7 +119,16 @@ export async function PUT(
     })
 
     revalidateTag("expeditions")
-    if (updatedExpedition) revalidateTag(`expedition-${updatedExpedition.slug}`)
+    revalidatePath("/expeditions")
+    revalidatePath("/")
+    if (previous?.slug) {
+      revalidateTag(`expedition-${previous.slug}`)
+      revalidatePath(`/expeditions/${previous.slug}`)
+    }
+    if (updatedExpedition && updatedExpedition.slug !== previous?.slug) {
+      revalidateTag(`expedition-${updatedExpedition.slug}`)
+      revalidatePath(`/expeditions/${updatedExpedition.slug}`)
+    }
 
     return NextResponse.json(updatedExpedition)
   } catch (error) {
@@ -138,7 +152,12 @@ export async function DELETE(
     await prisma.expedition.delete({ where: { id } })
 
     revalidateTag("expeditions")
-    if (existing) revalidateTag(`expedition-${existing.slug}`)
+    revalidatePath("/expeditions")
+    revalidatePath("/")
+    if (existing) {
+      revalidateTag(`expedition-${existing.slug}`)
+      revalidatePath(`/expeditions/${existing.slug}`)
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { validate, createExpeditionSchema } from "@/lib/validation"
-import { revalidateTag } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 
 export async function GET(request: NextRequest) {
   try {
@@ -122,6 +122,9 @@ export async function POST(request: NextRequest) {
     })
 
     revalidateTag("expeditions")
+    revalidatePath("/expeditions")
+    revalidatePath(`/expeditions/${expedition.slug}`)
+    revalidatePath("/")
 
     return NextResponse.json(expedition, { status: 201 })
   } catch (error) {
