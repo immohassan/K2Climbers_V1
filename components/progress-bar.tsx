@@ -86,10 +86,10 @@ export function ProgressBar() {
         height: "2px",
         width: "0%",
         opacity: "0",
-        background: "#f97316",
+        background: "#ff5c35",
         zIndex: 9999,
         pointerEvents: "none",
-        boxShadow: "0 0 8px #f97316",
+        boxShadow: "0 0 8px #ff5c35",
       }}
     />
   )

@@ -35,14 +35,14 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
   const [featured, ...rest] = expeditions
 
   return (
-    <section className="py-14 md:py-20 bg-background border-b border-border">
+    <section className="pt-16 pb-20 md:pt-20 md:pb-28 bg-card/40 border-y border-border">
       <div className="container mx-auto px-4">
 
         <div className="flex items-end justify-between mb-8 md:mb-10">
           <div>
             <SectionLabel />
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none mt-2">
-              Featured<br className="hidden sm:block" /> Expeditions
+            <h2 className="font-display text-display-sm md:text-display-md font-semibold mt-2">
+              Where we climb
             </h2>
           </div>
           <Link
@@ -79,7 +79,7 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
                 <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-7">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-white font-black text-xl sm:text-2xl md:text-3xl leading-tight mb-2 line-clamp-2">
+                      <h3 className="text-white font-semibold text-xl sm:text-2xl md:text-3xl leading-tight mb-2 line-clamp-2">
                         {featured.title}
                       </h3>
                       <p className="text-white/55 text-sm line-clamp-2 mb-4 max-w-md">
@@ -99,7 +99,7 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
                     </div>
                     <div className="text-right shrink-0">
                       <div className="text-white/40 text-[10px] uppercase tracking-wider mb-0.5">From</div>
-                      <div className="text-white font-black text-lg sm:text-xl">{formatCurrency(featured.basePrice)}</div>
+                      <div className="text-white font-semibold text-lg sm:text-xl">{formatCurrency(featured.basePrice)}</div>
                     </div>
                   </div>
                 </div>
@@ -129,7 +129,7 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
-                      <h3 className="text-white font-black text-base sm:text-lg leading-tight line-clamp-2 mb-2">
+                      <h3 className="text-white font-semibold text-base sm:text-lg leading-tight line-clamp-2 mb-2">
                         {expedition.title}
                       </h3>
                       <div className="flex items-center justify-between">
@@ -174,8 +174,8 @@ export function FeaturedExpeditionsClient({ expeditions }: { expeditions: Expedi
 function SectionLabel() {
   return (
     <div className="flex items-center gap-2 mb-1">
-      <div className="w-3 h-3 bg-orange-500" />
-      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground">Expeditions</span>
+      <span className="h-px w-6 bg-accentBrand" aria-hidden />
+      <span className="text-[11px] font-medium tracking-[0.08em] uppercase text-muted-foreground">Expeditions</span>
     </div>
   )
 }

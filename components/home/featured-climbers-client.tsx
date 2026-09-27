@@ -26,7 +26,7 @@ export function FeaturedClimbersClient({ climbers }: { climbers: Climber[] }) {
               <div className="w-3 h-3 bg-glacier-400" />
               <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground">Community</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none">
+            <h2 className="font-display text-display-sm md:text-display-md font-semibold">
               Our<br className="hidden sm:block" /> Climbers
             </h2>
           </div>

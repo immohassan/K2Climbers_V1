@@ -4,7 +4,7 @@ import { AboutUsSection } from "@/components/home/about-us-section"
 import { HomeVideoSection } from "@/components/home/home-video-section"
 import { FeaturedExpeditions } from "@/components/home/featured-expeditions"
 import { StatsSection } from "@/components/home/stats-section"
-import { FeaturedClimbers } from "@/components/home/featured-climbers"
+// import { FeaturedClimbers } from "@/components/home/featured-climbers"
 import { GoogleReviewsSection } from "@/components/home/google-reviews-section"
 import { MountainRangesSection } from "@/components/home/mountain-ranges-section"
 import { Footer } from "@/components/footer"
@@ -55,7 +55,7 @@ export default function HomePage() {
         <FeaturedExpeditions />
         <AboutUsSection />
         <MountainRangesSection />
-        <FeaturedClimbers />
+        {/* <FeaturedClimbers /> */}
         <GoogleReviewsSection />
         <HomeVideoSection />
       </main>

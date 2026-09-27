@@ -5,9 +5,9 @@
 @layer base {
   :root {
     /* Light — crisp white with warm undertone */
-    --background: 40 20% 98%;
+    --background: 60 6% 95%;
     --foreground: 20 20% 8%;
-    --card: 38 16% 95%;
+    --card: 0 0% 100%;
     --card-foreground: 20 20% 8%;
     --popover: 38 16% 95%;
     --popover-foreground: 20 20% 8%;
@@ -23,15 +23,15 @@
     --destructive-foreground: 40 20% 98%;
     --border: 30 12% 82%;
     --input: 30 12% 82%;
-    --ring: 3 85% 45%;
-    --radius: 0.25rem;
+    --ring: 12 100% 60%;
+    --radius: 0.625rem;
   }
 
   .dark {
     /* Dark — near-black with warm tint, not cold blue */
-    --background: 22 10% 6%;
+    --background: 240 4% 5%;
     --foreground: 38 15% 93%;
-    --card: 22 9% 9%;
+    --card: 240 4% 8%;
     --card-foreground: 38 15% 93%;
     --popover: 22 9% 9%;
     --popover-foreground: 38 15% 93%;
@@ -45,16 +45,22 @@
     --accent-foreground: 38 15% 93%;
     --destructive: 3 80% 40%;
     --destructive-foreground: 38 15% 93%;
-    --border: 22 8% 16%;
+    --border: 240 4% 15%;
     --input: 22 8% 16%;
-    --ring: 3 85% 45%;
-    --radius: 0.25rem;
+    --ring: 12 100% 60%;
+    --radius: 0.625rem;
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+  }
+
+  /* Headings use the display face by default. */
+  h1, h2, h3, h4 {
+    font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.02em;
   }
   body {
     @apply bg-background text-foreground;
@@ -90,14 +96,14 @@
 }
 
 #nprogress .bar {
-  background: #e63312;
+  background: #ff5c35;
   position: fixed;
   z-index: 9999;
   top: 0;
   left: 0;
   width: 100%;
   height: 3px;
-  box-shadow: 0 0 10px #e63312, 0 0 5px #e63312;
+  box-shadow: 0 0 10px #ff5c35, 0 0 5px #ff5c35;
 }
 
 #nprogress .peg {
@@ -106,7 +112,7 @@
   right: 0px;
   width: 100px;
   height: 100%;
-  box-shadow: 0 0 10px #e63312, 0 0 5px #e63312;
+  box-shadow: 0 0 10px #ff5c35, 0 0 5px #ff5c35;
   opacity: 1;
   transform: rotate(3deg) translate(0px, -4px);
 }
@@ -131,4 +137,22 @@
 
 .reactEasyCrop_CropAreaRound {
   border-radius: 50%;
+}
+
+/* ------------------------------------------------------------------
+   Brand accent remap.
+   The site was built on Tailwind's default orange-500. Rather than
+   rewriting ~250 call sites, the palette is remapped here so every
+   existing orange-* utility resolves to the brand coral (#ff5c35).
+   ------------------------------------------------------------------ */
+@layer utilities {
+  .text-orange-500, .text-orange-400 { color: #ff5c35; }
+  .text-orange-600 { color: #e64523; }
+  .bg-orange-500, .bg-orange-400 { background-color: #ff5c35; }
+  .bg-orange-600 { background-color: #e64523; }
+  .border-orange-500, .border-orange-400 { border-color: #ff5c35; }
+  .fill-orange-400, .fill-orange-500 { fill: #ff5c35; }
+  .hover\:bg-orange-600:hover { background-color: #e64523; }
+  .hover\:text-orange-500:hover { color: #ff5c35; }
+  .ring-orange-500 { --tw-ring-color: #ff5c35; }
 }

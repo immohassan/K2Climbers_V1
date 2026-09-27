@@ -40,7 +40,7 @@ export function Footer() {
               ) : (
                 <Mountain className="h-8 w-8 text-orange-500" />
               )}
-              <span className="text-xl font-black tracking-tight group-hover:text-orange-500 transition-colors">
+              <span className="text-xl font-semibold tracking-tight group-hover:text-orange-500 transition-colors">
                 K2 Climbers
               </span>
             </Link>
@@ -70,14 +70,14 @@ export function Footer() {
 
           {/* ── Explore ── */}
           <div>
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-orange-500 mb-4">Explore</p>
+            <p className="text-[11px] font-medium tracking-[0.08em] uppercase text-orange-500 mb-4">Explore</p>
             <ul className="space-y-2.5 text-sm">
               {[
                 { href: "/expeditions", label: "All Expeditions" },
                 { href: "/expeditions/custom", label: "Custom Expedition" },
-                { href: "/shop", label: "Shop & Rent Gear" },
+                // { href: "/shop", label: "Shop & Rent Gear" },
                 { href: "/about", label: "About Us" },
-                { href: "/climbers", label: "Our Team" },
+                // { href: "/climbers", label: "Our Team" },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link
@@ -93,7 +93,7 @@ export function Footer() {
 
           {/* ── Support ── */}
           <div>
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-orange-500 mb-4">Support</p>
+            <p className="text-[11px] font-medium tracking-[0.08em] uppercase text-orange-500 mb-4">Support</p>
             <ul className="space-y-2.5 text-sm">
               {[
                 { href: "/contact", label: "Contact Us" },
@@ -114,7 +114,7 @@ export function Footer() {
 
           {/* ── Contact ── */}
           <div>
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-orange-500 mb-4">Contact</p>
+            <p className="text-[11px] font-medium tracking-[0.08em] uppercase text-orange-500 mb-4">Contact</p>
             <ul className="space-y-3 text-sm">
               <li>
                 <a

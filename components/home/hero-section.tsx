@@ -89,7 +89,7 @@ export function HeroSection() {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="text-white/50 text-[11px] sm:text-xs font-mono tracking-[0.25em] uppercase mb-3 sm:mb-4"
           >
-            Pakistan&apos;s Premier Mountaineering Company
+            Guided expeditions since 2005
           </motion.p>
 
           {/* Headline + side column */}
@@ -98,18 +98,17 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-              className="text-[clamp(2.8rem,9vw,7rem)] font-black text-white leading-[0.85] tracking-tighter"
+              className="font-display text-[clamp(2.2rem,5vw,3.9rem)] font-semibold text-white leading-[1.03] tracking-tight shrink-0 whitespace-nowrap"
             >
-              CLIMB<br />
-              <em className="not-italic text-white/20">the</em><br />
-              WORLD
+              The Karakoram,<br />
+              on your terms.
             </motion.h1>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.65, duration: 0.7 }}
-              className="sm:pb-2 sm:border-l sm:border-white/15 sm:pl-6 max-w-[280px]"
+              className="sm:pb-3 sm:border-l sm:border-white/15 sm:pl-6 sm:max-w-[260px] min-w-0"
             >
               <p className="text-white/55 text-xs sm:text-sm leading-relaxed mb-5">
                 Expert-guided expeditions to Pakistan&apos;s highest peaks. Every route. Every season.

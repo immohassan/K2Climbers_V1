@@ -39,17 +39,17 @@ function StarRow({ count }: { count: number }) {
 
 export function GoogleReviewsSection() {
   return (
-    <section className="py-14 md:py-20 bg-background border-b border-border overflow-hidden">
+    <section className="pt-20 pb-20 md:pt-24 md:pb-28 bg-background overflow-hidden">
       <div className="container mx-auto px-4">
 
         <div className="flex items-end justify-between mb-8 md:mb-10">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <div className="w-3 h-3 bg-orange-500" />
-              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground">Reviews</span>
+              <span className="h-px w-6 bg-accentBrand" aria-hidden />
+              <span className="text-[11px] font-medium tracking-[0.08em] uppercase text-muted-foreground">Reviews</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none mt-2">
-              What Climbers<br className="hidden sm:block" /> Say
+            <h2 className="font-display text-display-sm md:text-display-md font-semibold mt-2">
+              What climbers say
             </h2>
           </div>
 
@@ -61,18 +61,18 @@ export function GoogleReviewsSection() {
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
               </svg>
-              <span className="text-2xl font-black">4.9</span>
+              <span className="text-2xl font-semibold">4.9</span>
               <StarRow count={5} />
             </div>
             <span className="text-xs text-muted-foreground">Based on Google Reviews</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {REVIEWS.map((review) => (
             <div
               key={review.name}
-              className="bg-background p-6 sm:p-7 flex flex-col gap-4"
+              className="bg-card border border-border rounded-card p-6 sm:p-7 flex flex-col gap-4"
             >
               <div className="flex items-center justify-between">
                 <StarRow count={review.rating} />
@@ -82,7 +82,7 @@ export function GoogleReviewsSection() {
                 &ldquo;{review.text}&rdquo;
               </p>
               <div className="flex items-center gap-3 pt-2 border-t border-border">
-                <div className="w-8 h-8 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center text-xs font-black shrink-0">
+                <div className="w-8 h-8 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center text-xs font-semibold shrink-0">
                   {review.avatar}
                 </div>
                 <div>

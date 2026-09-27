@@ -48,7 +48,7 @@ function CountUp({ target, suffix }: { target: number; suffix: string }) {
 
 export function StatsSection() {
   return (
-    <section className="py-10 md:py-14 bg-background border-b border-border">
+    <section className="py-8 md:py-10 bg-background border-b border-border">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border">
           {stats.map((stat, i) => (
@@ -56,7 +56,7 @@ export function StatsSection() {
               key={i}
               className="bg-background px-6 py-8 md:px-10 md:py-10"
             >
-              <div className={`text-4xl md:text-5xl font-black tracking-tight mb-1 tabular-nums ${stat.accent}`}>
+              <div className={`text-4xl md:text-5xl font-semibold tracking-tight mb-1 tabular-nums ${stat.accent}`}>
                 <CountUp target={stat.value} suffix={stat.suffix} />
               </div>
               <div className="text-base font-bold text-foreground">{stat.label}</div>

@@ -8,22 +8,21 @@ export async function AboutUsSection() {
   const hasFounderImages = founderImages.some(Boolean)
 
   return (
-    <section className="py-14 md:py-20 bg-background border-b border-border overflow-hidden">
+    <section className="pt-20 pb-24 md:pt-28 md:pb-32 bg-background overflow-hidden">
       <div className="container mx-auto px-4">
 
         <div className="flex items-center gap-2 mb-8 md:mb-12">
-          <div className="w-3 h-3 bg-orange-500" />
-          <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground">Our Story</span>
+          <span className="h-px w-6 bg-accentBrand" aria-hidden />
+          <span className="text-[11px] font-medium tracking-[0.08em] uppercase text-muted-foreground">Our Story</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border">
 
           {/* Text column */}
           <div className="bg-background pr-0 md:pr-12 lg:pr-20 py-0 pb-8 md:pb-0">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[0.9] mb-6 md:mb-8">
-              Born from<br />
-              <span className="text-muted-foreground/40">the</span><br />
-              <span className="text-orange-500">Mountain</span>
+            <h2 className="font-display text-display-md md:text-display-lg font-semibold mb-6 md:mb-8">
+              Twenty years of<br />
+              Pakistani mountains.
             </h2>
             <p className="text-muted-foreground leading-relaxed text-sm sm:text-base whitespace-pre-line max-w-prose">
               {data.text}
@@ -69,7 +68,7 @@ export async function AboutUsSection() {
           ) : (
             <div className="bg-background pl-0 md:pl-12 lg:pl-20 pt-8 md:pt-0 flex items-center">
               <blockquote className="border-l-2 border-summit pl-5">
-                <p className="text-xl sm:text-2xl font-black leading-tight text-foreground/80 italic">
+                <p className="text-xl sm:text-2xl font-semibold leading-tight text-foreground/80 italic">
                   &quot;The mountains are calling and I must go.&quot;
                 </p>
                 <cite className="text-xs text-muted-foreground mt-3 block not-italic tracking-widest uppercase">

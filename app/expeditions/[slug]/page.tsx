@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { prisma } from "@/lib/prisma"
-import { unstable_cache } from "next/cache"
 import { ExpeditionHeader } from "@/components/expeditions/expedition-header"
 import { ExpeditionDetails } from "@/components/expeditions/expedition-details"
 import { ExpeditionVideo } from "@/components/expeditions/expedition-video"
@@ -13,57 +12,39 @@ import { BookingPanel } from "@/components/expeditions/booking-panel"
 import { ExpeditionMap } from "@/components/expeditions/expedition-map"
 import { Navbar } from "@/components/navbar"
 
-export const revalidate = 3600 // revalidate every hour
+export const dynamic = "force-dynamic" // always fresh: new/edited expeditions appear immediately
 
-export async function generateStaticParams() {
+async function getExpedition(slug: string) {
   try {
-    const expeditions = await prisma.expedition.findMany({
-      where: { isActive: true },
-      select: { slug: true },
-    })
-    return expeditions.map((e) => ({ slug: e.slug }))
-  } catch {
-    return []
-  }
-}
-
-function getExpedition(slug: string) {
-  return unstable_cache(
-    async () => {
-      try {
-        const expedition = await prisma.expedition.findUnique({
-          where: { slug },
+    const expedition = await prisma.expedition.findUnique({
+      where: { slug },
+      include: {
+        itineraries: {
+          orderBy: { dayNumber: "asc" },
+        },
+        requiredGear: {
           include: {
-            itineraries: {
-              orderBy: { dayNumber: "asc" },
-            },
-            requiredGear: {
-              include: {
-                product: true,
-              },
-            },
-            summitRecords: {
-              include: {
-                user: {
-                  select: {
-                    id: true,
-                    name: true,
-                    image: true,
-                  },
-                },
+            product: true,
+          },
+        },
+        summitRecords: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
               },
             },
           },
-        })
-        return expedition
-      } catch (error) {
-        console.error("Error fetching expedition:", error)
-        return null
-      }
-    },
-    ["expedition", slug],
-    { tags: ["expeditions", `expedition-${slug}`], revalidate: 3600 }
-  )()
+        },
+      },
+    })
+    return expedition
+  } catch (error) {
+    console.error("Error fetching expedition:", error)
+    return null
+  }
 }
 
 export async function generateMetadata({

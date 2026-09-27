@@ -146,9 +146,9 @@ export function MountainRangesSection() {
       <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
 
         <div className="mb-12 md:mb-16">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-orange-500 mb-3">Explore by Range</p>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
-            Mountain Ranges
+          <p className="text-xs font-semibold tracking-[0.08em] uppercase text-orange-500 mb-3">By range</p>
+          <h2 className="font-display text-display-sm md:text-display-md font-semibold">
+            Three ranges, one country
           </h2>
           <p className="text-muted-foreground mt-3 max-w-xl text-sm sm:text-base">
             Pakistan is home to three of the world&apos;s greatest mountain ranges. Choose your arena.
@@ -166,14 +166,14 @@ export function MountainRangesSection() {
 
                 <div className="relative p-6 sm:p-7 flex flex-col h-full">
                   <div className="mb-5">
-                    <p className={`text-[10px] font-bold tracking-[0.2em] uppercase mb-3 ${range.label}`}>
+                    <p className={`text-[11px] font-medium tracking-[0.08em] uppercase mb-3 ${range.label}`}>
                       {range.stat}
                     </p>
 
                     {/* Illustration + heading side by side */}
                     <div className="flex items-center justify-between gap-4">
                       <div>
-                        <h3 className="text-2xl font-black tracking-tight group-hover:text-orange-500 transition-colors">
+                        <h3 className="text-2xl font-semibold tracking-tight group-hover:text-orange-500 transition-colors">
                           {range.name}
                         </h3>
                         <p className="text-sm text-muted-foreground mt-0.5">{range.subtitle}</p>

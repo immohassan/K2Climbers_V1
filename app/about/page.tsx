@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 import Image from "next/image"
 import { Footer } from "@/components/footer"
-import { getAboutUsData, getTestimonials } from "@/lib/settings"
-import { Quote, Mountain } from "lucide-react"
+import { getAboutUsData } from "@/lib/settings"
+import { GoogleReviewsSection } from "@/components/home/google-reviews-section"
 
 export const revalidate = 3600 // 1h ISR safety net; tag revalidation handles real updates
 
@@ -20,10 +20,7 @@ export const metadata: Metadata = {
 }
 
 export default async function AboutPage() {
-  const [data, testimonials] = await Promise.all([
-    getAboutUsData(),
-    getTestimonials(),
-  ])
+  const data = await getAboutUsData()
   const founderImages = [data.founder1Image, data.founder2Image, data.founder3Image]
   const founderNames = [data.founder1Name, data.founder2Name, data.founder3Name]
   const hasFounderImages = founderImages.some(Boolean)
@@ -113,39 +110,10 @@ export default async function AboutPage() {
             </div>
           )}
 
-          {/* Testimonials */}
-          {testimonials.length > 0 && (
-            <div className="border-t border-border pt-12 md:pt-16">
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-8">What Climbers Say</p>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {testimonials.map((t) => (
-                  <div key={t.id} className="flex flex-col gap-4 p-5 bg-card rounded-sm border border-border">
-                    <Quote className="h-4 w-4 text-orange-500/50 shrink-0" />
-                    <p className="text-sm leading-relaxed text-muted-foreground flex-1">
-                      &ldquo;{t.content}&rdquo;
-                    </p>
-                    <div className="flex items-center gap-3 pt-3 border-t border-border">
-                      {t.imageUrl ? (
-                        <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full border border-border bg-muted">
-                          <Image src={t.imageUrl} alt={t.name} fill className="object-cover" sizes="32px" />
-                        </div>
-                      ) : (
-                        <div className="h-8 w-8 shrink-0 rounded-full border border-border bg-muted flex items-center justify-center">
-                          <Mountain className="h-3.5 w-3.5 text-muted-foreground/40" />
-                        </div>
-                      )}
-                      <div>
-                        <p className="text-sm font-semibold">{t.name}</p>
-                        {t.role && <p className="text-xs text-muted-foreground">{t.role}</p>}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
         </div>
+
+        {/* Reviews — same Google reviews shown on the home page */}
+        <GoogleReviewsSection />
       </main>
       <Footer />
     </>

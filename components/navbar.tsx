@@ -91,7 +91,7 @@ export function Navbar() {
                   className="flex items-center gap-2 px-3 py-1.5 border border-border hover:border-orange-500/50 hover:text-orange-500 transition-colors text-sm font-semibold"
                 >
                   <div className="w-6 h-6 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center shrink-0">
-                    <span className="text-[10px] font-black text-orange-500">
+                    <span className="text-[10px] font-semibold text-orange-500">
                       {(session.user?.name || session.user?.email || "U")[0].toUpperCase()}
                     </span>
                   </div>
@@ -131,7 +131,7 @@ export function Navbar() {
             <Link href="/about" className="block text-sm">About Us</Link>
             <Link href="/expeditions" className="block text-sm">Expeditions</Link>
             <Link href="/contact" className="block text-sm">Contact Us</Link>
-            <Link href="/climbers" className="block text-sm">Climbers</Link>
+            {/* <Link href="/climbers" className="block text-sm">Climbers</Link> */}
             <Link href="/expeditions/custom" className="block text-sm">Custom Expedition</Link>
             {/* <Link href="/community" className="block text-sm">Community</Link> */}
             {/* <Link href="/certificates" className="block text-sm">Certificates</Link> */}
@@ -139,7 +139,7 @@ export function Navbar() {
               <>
                 <Link href="/profile" className="flex items-center gap-2 text-sm font-semibold py-1">
                   <div className="w-6 h-6 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center shrink-0">
-                    <span className="text-[10px] font-black text-orange-500">
+                    <span className="text-[10px] font-semibold text-orange-500">
                       {(session.user?.name || session.user?.email || "U")[0].toUpperCase()}
                     </span>
                   </div>

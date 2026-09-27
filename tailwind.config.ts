@@ -26,6 +26,20 @@ const config = {
       "2xl": "1536px",
     },
     extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+      },
+      // Display sizes carry their own leading/tracking so headings
+      // don't need a pile of utilities at each call site.
+      fontSize: {
+        "display-xs": ["1.5rem", { lineHeight: "1.15", letterSpacing: "-0.015em" }],
+        "display-sm": ["2rem", { lineHeight: "1.1", letterSpacing: "-0.02em" }],
+        "display-md": ["2.75rem", { lineHeight: "1.05", letterSpacing: "-0.025em" }],
+        "display-lg": ["3.5rem", { lineHeight: "1.0", letterSpacing: "-0.03em" }],
+        "display-xl": ["4.5rem", { lineHeight: "0.95", letterSpacing: "-0.035em" }],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -59,6 +73,20 @@ const config = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        // Brand accent — warm coral-orange
+        accentBrand: {
+          DEFAULT: "#ff5c35",
+          50:  "#fff3f0",
+          100: "#ffe1d9",
+          200: "#ffc3b3",
+          300: "#ff9e85",
+          400: "#ff7c5b",
+          500: "#ff5c35",
+          600: "#e64523",
+          700: "#bf3417",
+          800: "#8f2510",
+          900: "#5c170a",
         },
         // Custom K2 Climbers colors
         glacier: {
@@ -97,6 +125,7 @@ const config = {
         },
       },
       borderRadius: {
+        card: "1.25rem",
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",

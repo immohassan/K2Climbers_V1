@@ -14,16 +14,16 @@ export async function HomeVideoSection() {
       : embed.src
 
   return (
-    <section className="py-14 md:py-20 bg-background border-b border-border overflow-hidden">
+    <section className="pt-16 pb-20 md:pt-20 md:pb-24 bg-card/40 border-t border-border overflow-hidden">
       <div className="container mx-auto px-4 max-w-4xl">
 
         <div className="flex items-center justify-between mb-8 md:mb-10">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <div className="w-3 h-3 bg-summit" />
-              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground">Watch</span>
+              <span className="text-[11px] font-medium tracking-[0.08em] uppercase text-muted-foreground">Watch</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none">
+            <h2 className="font-display text-display-xs md:text-display-sm font-semibold">
               Tribute to<br />Our Heroes
             </h2>
           </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Inter } from "next/font/google"
+import { Space_Grotesk, DM_Sans } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Providers } from "@/components/providers/session-provider"
@@ -9,7 +10,20 @@ import { ProgressBar } from "@/components/progress-bar"
 import { ConditionalNavbar } from "@/components/conditional-navbar"
 import { WhatsAppWidget } from "@/components/whatsapp-widget"
 
-const inter = Inter({ subsets: ["latin"] })
+// Display face for headings; body face for prose.
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-display",
+  display: "swap",
+})
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans",
+  display: "swap",
+})
 
 const BASE_URL = "https://www.k2climbers.com"
 
@@ -81,7 +95,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className="scroll-smooth">
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`scroll-smooth ${spaceGrotesk.variable} ${dmSans.variable}`}
+    >
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="shortcut icon" href="/favicon.svg" />
@@ -97,7 +115,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="preconnect" href="https://images.unsplash.com" />
       </head>
-      <body className={inter.className}>
+      <body className="font-sans antialiased">
         <Providers>
           <ThemeProvider
             attribute="class"
@@ -106,7 +124,9 @@ export default function RootLayout({
             enableSystem={false}
             disableTransitionOnChange
           >
-            <ProgressBar />
+            <Suspense fallback={null}>
+              <ProgressBar />
+            </Suspense>
             <ConditionalNavbar />
             {children}
             <WhatsAppWidget />
